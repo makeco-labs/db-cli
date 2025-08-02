@@ -1,8 +1,6 @@
-import type { Config } from 'drizzle-kit';
 import { sql } from 'drizzle-orm';
-import { preparePostgresDB } from './connection.postgres';
+import type { PostgresConnection } from './connection.postgres';
 import type { ResetResult } from '../reset';
-import { isPostgresConfig, extractPostgresCredentials } from '../utils';
 
 // Tables and schemas to preserve during reset
 const tableAllowlist = [
@@ -23,7 +21,7 @@ const schemaAllowlist = [
 /**
  * Gets all user tables in the public schema
  */
-async function getTables(connection: Awaited<ReturnType<typeof preparePostgresDB>>): Promise<string[]> {
+async function getTables(connection: PostgresConnection): Promise<string[]> {
   const statement = sql`
     SELECT table_name
     FROM information_schema.tables
@@ -42,7 +40,7 @@ async function getTables(connection: Awaited<ReturnType<typeof preparePostgresDB
 /**
  * Gets all user schemas (excluding system schemas)
  */
-async function getSchemas(connection: Awaited<ReturnType<typeof preparePostgresDB>>): Promise<string[]> {
+async function getSchemas(connection: PostgresConnection): Promise<string[]> {
   const statement = sql`
     SELECT schema_name
     FROM information_schema.schemata
@@ -61,13 +59,7 @@ async function getSchemas(connection: Awaited<ReturnType<typeof preparePostgresD
 /**
  * Resets PostgreSQL database by dropping all user tables and schemas
  */
-export async function resetPostgresDatabase(config: Config): Promise<ResetResult> {
-  if (!isPostgresConfig(config)) {
-    throw new Error('resetPostgresDatabase can only be used with PostgreSQL configs');
-  }
-
-  const credentials = extractPostgresCredentials(config);
-  const connection = await preparePostgresDB(credentials);
+export async function resetPostgresDatabase(connection: PostgresConnection): Promise<ResetResult> {
   const tablesDropped: string[] = [];
   
   try {

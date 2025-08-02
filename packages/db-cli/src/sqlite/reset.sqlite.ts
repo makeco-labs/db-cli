@@ -1,8 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { prepareSQLiteDB } from './connection.sqlite';
-import { isSqliteConfig, extractSqliteCredentials } from '../utils';
-
-import type { Config } from 'drizzle-kit';
+import type { SQLiteConnection } from './connection.sqlite';
 import type { ResetResult } from '../reset';
 
 // Tables to preserve during reset
@@ -18,7 +15,7 @@ const tableAllowlist = [
 /**
  * Gets all user tables in the database
  */
-async function getTables(connection: Awaited<ReturnType<typeof prepareSQLiteDB>>): Promise<string[]> {
+async function getTables(connection: SQLiteConnection): Promise<string[]> {
   const statement = sql`SELECT name FROM sqlite_master WHERE type='table'`;
   const result = connection.db.all(statement); // Using db.all() to fetch all tables
 
@@ -33,13 +30,7 @@ async function getTables(connection: Awaited<ReturnType<typeof prepareSQLiteDB>>
 /**
  * Resets SQLite database by dropping all user tables
  */
-export async function resetSqliteDatabase(config: Config): Promise<ResetResult> {
-  if (!isSqliteConfig(config)) {
-    throw new Error('resetSqliteDatabase can only be used with SQLite configs');
-  }
-
-  const credentials = extractSqliteCredentials(config);
-  const connection = await prepareSQLiteDB(credentials);
+export async function resetSqliteDatabase(connection: SQLiteConnection): Promise<ResetResult> {
   const tablesDropped: string[] = [];
 
   try {

@@ -1,25 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { prepareSQLiteDB } from './connection.sqlite';
-import { isSqliteConfig, extractSqliteCredentials } from '../utils';
-
-import type { Config } from 'drizzle-kit';
+import type { SQLiteConnection } from './connection.sqlite';
 import type { CheckResult } from '../types';
 
 /**
  * Checks SQLite database connection
  */
-export async function checkSqliteConnection(config: Config): Promise<CheckResult> {
-  if (!isSqliteConfig(config)) {
-    return {
-      status: 'error',
-      message: 'Invalid SQLite configuration',
-      timestamp: new Date().toISOString(),
-    };
-  }
-
+export async function checkSqliteConnection(connection: SQLiteConnection): Promise<CheckResult> {
   try {
-    const credentials = extractSqliteCredentials(config);
-    const connection = await prepareSQLiteDB(credentials);
 
     // Get SQLite version
     const version = connection.db.all(sql`SELECT sqlite_version() AS version`);

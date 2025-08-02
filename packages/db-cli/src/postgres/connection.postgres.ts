@@ -114,7 +114,7 @@ export const preparePostgresDB = async (
 
 	if (await checkPackage("pg")) {
 		console.log(`Using 'pg' driver for database querying`);
-		const { default: pg } = await import("pg");
+		const { default: pg } = await import("node_modules/@types/pg");
 		const { drizzle } = await import("drizzle-orm/node-postgres");
 
 		const ssl =

@@ -1,25 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { preparePostgresDB } from './connection.postgres';
-import { isPostgresConfig, extractPostgresCredentials } from '../utils';
-
-import type { Config } from 'drizzle-kit';
+import type { PostgresConnection } from './connection.postgres';
 import type { CheckResult } from '../types';
 
 /**
  * Checks PostgreSQL database connection
  */
-export async function checkPostgresConnection(config: Config): Promise<CheckResult> {
-  if (!isPostgresConfig(config)) {
-    return {
-      status: 'error',
-      message: 'Invalid PostgreSQL configuration',
-      timestamp: new Date().toISOString(),
-    };
-  }
-
+export async function checkPostgresConnection(connection: PostgresConnection): Promise<CheckResult> {
   try {
-    const credentials = extractPostgresCredentials(config);
-    const connection = await preparePostgresDB(credentials);
 
     // Get PostgreSQL version
     const version = await connection.db.execute(sql`SELECT version() AS version`);
