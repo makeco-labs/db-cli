@@ -1,13 +1,14 @@
 {
-  "name": "drizzle-kit-alt-sqlite-example",
+  "name": "@makeco/db-cli-sqlite-example",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "db": "drizzle-kit-alt -c ./drizzle.config.ts"
+    "db": "db-cli -c ./drizzle.config.ts",
+    "db:seed": "db-cli seed -c ./db-cli.config.ts"
   },
   "dependencies": {
-    "@pawo/drizzle-kit-alt": "file:../..",
+    "@makeco/db-cli": "file:../..",
     "drizzle-orm": "^0.44.4",
     "better-sqlite3": "^11.9.1"
   },

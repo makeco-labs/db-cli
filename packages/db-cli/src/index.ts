@@ -1,5 +1,5 @@
 // Main CLI entry point
-export * from './db-cli';
+export * from './cli';
 
 // Database functionality by dialect
 export * from './postgres';
@@ -9,6 +9,8 @@ export * from './sqlite';
 export * from './connections';
 export * from './reset';
 export * from './check';
+export * from './seed';
+export * from './truncate';
 
 // Types and utilities
 export * from './types';

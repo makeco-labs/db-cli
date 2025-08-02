@@ -1,5 +1,5 @@
 import type { Config } from 'drizzle-kit';
-import type { ResetResult } from '@makeco/db-cli/types';
+import type { TruncateResult } from '@makeco/db-cli/types';
 import {
   isPostgresConfig,
   isSqliteConfig,
@@ -8,25 +8,25 @@ import {
 } from '@makeco/db-cli/utils';
 
 /**
- * Resets the database by dropping all user tables while preserving system tables
- * and migration history tables
+ * Truncates the database by deleting all data from user tables while preserving 
+ * table structure and system tables
  */
-export async function resetDatabase(config: Config): Promise<ResetResult> {
+export async function truncateDatabase(config: Config): Promise<TruncateResult> {
   try {
-    console.log(`Resetting ${config.dialect} database...`);
+    console.log(`Truncating ${config.dialect} database...`);
     
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
-      const { preparePostgresDB, resetPostgresDatabase } = await import('@makeco/db-cli/postgres');
+      const { preparePostgresDB, truncatePostgresDatabase } = await import('@makeco/db-cli/postgres');
       const connection = await preparePostgresDB(credentials);
-      return await resetPostgresDatabase(connection);
+      return await truncatePostgresDatabase(connection);
     }
     
     if (isSqliteConfig(config)) {
       const credentials = extractSqliteCredentials(config);
-      const { prepareSQLiteDB, resetSqliteDatabase } = await import('@makeco/db-cli/sqlite');
+      const { prepareSQLiteDB, truncateSQLiteDatabase } = await import('@makeco/db-cli/sqlite');
       const connection = await prepareSQLiteDB(credentials);
-      return await resetSqliteDatabase(connection);
+      return await truncateSQLiteDatabase(connection);
     }
     
     // Handle unsupported dialects
@@ -38,10 +38,10 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     
     throw new Error(`Unsupported configuration: ${JSON.stringify(config)}`);
   } catch (error) {
-    console.error('Database reset failed:', error);
+    console.error('Database truncate failed:', error);
     return {
       success: false,
-      tablesDropped: [],
+      tablesTruncated: [],
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }

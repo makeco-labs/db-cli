@@ -219,8 +219,8 @@ export const preparePostgresDB = async (
 
 		const client =
 			"url" in credentials
-				? new Pool({ connectionString: credentials.url, max: 1 })
-				: new Pool({ ...credentials, max: 1, ssl });
+				? new (Pool as any)({ connectionString: credentials.url, max: 1 })
+				: new (Pool as any)({ ...credentials, max: 1, ssl });
 		neonConfig.webSocketConstructor = ws;
 
 		const db = drizzle(client);

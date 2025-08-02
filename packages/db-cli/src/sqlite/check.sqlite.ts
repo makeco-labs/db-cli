@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { SQLiteConnection } from './connection.sqlite';
-import type { CheckResult } from '../types';
+import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks SQLite database connection

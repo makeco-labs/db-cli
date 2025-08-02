@@ -1,11 +1,11 @@
 import type { Config } from 'drizzle-kit';
-import type { DatabaseConnection } from './types';
+import type { DatabaseConnection } from '@makeco/db-cli/types';
 import {
   isPostgresConfig,
   isSqliteConfig,
   extractPostgresCredentials,
   extractSqliteCredentials,
-} from './utils';
+} from '@makeco/db-cli/utils';
 
 /**
  * Creates a database connection based on the drizzle config using drizzle-kit patterns
@@ -13,13 +13,13 @@ import {
  */
 export async function createConnection(config: Config): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
-    const { preparePostgresDB } = await import('./postgres');
+    const { preparePostgresDB } = await import('@makeco/db-cli/postgres');
     const credentials = extractPostgresCredentials(config);
     return await preparePostgresDB(credentials);
   }
 
   if (isSqliteConfig(config)) {
-    const { prepareSQLiteDB } = await import('./sqlite');
+    const { prepareSQLiteDB } = await import('@makeco/db-cli/sqlite');
     const credentials = extractSqliteCredentials(config);
     return await prepareSQLiteDB(credentials);
   }

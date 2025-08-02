@@ -1,15 +1,16 @@
-# @pawo/drizzle-kit-alt
+# @makeco/db-cli
 
-A higher-level abstraction over drizzle-kit that provides additional database management commands and workflows for TypeScript applications. Simplify your database operations with powerful commands like `reset` and `refresh`.
+A powerful database CLI tool that extends drizzle-kit with additional commands for database management workflows. Simplify your database operations with powerful commands like `reset` and `refresh`.
 
-[![npm version](https://badge.fury.io/js/@pawo%2Fdrizzle-kit-alt.svg)](https://badge.fury.io/js/@pawo%2Fdrizzle-kit-alt)
+[![npm version](https://badge.fury.io/js/@makeco%2Fdb-cli.svg)](https://badge.fury.io/js/@makeco%2Fdb-cli)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
-- ✅ **Extended Commands** - Additional commands beyond drizzle-kit like `reset`, `refresh`, and `check`
+- ✅ **Extended Commands** - Additional commands beyond drizzle-kit like `reset`, `refresh`, `check`, and `seed`
 - ✅ **Multi-Environment Support** - Built-in support for dev, test, staging, and production environments
+- ✅ **Database Seeding** - Type-safe database seeding with db-cli configuration files
 - ✅ **Programmatic API** - Use commands programmatically in your scripts and tests
 - ✅ **Type-safe** - Full TypeScript support with proper typing
 - ✅ **Drizzle Kit Compatible** - Works seamlessly with your existing drizzle-kit configuration
@@ -17,33 +18,36 @@ A higher-level abstraction over drizzle-kit that provides additional database ma
 ## Installation
 
 ```bash
-npm install @pawo/drizzle-kit-alt drizzle-kit
-yarn add @pawo/drizzle-kit-alt drizzle-kit
-bun add @pawo/drizzle-kit-alt drizzle-kit
+npm install @makeco/db-cli drizzle-kit
+yarn add @makeco/db-cli drizzle-kit
+bun add @makeco/db-cli drizzle-kit
 ```
 
 ## Quick Start
 
 ### CLI Usage
 
-Use the `drizzle-kit-alt` CLI with your existing drizzle configuration:
+Use the `db-cli` command with your existing drizzle configuration:
 
 ```bash
 # Check database connection
-drizzle-kit-alt check
+db-cli check
+
+# Seed database with initial data (requires db-cli.config.ts)
+db-cli seed
 
 # Reset database (clear all data)
-drizzle-kit-alt reset
+db-cli reset
 
 # Refresh database (drop migrations + generate + reset + migrate)
-drizzle-kit-alt refresh
+db-cli refresh
 
 # Standard drizzle-kit commands also work
-drizzle-kit-alt generate
-drizzle-kit-alt migrate
-drizzle-kit-alt studio
-drizzle-kit-alt push
-drizzle-kit-alt drop
+db-cli generate
+db-cli migrate
+db-cli studio
+db-cli push
+db-cli drop
 ```
 
 ### Multi-Environment Support
@@ -52,22 +56,22 @@ Specify different environments with automatic config file detection:
 
 ```bash
 # Uses drizzle.config.dev.ts
-drizzle-kit-alt dev reset
+db-cli dev reset
 
 # Uses drizzle.config.test.ts
-drizzle-kit-alt test migrate
+db-cli test migrate
 
 # Uses drizzle.config.staging.ts
-drizzle-kit-alt staging check
+db-cli staging check
 
 # Uses drizzle.config.prod.ts (with confirmation prompts)
-drizzle-kit-alt prod push
+db-cli prod push
 ```
 
 ### Programmatic API
 
 ```typescript
-import { resetDatabase, checkConnection } from '@pawo/drizzle-kit-alt';
+import { resetDatabase, checkConnection } from '@makeco/db-cli';
 import { defineConfig } from 'drizzle-kit';
 
 // Define your drizzle config
@@ -94,11 +98,18 @@ beforeEach(async () => {
 
 ### Extended Commands
 
+#### `seed`
+Seeds the database with initial data using a custom seed file. Requires a `db-cli.config.ts` configuration file.
+
+```bash
+db-cli seed
+```
+
 #### `reset`
 Clears all data from the database while preserving the schema. Perfect for resetting test databases or clearing development data.
 
 ```bash
-drizzle-kit-alt reset
+db-cli reset
 ```
 
 #### `refresh`
@@ -109,14 +120,14 @@ Complete database refresh workflow that:
 4. Applies migrations
 
 ```bash
-drizzle-kit-alt refresh
+db-cli refresh
 ```
 
 #### `check`
 Verifies database connection and reports the status.
 
 ```bash
-drizzle-kit-alt check
+db-cli check
 ```
 
 ### Standard Drizzle Kit Commands
@@ -131,7 +142,69 @@ All standard drizzle-kit commands are supported:
 
 ## Configuration
 
-The tool uses your existing `drizzle.config.ts` file. No additional configuration needed!
+### Basic Configuration
+
+The tool uses your existing `drizzle.config.ts` file. No additional configuration needed for basic commands!
+
+```typescript
+// drizzle.config.ts
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  dialect: 'postgresql',
+  schema: './src/schema.ts',
+  out: './drizzle',
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+```
+
+### Enhanced Configuration with db-cli.config.ts
+
+For additional features like database seeding, create a `db-cli.config.ts` file:
+
+```typescript
+// db-cli.config.ts
+import { defineConfig } from '@makeco/db-cli';
+
+export default defineConfig({
+  drizzleConfig: './drizzle.config.ts', // Path to your drizzle config
+  seed: './src/db/seed.ts',             // Path to your seed file
+});
+```
+
+Your seed file should export a default function:
+
+```typescript
+// src/db/seed.ts
+import { users, posts } from './schema';
+
+export default async function seed(db: any) {
+  // Insert initial data
+  await db.insert(users).values([
+    { name: 'John Doe', email: 'john@example.com' },
+    { name: 'Jane Smith', email: 'jane@example.com' },
+  ]);
+
+  await db.insert(posts).values([
+    { title: 'First Post', content: 'Hello, world!' },
+    { title: 'Second Post', content: 'Another post!' },
+  ]);
+}
+```
+
+### Configuration Discovery
+
+The CLI automatically discovers config files in this order:
+1. `--config/-c` flag value (auto-detects db-cli.config.ts vs drizzle.config.ts)
+2. `db-cli.config.ts` (if exists, includes seed functionality)
+3. `drizzle.config.ts`
+4. `drizzle.config.js`
+5. `drizzle.config.mjs`
+6. `drizzle.config.cjs`
+
+### Multi-Environment Setup
 
 For multi-environment setups, create environment-specific config files:
 - `drizzle.config.dev.ts`
@@ -154,24 +227,35 @@ Not yet supported:
 
 ## API Reference
 
-### resetDatabase(config: Config): Promise<void>
+### seedDatabase(config: Config, seedPath: string): Promise<SeedResult>
+
+Seeds the database with initial data from a seed file.
+
+```typescript
+import { seedDatabase } from '@makeco/db-cli';
+
+await seedDatabase(config, './src/db/seed.ts');
+```
+
+### resetDatabase(config: Config): Promise<ResetResult>
 
 Resets the database by clearing all data while preserving schema.
 
 ```typescript
-import { resetDatabase } from '@pawo/drizzle-kit-alt';
+import { resetDatabase } from '@makeco/db-cli';
 
 await resetDatabase(config);
 ```
 
-### checkConnection(config: Config): Promise<boolean>
+### checkConnection(config: Config): Promise<CheckResult>
 
 Checks if the database connection is working.
 
 ```typescript
-import { checkConnection } from '@pawo/drizzle-kit-alt';
+import { checkConnection } from '@makeco/db-cli';
 
-const isConnected = await checkConnection(config);
+const result = await checkConnection(config);
+console.log('Status:', result.status);
 ```
 
 ### createConnection(config: Config): Promise<DatabaseConnection>
@@ -179,13 +263,59 @@ const isConnected = await checkConnection(config);
 Creates a database connection that can be used with Drizzle ORM.
 
 ```typescript
-import { createConnection } from '@pawo/drizzle-kit-alt';
+import { createConnection } from '@makeco/db-cli';
 
 const { db } = await createConnection(config);
 // Use db with your drizzle queries
 ```
 
+### defineConfig(config: DbCliConfig): DbCliConfig
+
+Type-safe configuration helper for db-cli.config.ts files.
+
+```typescript
+import { defineConfig } from '@makeco/db-cli';
+
+export default defineConfig({
+  drizzleConfig: './drizzle.config.ts',
+  seed: './src/db/seed.ts',
+});
+```
+
 ## Use Cases
+
+### Database Seeding
+
+Set up initial data for development or testing:
+
+```typescript
+// src/db/seed.ts
+import { db } from './connection';
+import { users, posts } from './schema';
+
+export default async function seed(connection: any) {
+  // Clear existing data (optional)
+  await connection.delete(posts);
+  await connection.delete(users);
+  
+  // Insert initial users
+  const [user1, user2] = await connection.insert(users).values([
+    { name: 'John Doe', email: 'john@example.com' },
+    { name: 'Jane Smith', email: 'jane@example.com' },
+  ]).returning();
+
+  // Insert initial posts
+  await connection.insert(posts).values([
+    { title: 'Welcome Post', content: 'Welcome to our platform!', authorId: user1.id },
+    { title: 'Getting Started', content: 'Here\'s how to get started...', authorId: user2.id },
+  ]);
+}
+```
+
+Then run:
+```bash
+db-cli seed
+```
 
 ### Test Database Management
 
@@ -193,11 +323,12 @@ Perfect for managing test databases in your test suites:
 
 ```typescript
 // jest.setup.ts or vitest.setup.ts
-import { resetDatabase } from '@pawo/drizzle-kit-alt';
+import { resetDatabase, seedDatabase } from '@makeco/db-cli';
 import config from './drizzle.config';
 
 beforeEach(async () => {
   await resetDatabase(config);
+  await seedDatabase(config, './src/db/test-seed.ts');
 });
 ```
 
@@ -208,7 +339,10 @@ Quick database refresh during development:
 ```bash
 # Make schema changes
 # Then refresh everything
-drizzle-kit-alt refresh
+db-cli refresh
+
+# Add some test data
+db-cli seed
 ```
 
 ### CI/CD Pipelines
@@ -217,8 +351,8 @@ drizzle-kit-alt refresh
 # .github/workflows/test.yml
 - name: Setup test database
   run: |
-    drizzle-kit-alt test migrate
-    drizzle-kit-alt test check
+    db-cli test migrate
+    db-cli test check
 ```
 
 ## Contributing

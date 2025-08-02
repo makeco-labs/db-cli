@@ -17,7 +17,7 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@drizzle-cli/*": ["src/*"]
+      "@makeco/db-cli/*": ["src/*"]
     }
   },
   "include": ["./src/**/*.ts", "./__tests__/**/*.ts", "./examples/**/*.ts"],

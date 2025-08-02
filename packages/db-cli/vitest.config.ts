@@ -25,7 +25,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@makeco/db-cli": path.resolve(__dirname, "./src"),
     },
   },
 });

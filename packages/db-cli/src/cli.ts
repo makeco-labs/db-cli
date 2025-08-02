@@ -6,25 +6,28 @@ import { Command } from 'commander';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { pathToFileURL } from 'url';
 import prompts from 'prompts';
 
 // Import drizzle-kit types
 import type { Config } from 'drizzle-kit';
 
-// Import database reset functionality
+// Import database functionality
 import { resetDatabase } from './reset';
-
-// Import database connection check functionality
 import { checkConnection } from './check';
+import { seedDatabase } from './seed';
+import { truncateDatabase } from './truncate';
+
+// Import centralized config utilities
+import { resolveConfigs } from '@makeco/db-cli/utils/config';
+import type { DbCliConfig } from '@makeco/db-cli/types';
 
 // Types for supported commands
 type DrizzleKitCommand = 'generate' | 'migrate' | 'studio' | 'drop' | 'push';
-type ActionKey = DrizzleKitCommand | 'reset' | 'refresh' | 'check';
+type ActionKey = DrizzleKitCommand | 'reset' | 'refresh' | 'check' | 'seed' | 'truncate';
 type EnvironmentKey = 'dev' | 'test' | 'staging' | 'prod';
 
 const validEnvironments: EnvironmentKey[] = ['dev', 'test', 'staging', 'prod'];
-const validActions: ActionKey[] = ['generate', 'migrate', 'studio', 'drop', 'push', 'reset', 'refresh', 'check'];
+const validActions: ActionKey[] = ['generate', 'migrate', 'studio', 'drop', 'push', 'reset', 'refresh', 'check', 'seed', 'truncate'];
 
 const actionDescriptions: Record<ActionKey, string> = {
   generate: '[generate]: Generate new migrations',
@@ -35,6 +38,8 @@ const actionDescriptions: Record<ActionKey, string> = {
   reset: '[reset]: Reset database data',
   refresh: '[refresh]: Refresh database (drop + generate + reset + migrate)',
   check: '[check]: Check database connection',
+  seed: '[seed]: Seed database with initial data',
+  truncate: '[truncate]: Truncate database (delete data, keep structure)',
 };
 
 // Updated workflow definitions - drop vs reset distinction
@@ -43,29 +48,6 @@ const WORKFLOWS = {
   refresh: ['drop', 'generate', 'reset', 'migrate'] as const, // Drop migrations, generate, clear data, migrate
 } as const;
 
-/**
- * Discovers drizzle config file in the current working directory
- * Follows drizzle-kit's config discovery logic
- */
-function discoverDrizzleConfig(): string | null {
-  const configPatterns = [
-    'drizzle.config.ts',
-    'drizzle.config.js',
-    'drizzle.config.mjs',
-    'drizzle.config.cjs',
-  ];
-
-  const cwd = process.cwd();
-  
-  for (const pattern of configPatterns) {
-    const configPath = path.join(cwd, pattern);
-    if (fs.existsSync(configPath)) {
-      return configPath;
-    }
-  }
-
-  return null;
-}
 
 /**
  * Determines the environment to be used, either from input or via interactive prompt
@@ -160,55 +142,6 @@ function loadEnvironment(envName: string): void {
   }
 }
 
-/**
- * Loads and parses the drizzle config file
- */
-async function loadConfig(configPath: string): Promise<Config> {
-  try {
-    const absolutePath = path.resolve(configPath);
-    
-    // Check if file exists
-    if (!fs.existsSync(absolutePath)) {
-      throw new Error(`Config file not found: ${configPath}`);
-    }
-
-    let config: Config;
-
-    if (absolutePath.endsWith('.ts')) {
-      // For TypeScript files, we need to use tsx to execute them
-      try {
-        const result = execSync(`npx tsx -e "
-          const config = require('${absolutePath}');
-          console.log(JSON.stringify(config.default || config));
-        "`, { encoding: 'utf8' });
-        config = JSON.parse(result.trim());
-      } catch {
-        throw new Error(`Failed to load TypeScript config file: ${configPath}`);
-      }
-    } else {
-      // For JS files, use dynamic import
-      const fileUrl = pathToFileURL(absolutePath).href;
-      const module = await import(fileUrl);
-      config = module.default || module;
-    }
-
-    // Validate that we have a valid config
-    if (!config || typeof config !== 'object') {
-      throw new Error(`Invalid config file: ${configPath}`);
-    }
-
-    if (!config.dialect) {
-      throw new Error(`Config file missing required 'dialect' field: ${configPath}`);
-    }
-
-    return config;
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to load config from ${configPath}: ${error.message}`);
-    }
-    throw new Error(`Failed to load config from ${configPath}`);
-  }
-}
 
 /**
  * Validates that drizzle-kit is available in the project
@@ -222,24 +155,6 @@ function validateDrizzleKit(): void {
   }
 }
 
-/**
- * Validates drizzle config file exists and is accessible
- */
-function validateConfigPath(configPath: string | null): string {
-  if (!configPath) {
-    console.error('❌ Error: No drizzle config file found.');
-    console.error('Expected files: drizzle.config.ts, drizzle.config.js, drizzle.config.mjs, or drizzle.config.cjs');
-    console.error('Or specify a config file with --config flag');
-    process.exit(1);
-  }
-
-  if (!fs.existsSync(configPath)) {
-    console.error(`❌ Error: Config file not found: ${configPath}`);
-    process.exit(1);
-  }
-
-  return configPath;
-}
 
 /**
  * Executes a drizzle-kit command
@@ -305,6 +220,52 @@ async function executeCheck(config: Config): Promise<void> {
 }
 
 /**
+ * Executes database seeding
+ */
+async function executeSeed(config: Config, seedPath: string): Promise<void> {
+  console.log(`\n🌱 Seeding database from: ${seedPath}...`);
+  
+  try {
+    const result = await seedDatabase(config, seedPath);
+    
+    if (result.success) {
+      console.log(`✅ Database seeded successfully!`);
+      if (result.message) {
+        console.log(result.message);
+      }
+    } else {
+      throw new Error(result.error || 'Database seeding failed');
+    }
+  } catch (error) {
+    console.error('❌ Database seeding failed:', error instanceof Error ? error.message : 'Unknown error');
+    process.exit(1);
+  }
+}
+
+/**
+ * Executes database truncate (delete data, keep structure)
+ */
+async function executeTruncate(config: Config): Promise<void> {
+  console.log('\n🗑️ Truncating database data...');
+  
+  try {
+    const result = await truncateDatabase(config);
+    
+    if (result.success) {
+      console.log(`✅ Database truncate completed successfully!`);
+      if (result.tablesTruncated.length > 0) {
+        console.log(`Truncated ${result.tablesTruncated.length} tables:`, result.tablesTruncated.join(', '));
+      }
+    } else {
+      throw new Error(result.error || 'Database truncate failed');
+    }
+  } catch (error) {
+    console.error('❌ Database truncate failed:', error instanceof Error ? error.message : 'Unknown error');
+    process.exit(1);
+  }
+}
+
+/**
  * Executes a workflow (sequence of commands)
  */
 async function executeWorkflow(workflow: readonly string[], configPath: string, config: Config): Promise<void> {
@@ -348,7 +309,7 @@ async function requireProductionConfirmation(action: string, config: Config): Pr
 const program = new Command();
 
 program
-  .name('drizzle-kit-alt')
+  .name('db-cli')
   .description('A higher-level abstraction over drizzle-kit with additional database management commands')
   .version('0.1.0')
   .argument('[action]', 'Action to perform (generate, migrate, studio, etc.)')
@@ -360,16 +321,12 @@ program
     // Load environment variables
     loadEnvironment(chosenEnv);
     
-    // Get config path
-    const configPath = options.config || discoverDrizzleConfig();
-    const validatedConfigPath = validateConfigPath(configPath);
-    
-    // Load and validate config
-    const config = await loadConfig(validatedConfigPath);
-    console.log(chalk.cyan(`Using config: ${validatedConfigPath} (dialect: ${config.dialect})`));
+    // Resolve configs using centralized system
+    const { drizzleConfig, dbCliConfig, configPath: resolvedConfigPath } = await resolveConfigs(options.config);
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
     
     // Execute the chosen action
-    await executeAction(chosenAction, validatedConfigPath, config);
+    await executeAction(chosenAction, resolvedConfigPath, drizzleConfig, dbCliConfig);
   });
 
 // Add global config and environment options
@@ -391,17 +348,15 @@ drizzleCommands.forEach(command => {
       const chosenEnv = await determineEnvironment(envName);
       loadEnvironment(chosenEnv);
       
-      // Get config from command option or global option
-      const configPath = options.config || cmd.parent?.opts().config || discoverDrizzleConfig();
-      const validatedConfigPath = validateConfigPath(configPath);
+      // Resolve configs using centralized system
+      const configPath = options.config || cmd.parent?.opts().config;
+      const { drizzleConfig, configPath: resolvedConfigPath } = await resolveConfigs(configPath);
       
       validateDrizzleKit();
       
-      // Load and validate config
-      const config = await loadConfig(validatedConfigPath);
-      console.log(chalk.cyan(`Using config: ${validatedConfigPath} (dialect: ${config.dialect})`));
+      console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
       
-      executeCommand(command, validatedConfigPath);
+      executeCommand(command, resolvedConfigPath);
     });
 });
 
@@ -417,18 +372,16 @@ program
     const chosenEnv = await determineEnvironment(envName);
     loadEnvironment(chosenEnv);
     
-    // Get config from command option or global option
-    const configPath = options.config || cmd.parent?.opts().config || discoverDrizzleConfig();
-    const validatedConfigPath = validateConfigPath(configPath);
+    // Resolve configs using centralized system
+    const configPath = options.config || cmd.parent?.opts().config;
+    const { drizzleConfig, configPath: resolvedConfigPath } = await resolveConfigs(configPath);
     
     validateDrizzleKit();
     
-    // Load and validate config
-    const config = await loadConfig(validatedConfigPath);
-    console.log(chalk.cyan(`Using config: ${validatedConfigPath} (dialect: ${config.dialect})`));
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
     
-    await requireProductionConfirmation('reset', config);
-    await executeWorkflow(WORKFLOWS.reset, validatedConfigPath, config);
+    await requireProductionConfirmation('reset', drizzleConfig);
+    await executeWorkflow(WORKFLOWS.reset, resolvedConfigPath, drizzleConfig);
   });
 
 // Add custom refresh command  
@@ -443,18 +396,16 @@ program
     const chosenEnv = await determineEnvironment(envName);
     loadEnvironment(chosenEnv);
     
-    // Get config from command option or global option
-    const configPath = options.config || cmd.parent?.opts().config || discoverDrizzleConfig();
-    const validatedConfigPath = validateConfigPath(configPath);
+    // Resolve configs using centralized system
+    const configPath = options.config || cmd.parent?.opts().config;
+    const { drizzleConfig, configPath: resolvedConfigPath } = await resolveConfigs(configPath);
     
     validateDrizzleKit();
     
-    // Load and validate config
-    const config = await loadConfig(validatedConfigPath);
-    console.log(chalk.cyan(`Using config: ${validatedConfigPath} (dialect: ${config.dialect})`));
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
     
-    await requireProductionConfirmation('refresh', config);
-    await executeWorkflow(WORKFLOWS.refresh, validatedConfigPath, config);
+    await requireProductionConfirmation('refresh', drizzleConfig);
+    await executeWorkflow(WORKFLOWS.refresh, resolvedConfigPath, drizzleConfig);
   });
 
 // Add custom check command
@@ -469,36 +420,81 @@ program
     const chosenEnv = await determineEnvironment(envName);
     loadEnvironment(chosenEnv);
     
-    // Get config from command option or global option
-    const configPath = options.config || cmd.parent?.opts().config || discoverDrizzleConfig();
-    const validatedConfigPath = validateConfigPath(configPath);
+    // Resolve configs using centralized system
+    const configPath = options.config || cmd.parent?.opts().config;
+    const { drizzleConfig, configPath: resolvedConfigPath } = await resolveConfigs(configPath);
     
-    // Load and validate config
-    const config = await loadConfig(validatedConfigPath);
-    console.log(chalk.cyan(`Using config: ${validatedConfigPath} (dialect: ${config.dialect})`));
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
     
-    await executeCheck(config);
+    await executeCheck(drizzleConfig);
+  });
+
+// Add custom seed command
+program
+  .command('seed')
+  .description('Seed database with initial data (requires db-cli.config.ts)')
+  .option('-c, --config <path>', 'Path to db-cli config file')
+  .option('-e, --env <name>', 'Environment to load (.env.{name})')
+  .action(async (options, cmd) => {
+    // Determine environment (required)
+    const envName = options.env || cmd.parent?.opts().env;
+    const chosenEnv = await determineEnvironment(envName);
+    loadEnvironment(chosenEnv);
+    
+    // Resolve configs using centralized system
+    const { drizzleConfig, dbCliConfig, configPath: resolvedConfigPath } = await resolveConfigs(options.config);
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
+    
+    // Execute seed
+    await executeAction('seed', resolvedConfigPath, drizzleConfig, dbCliConfig);
+  });
+
+// Add custom truncate command
+program
+  .command('truncate')
+  .description('Truncate database (delete all data but keep table structure)')
+  .option('-c, --config <path>', 'Path to drizzle config file')
+  .option('-e, --env <name>', 'Environment to load (.env.{name})')
+  .action(async (options, cmd) => {
+    // Determine environment (required)
+    const envName = options.env || cmd.parent?.opts().env;
+    const chosenEnv = await determineEnvironment(envName);
+    loadEnvironment(chosenEnv);
+    
+    // Resolve configs using centralized system
+    const { drizzleConfig, configPath: resolvedConfigPath } = await resolveConfigs(options.config);
+    console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
+    
+    // Require production confirmation for destructive operation
+    await requireProductionConfirmation('truncate', drizzleConfig);
+    
+    // Execute truncate
+    await executeAction('truncate', resolvedConfigPath, drizzleConfig);
   });
 
 // Add help examples
 program.addHelpText('after', `
 
 Examples:
-  $ drizzle-kit-alt generate              # Generate migrations
-  $ drizzle-kit-alt migrate               # Run migrations
-  $ drizzle-kit-alt studio                # Launch Drizzle Studio
-  $ drizzle-kit-alt drop                  # Drop migrations folder (drizzle-kit)
-  $ drizzle-kit-alt check                 # Check database connection and health
-  $ drizzle-kit-alt reset                 # Clear database data + migrate
-  $ drizzle-kit-alt refresh               # Drop migrations + generate + clear data + migrate
-  $ drizzle-kit-alt generate --config ./custom.config.ts  # Use custom config
-  $ drizzle-kit-alt -c ./my-config.ts migrate             # Use global config flag
-  $ drizzle-kit-alt reset -e test                         # Load .env.test file
-  $ drizzle-kit-alt migrate -e prod                       # Load .env.prod file
+  $ db-cli generate              # Generate migrations
+  $ db-cli migrate               # Run migrations
+  $ db-cli studio                # Launch Drizzle Studio
+  $ db-cli drop                  # Drop migrations folder (drizzle-kit)
+  $ db-cli check                 # Check database connection and health
+  $ db-cli seed                  # Seed database (requires db-cli.config.ts)
+  $ db-cli truncate              # Truncate database (delete data, keep structure)
+  $ db-cli reset                 # Clear database data + migrate
+  $ db-cli refresh               # Drop migrations + generate + clear data + migrate
+  $ db-cli generate --config ./custom.config.ts  # Use custom config
+  $ db-cli -c ./my-config.ts migrate             # Use global config flag
+  $ db-cli reset -e test                         # Load .env.test file
+  $ db-cli migrate -e prod                       # Load .env.prod file
 
 Commands:
   drop     - Drops migrations folder (drizzle-kit default behavior)
   check    - Checks database connection and displays version information
+  seed     - Seeds database with initial data (requires db-cli.config.ts with seed path)
+  truncate - Truncates database data while preserving table structure
   reset    - Clears database data, then runs migrations
   refresh  - Complete refresh: drop migrations → generate → clear data → migrate
 
@@ -506,18 +502,19 @@ Environment:
   Set NODE_ENV=production to enable production safety checks.
 
 Config Discovery:
-  The CLI will automatically discover drizzle config files in this order:
-  1. --config/-c flag value
-  2. drizzle.config.ts
-  3. drizzle.config.js
-  4. drizzle.config.mjs
-  5. drizzle.config.cjs
+  The CLI will automatically discover config files in this order:
+  1. --config/-c flag value (auto-detects db-cli.config.ts vs drizzle.config.ts)
+  2. db-cli.config.ts (if exists, includes seed functionality)
+  3. drizzle.config.ts
+  4. drizzle.config.js
+  5. drizzle.config.mjs
+  6. drizzle.config.cjs
 `);
 
 /**
  * Execute the chosen action
  */
-async function executeAction(action: ActionKey, configPath: string, config: Config): Promise<void> {
+async function executeAction(action: ActionKey, configPath: string, config: Config, dbCliConfig?: DbCliConfig): Promise<void> {
   switch (action) {
     case 'generate':
     case 'migrate':
@@ -532,6 +529,24 @@ async function executeAction(action: ActionKey, configPath: string, config: Conf
       
     case 'check':
       await executeCheck(config);
+      break;
+      
+    case 'seed':
+      if (!dbCliConfig?.seed) {
+        console.error('❌ Error: Seed command requires a db-cli.config.ts file with a "seed" property');
+        console.error('Example db-cli.config.ts:');
+        console.error(`import { defineConfig } from '@makeco/db-cli';`);
+        console.error(`export default defineConfig({`);
+        console.error(`  drizzleConfig: './drizzle.config.ts',`);
+        console.error(`  seed: './src/db/seed.ts'`);
+        console.error(`});`);
+        process.exit(1);
+      }
+      await executeSeed(config, dbCliConfig.seed);
+      break;
+      
+    case 'truncate':
+      await executeTruncate(config);
       break;
       
     case 'reset':

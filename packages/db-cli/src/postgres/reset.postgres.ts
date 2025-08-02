@@ -1,60 +1,7 @@
 import { sql } from 'drizzle-orm';
 import type { PostgresConnection } from './connection.postgres';
-import type { ResetResult } from '../reset';
-
-// Tables and schemas to preserve during reset
-const tableAllowlist = [
-  'pg_toast',
-  'migrations',
-  'drizzle_migrations',
-  'drizzle_query_log',
-  'drizzle_query_log_entries',
-];
-
-const schemaAllowlist = [
-  'information_schema',
-  'pg_catalog',
-  'pg_toast',
-  'public',
-];
-
-/**
- * Gets all user tables in the public schema
- */
-async function getTables(connection: PostgresConnection): Promise<string[]> {
-  const statement = sql`
-    SELECT table_name
-    FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-  `;
-  const result = await connection.db.execute(statement);
-  
-  // Handle different result formats from different drivers
-  const tables = Array.isArray(result) ? result : result.rows || [result];
-  
-  return (tables as Array<{ table_name: string }>)
-    .map((row) => row.table_name)
-    .filter(table => !tableAllowlist.includes(table));
-}
-
-/**
- * Gets all user schemas (excluding system schemas)
- */
-async function getSchemas(connection: PostgresConnection): Promise<string[]> {
-  const statement = sql`
-    SELECT schema_name
-    FROM information_schema.schemata
-    WHERE schema_name NOT IN ('information_schema', 'pg_catalog')
-  `;
-  const result = await connection.db.execute(statement);
-  
-  // Handle different result formats from different drivers
-  const schemas = Array.isArray(result) ? result : result.rows || [result];
-  
-  return (schemas as Array<{ schema_name: string }>)
-    .map((row) => row.schema_name)
-    .filter(schema => !schemaAllowlist.includes(schema));
-}
+import type { ResetResult } from '@makeco/db-cli/types';
+import { getTables, getSchemas } from './utils.postgres';
 
 /**
  * Resets PostgreSQL database by dropping all user tables and schemas

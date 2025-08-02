@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { PostgresConnection } from './connection.postgres';
-import type { CheckResult } from '../types';
+import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks PostgreSQL database connection

@@ -1,13 +1,13 @@
 version: "3.8"
-name: drizzle-kit-alt-test
+name: db-cli-postgres-example
 
-# Test environment configuration
-# Usage: docker compose -f docker-compose.test.yml up
+# PostgreSQL test database for db-cli example
+# Usage: docker compose up -d
 
 services:
   postgres:
     image: postgres:15
-    container_name: drizzle-kit-alt-test-postgres
+    container_name: db-cli-postgres-example
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres_test}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres_test}
@@ -17,7 +17,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-# Test environment uses separate volumes to avoid conflicts
 volumes:
   postgres-data:
-    name: drizzle-kit-alt-test-postgres-data
+    name: db-cli-postgres-example-data

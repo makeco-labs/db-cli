@@ -1,17 +1,17 @@
 {
-	"name": "@pawo/drizzle-kit-alt",
+	"name": "@makeco/db-cli",
 	"version": "0.1.0",
 	"author": "paulwongx",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/paulwongx/drizzle-kit-alt.git"
+		"url": "https://github.com/makeco-labs/db-cli.git"
 	},
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"bin": {
-		"drizzle-kit-alt": "./dist/db-cli.js"
+		"db-cli": "./dist/cli.js"
 	},
 	"exports": {
 		".": {
@@ -34,23 +34,25 @@
 		"postgit": "git push --all"
 	},
 	"bugs": {
-		"url": "https://github.com/paulwongx/drizzle-kit-alt/issues"
+		"url": "https://github.com/makeco-labs/db-cli/issues"
 	},
-	"description": "A higher-level abstraction over drizzle-kit that provides additional database management commands and workflows",
+	"description": "A powerful database CLI tool that extends drizzle-kit with additional commands for database management workflows",
 	"files": [
 		"dist",
 		"README.md",
 		"LICENSE",
 		"package.json"
 	],
-	"homepage": "https://github.com/paulwongx/drizzle-kit-alt",
+	"homepage": "https://github.com/makeco-labs/db-cli",
 	"keywords": [
-		"drizzle",
-		"drizzle-kit",
 		"database",
 		"cli",
+		"drizzle",
+		"drizzle-kit",
 		"migrations",
 		"schema",
+		"reset",
+		"seed",
 		"typescript"
 	],
 	"license": "MIT",

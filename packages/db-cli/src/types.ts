@@ -14,9 +14,42 @@ export interface CheckResult {
   version?: string;
 }
 
+export interface ResetResult {
+  success: boolean;
+  tablesDropped: string[];
+  error?: string;
+}
+
+export interface TruncateResult {
+  success: boolean;
+  tablesTruncated: string[];
+  error?: string;
+}
+
+export interface SeedResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  timestamp: string;
+}
+
+// db-cli specific configuration
+export interface DbCliConfig {
+  drizzleConfig: string;  // Path to drizzle.config.ts
+  seed: string;           // Path to seed file
+}
+
+/**
+ * Helper function to define db-cli configuration with type safety
+ */
+export function defineConfig(config: DbCliConfig): DbCliConfig {
+  return config;
+}
+
+
 // Union type for all database connections
-export type DatabaseConnection = 
-  | import('./postgres').PostgresConnection 
+export type DatabaseConnection =
+  | import('./postgres').PostgresConnection
   | import('./sqlite').SQLiteConnection;
 
 // Specific config types for PostgreSQL
@@ -94,17 +127,17 @@ export type SqliteConfigDurable = Config & {
 };
 
 // Union types for dialect-specific configs
-export type PostgresConfig = 
-  | PostgresConfigWithHost 
-  | PostgresConfigWithUrl 
-  | PostgresConfigAwsDataApi 
+export type PostgresConfig =
+  | PostgresConfigWithHost
+  | PostgresConfigWithUrl
+  | PostgresConfigAwsDataApi
   | PostgresConfigPglite;
 
-export type SqliteConfig = 
-  | SqliteConfigWithUrl 
-  | TursoConfig 
-  | SqliteConfigD1Http 
-  | SqliteConfigExpo 
+export type SqliteConfig =
+  | SqliteConfigWithUrl
+  | TursoConfig
+  | SqliteConfigD1Http
+  | SqliteConfigExpo
   | SqliteConfigDurable;
 
 // Supported config type (excludes unsupported dialects)

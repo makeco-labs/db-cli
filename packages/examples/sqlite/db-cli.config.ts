@@ -1,0 +1,6 @@
+import { defineConfig } from '@makeco/db-cli';
+
+export default defineConfig({
+  drizzleConfig: './drizzle.config.ts',
+  seed: './src/seed.ts',
+});
