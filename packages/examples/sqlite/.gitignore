@@ -1,0 +1,18 @@
+# SQLite database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build output
+dist/
+
+# Migrations (generated)
+migrations/
+
+# Environment files (keep examples)
+# .env.*

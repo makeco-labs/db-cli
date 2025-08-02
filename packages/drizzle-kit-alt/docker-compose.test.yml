@@ -1,0 +1,23 @@
+version: "3.8"
+name: drizzle-kit-alt-test
+
+# Test environment configuration
+# Usage: docker compose -f docker-compose.test.yml up
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: drizzle-kit-alt-test-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres_test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres_test}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres_test}
+    ports:
+      - "${POSTGRES_PORT:-15432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+# Test environment uses separate volumes to avoid conflicts
+volumes:
+  postgres-data:
+    name: drizzle-kit-alt-test-postgres-data

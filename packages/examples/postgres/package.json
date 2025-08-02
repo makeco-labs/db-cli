@@ -1,0 +1,19 @@
+{
+  "name": "drizzle-kit-alt-postgres-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db": "drizzle-kit-alt -c ./drizzle.config.ts"
+  },
+  "dependencies": {
+    "@pawo/drizzle-kit-alt": "file:../..",
+    "drizzle-orm": "^0.44.4",
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.7",
+    "drizzle-kit": "^0.30.0",
+    "typescript": "^5.0.0"
+  }
+}
