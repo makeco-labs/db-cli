@@ -19,7 +19,9 @@ const PRESERVED_TABLES = [
 /**
  * Gets all user tables from MySQL database
  */
-export async function getTables(connection: MysqlConnection): Promise<string[]> {
+export async function getTables(
+  connection: MysqlConnection
+): Promise<string[]> {
   const result = await connection.db.execute(sql`
     SELECT TABLE_NAME 
     FROM information_schema.TABLES 
@@ -27,7 +29,8 @@ export async function getTables(connection: MysqlConnection): Promise<string[]> 
     AND TABLE_TYPE = 'BASE TABLE'
   `);
 
-  const tables = result[0].map((row: any) => row.TABLE_NAME)
+  const tables = result[0]
+    .map((row: any) => row.TABLE_NAME)
     .filter((table: string) => !PRESERVED_TABLES.includes(table));
 
   return tables;
@@ -36,7 +39,10 @@ export async function getTables(connection: MysqlConnection): Promise<string[]> 
 /**
  * Gets foreign key constraints for a table
  */
-export async function getTableConstraints(connection: MysqlConnection, tableName: string): Promise<string[]> {
+export async function getTableConstraints(
+  connection: MysqlConnection,
+  tableName: string
+): Promise<string[]> {
   const result = await connection.db.execute(sql`
     SELECT CONSTRAINT_NAME
     FROM information_schema.TABLE_CONSTRAINTS

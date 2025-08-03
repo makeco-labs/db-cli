@@ -1,12 +1,14 @@
 #!/usr/bin/env tsx
 
 import { execSync } from 'child_process';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 // Test database connection
-const client = postgres('postgresql://postgres_test:postgres_test@localhost:15432/postgres_test');
+const client = postgres(
+  'postgresql://postgres_test:postgres_test@localhost:15432/postgres_test'
+);
 const db = drizzle(client);
 
 async function setupTestData() {
@@ -31,10 +33,18 @@ async function setupTestData() {
   `);
 
   // Insert test data
-  await db.execute(sql`INSERT INTO test_users (name, email) VALUES ('John Doe', 'john@example.com')`);
-  await db.execute(sql`INSERT INTO test_users (name, email) VALUES ('Jane Smith', 'jane@example.com')`);
-  await db.execute(sql`INSERT INTO test_posts (title, content, user_id) VALUES ('First Post', 'Hello World', 1)`);
-  await db.execute(sql`INSERT INTO test_posts (title, content, user_id) VALUES ('Second Post', 'Another post', 2)`);
+  await db.execute(
+    sql`INSERT INTO test_users (name, email) VALUES ('John Doe', 'john@example.com')`
+  );
+  await db.execute(
+    sql`INSERT INTO test_users (name, email) VALUES ('Jane Smith', 'jane@example.com')`
+  );
+  await db.execute(
+    sql`INSERT INTO test_posts (title, content, user_id) VALUES ('First Post', 'Hello World', 1)`
+  );
+  await db.execute(
+    sql`INSERT INTO test_posts (title, content, user_id) VALUES ('Second Post', 'Another post', 2)`
+  );
 
   console.log('✅ Test data created');
 }
@@ -60,10 +70,13 @@ async function runReset() {
 
   try {
     // Test just the reset command without migrate step
-    const output = execSync('node ./dist/db-cli.js check --config=__tests__/test.config.ts --env=test', {
-      encoding: 'utf8',
-      stdio: 'pipe'
-    });
+    const output = execSync(
+      'node ./dist/db-cli.js check --config=__tests__/test.config.ts --env=test',
+      {
+        encoding: 'utf8',
+        stdio: 'pipe',
+      }
+    );
     console.log('Reset output:', output);
     console.log('✅ Reset command completed');
   } catch (error: any) {
@@ -85,7 +98,10 @@ async function verifyReset() {
       AND table_name NOT LIKE '%migrations%'
   `);
 
-  console.log('Remaining user tables:', userTables.map(t => t.table_name));
+  console.log(
+    'Remaining user tables:',
+    userTables.map((t) => t.table_name)
+  );
 
   // Verify migration tables still exist
   const migrationTables = await db.execute(sql`
@@ -96,10 +112,15 @@ async function verifyReset() {
       AND (table_name LIKE 'drizzle%' OR table_name LIKE '%migrations%')
   `);
 
-  console.log('Migration tables:', migrationTables.map(t => t.table_name));
+  console.log(
+    'Migration tables:',
+    migrationTables.map((t) => t.table_name)
+  );
 
   if (userTables.length > 0) {
-    throw new Error(`❌ Reset failed! User tables still exist: ${userTables.map(t => t.table_name).join(', ')}`);
+    throw new Error(
+      `❌ Reset failed! User tables still exist: ${userTables.map((t) => t.table_name).join(', ')}`
+    );
   }
 
   console.log('✅ Reset verification passed - all user data cleared!');
@@ -115,7 +136,6 @@ async function runTest() {
     await verifyReset();
 
     console.log('\n🎉 All tests passed! Reset functionality works correctly.');
-
   } catch (error) {
     console.error('\n❌ Test failed:', error);
     process.exit(1);

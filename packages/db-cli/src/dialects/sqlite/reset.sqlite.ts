@@ -1,21 +1,23 @@
+import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { SQLiteConnection } from './connection.sqlite';
-import type { ResetResult } from '@makeco/db-cli/types';
 import { getTables } from './utils.sqlite';
 
 /**
  * Resets SQLite database by dropping all user tables
  */
-export async function resetSqliteDatabase(connection: SQLiteConnection): Promise<ResetResult> {
+export async function resetSqliteDatabase(
+  connection: SQLiteConnection
+): Promise<ResetResult> {
   const tablesDropped: string[] = [];
 
   try {
     // Turn off foreign key checks
     connection.db.run(sql`PRAGMA foreign_keys = OFF`);
-    console.log("Foreign keys disabled");
+    console.log('Foreign keys disabled');
 
     const tables = await getTables(connection); // Get all table names
-    console.log("Tables to drop:", tables.join(", "));
+    console.log('Tables to drop:', tables.join(', '));
     for (const table of tables) {
       const deleteStatement = sql`DROP TABLE IF EXISTS ${sql.identifier(table)}`;
       connection.db.run(deleteStatement); // Drop each table
@@ -25,15 +27,15 @@ export async function resetSqliteDatabase(connection: SQLiteConnection): Promise
 
     // Turn foreign key checks back on
     connection.db.run(sql`PRAGMA foreign_keys = ON`);
-    console.log("Foreign keys enabled");
+    console.log('Foreign keys enabled');
 
-    console.log("Schema reset completed");
+    console.log('Schema reset completed');
     return {
       success: true,
       tablesDropped,
     };
   } catch (e) {
-    console.error("Error resetting schema:", e);
+    console.error('Error resetting schema:', e);
     throw e;
   }
 }

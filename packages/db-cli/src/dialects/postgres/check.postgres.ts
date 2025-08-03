@@ -1,15 +1,18 @@
+import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { PostgresConnection } from './connection.postgres';
-import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks PostgreSQL database connection
  */
-export async function checkPostgresConnection(connection: PostgresConnection): Promise<CheckResult> {
+export async function checkPostgresConnection(
+  connection: PostgresConnection
+): Promise<CheckResult> {
   try {
-
     // Get PostgreSQL version
-    const version = await connection.db.execute(sql`SELECT version() AS version`);
+    const version = await connection.db.execute(
+      sql`SELECT version() AS version`
+    );
     const versionString = version[0]?.version as string;
 
     // Perform a simple health check query
@@ -23,7 +26,8 @@ export async function checkPostgresConnection(connection: PostgresConnection): P
       version: versionString,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database connection failed';
+    const message =
+      error instanceof Error ? error.message : 'Database connection failed';
     console.error(`PostgreSQL connection failed: ${message}`);
 
     return {

@@ -1,13 +1,14 @@
+import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { SQLiteConnection } from './connection.sqlite';
-import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks SQLite database connection
  */
-export async function checkSqliteConnection(connection: SQLiteConnection): Promise<CheckResult> {
+export async function checkSqliteConnection(
+  connection: SQLiteConnection
+): Promise<CheckResult> {
   try {
-
     // Get SQLite version
     const version = connection.db.all(sql`SELECT sqlite_version() AS version`);
     const versionString = version[0]?.version as string;
@@ -23,7 +24,8 @@ export async function checkSqliteConnection(connection: SQLiteConnection): Promi
       version: versionString,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database connection failed';
+    const message =
+      error instanceof Error ? error.message : 'Database connection failed';
     console.error(`SQLite connection failed: ${message}`);
 
     return {

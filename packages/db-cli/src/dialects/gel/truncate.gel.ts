@@ -1,18 +1,20 @@
+import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { GelConnection } from './connection.gel';
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { getTables } from './utils.gel';
 
 /**
  * Truncates Gel database by deleting all data from user tables while preserving table structure
  */
-export async function truncateGelDatabase(connection: GelConnection): Promise<TruncateResult> {
+export async function truncateGelDatabase(
+  connection: GelConnection
+): Promise<TruncateResult> {
   const tablesTruncated: string[] = [];
 
   try {
     const tables = await getTables(connection);
-    console.log("Tables to truncate:", tables.join(", "));
-    
+    console.log('Tables to truncate:', tables.join(', '));
+
     for (const table of tables) {
       try {
         // Try TRUNCATE first, fall back to DELETE if not supported
@@ -24,7 +26,7 @@ export async function truncateGelDatabase(connection: GelConnection): Promise<Tr
           const deleteStatement = sql`DELETE FROM ${sql.identifier(table)}`;
           await connection.db.execute(deleteStatement);
         }
-        
+
         tablesTruncated.push(table);
         console.log(`Truncated table: ${table}`);
       } catch (error) {
@@ -33,13 +35,13 @@ export async function truncateGelDatabase(connection: GelConnection): Promise<Tr
       }
     }
 
-    console.log("Database truncate completed");
+    console.log('Database truncate completed');
     return {
       success: true,
       tablesTruncated,
     };
   } catch (e) {
-    console.error("Error truncating database:", e);
+    console.error('Error truncating database:', e);
     throw e;
   }
 }

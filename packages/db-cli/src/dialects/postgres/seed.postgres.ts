@@ -1,7 +1,6 @@
+import type { SeedResult } from '@makeco/db-cli/types';
 import fs from 'fs';
 import path from 'path';
-
-import type { SeedResult } from '@makeco/db-cli/types';
 
 /**
  * Seeds a PostgreSQL database by executing a seed file
@@ -46,7 +45,10 @@ export async function seedPostgresDatabase(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error during PostgreSQL seed',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error during PostgreSQL seed',
       timestamp,
     };
   }

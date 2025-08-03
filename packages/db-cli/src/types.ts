@@ -3,12 +3,18 @@ import type { ConnectionOptions } from 'tls';
 
 // Re-export the core types
 export type { Config } from 'drizzle-kit';
-export type { PostgresConnection, PostgresCredentials } from './dialects/postgres';
-export type { SQLiteConnection, SqliteCredentials } from './dialects/sqlite';
-export type { MysqlConnection, MysqlCredentials } from './dialects/mysql';
-export type { TursoConnection, TursoCredentials } from './dialects/turso';
-export type { SingleStoreConnection, SingleStoreCredentials } from './dialects/singlestore';
 export type { GelConnection, GelCredentials } from './dialects/gel';
+export type { MysqlConnection, MysqlCredentials } from './dialects/mysql';
+export type {
+  PostgresConnection,
+  PostgresCredentials,
+} from './dialects/postgres';
+export type {
+  SingleStoreConnection,
+  SingleStoreCredentials,
+} from './dialects/singlestore';
+export type { SQLiteConnection, SqliteCredentials } from './dialects/sqlite';
+export type { TursoConnection, TursoCredentials } from './dialects/turso';
 
 // Common result types
 export interface CheckResult {
@@ -39,8 +45,8 @@ export interface SeedResult {
 
 // db-cli specific configuration
 export interface DbCliConfig {
-  drizzleConfig: string;  // Path to drizzle.config.ts
-  seed: string;           // Path to seed file
+  drizzleConfig: string; // Path to drizzle.config.ts
+  seed: string; // Path to seed file
 }
 
 /**
@@ -49,7 +55,6 @@ export interface DbCliConfig {
 export function defineConfig(config: DbCliConfig): DbCliConfig {
   return config;
 }
-
 
 // Union type for all database connections
 export type DatabaseConnection =
@@ -69,7 +74,13 @@ export type PostgresConfigWithHost = Config & {
     user?: string;
     password?: string;
     database: string;
-    ssl?: boolean | 'require' | 'allow' | 'prefer' | 'verify-full' | ConnectionOptions;
+    ssl?:
+      | boolean
+      | 'require'
+      | 'allow'
+      | 'prefer'
+      | 'verify-full'
+      | ConnectionOptions;
   };
 };
 
@@ -214,18 +225,18 @@ export type SqliteConfig =
   | SqliteConfigExpo
   | SqliteConfigDurable;
 
-export type MysqlConfig =
-  | MysqlConfigWithHost
-  | MysqlConfigWithUrl;
+export type MysqlConfig = MysqlConfigWithHost | MysqlConfigWithUrl;
 
 export type SingleStoreConfig =
   | SingleStoreConfigWithHost
   | SingleStoreConfigWithUrl;
 
-export type GelConfig =
-  | GelConfigWithHost
-  | GelConfigWithUrl
-  | GelConfigBasic;
+export type GelConfig = GelConfigWithHost | GelConfigWithUrl | GelConfigBasic;
 
 // Supported config type (now includes all dialects)
-export type SupportedConfig = PostgresConfig | SqliteConfig | MysqlConfig | SingleStoreConfig | GelConfig;
+export type SupportedConfig =
+  | PostgresConfig
+  | SqliteConfig
+  | MysqlConfig
+  | SingleStoreConfig
+  | GelConfig;

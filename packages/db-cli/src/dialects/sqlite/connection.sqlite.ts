@@ -1,15 +1,9 @@
-import fetch from 'node-fetch';
-import {
-  literal,
-  object,
-  string,
-  undefined as zUndefined,
-  union,
-} from 'zod';
-import { checkPackage, normalizeSQLiteUrl } from '../../utils';
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
+import fetch from 'node-fetch';
+import { literal, object, string, union, undefined as zUndefined } from 'zod';
+import { checkPackage, normalizeSQLiteUrl } from '../../utils';
 
 // ========================================================================
 // TYPES
@@ -45,26 +39,26 @@ export const sqliteCredentials = union([
 
 export type SqliteCredentials =
   | {
-    driver: 'turso';
-    url: string;
-    authToken?: string;
-  }
+      driver: 'turso';
+      url: string;
+      authToken?: string;
+    }
   | {
-    driver: 'd1-http';
-    accountId: string;
-    databaseId: string;
-    token: string;
-  }
+      driver: 'd1-http';
+      accountId: string;
+      databaseId: string;
+      token: string;
+    }
   | {
-    url: string;
-  };
+      url: string;
+    };
 
 // ========================================================================
 // CREATE
 // ========================================================================
 
 export const connectToSQLite = async (
-  credentials: SqliteCredentials,
+  credentials: SqliteCredentials
 ): Promise<SQLiteConnection> => {
   if ('driver' in credentials) {
     const { driver } = credentials;
@@ -86,25 +80,25 @@ export const connectToSQLite = async (
 
       type D1Response =
         | {
-          success: true;
-          result: {
-            results:
-              | unknown[]
-              | {
-                columns: string[];
-                rows: unknown[][];
-              };
-          }[];
-        }
+            success: true;
+            result: {
+              results:
+                | unknown[]
+                | {
+                    columns: string[];
+                    rows: unknown[][];
+                  };
+            }[];
+          }
         | {
-          success: false;
-          errors: { code: number; message: string }[];
-        };
+            success: false;
+            errors: { code: number; message: string }[];
+          };
 
       const remoteCallback: Parameters<typeof drizzle>[0] = async (
         sql,
         params,
-        method,
+        method
       ) => {
         const res = await fetch(
           `https://api.cloudflare.com/client/v4/accounts/${credentials.accountId}/d1/database/${credentials.databaseId}/${
@@ -117,14 +111,14 @@ export const connectToSQLite = async (
               'Content-Type': 'application/json',
               Authorization: `Bearer ${credentials.token}`,
             },
-          },
+          }
         );
 
         const data = (await res.json()) as D1Response;
 
         if (!data.success) {
           throw new Error(
-            data.errors.map((it) => `${it.code}: ${it.message}`).join('\n'),
+            data.errors.map((it) => `${it.code}: ${it.message}`).join('\n')
           );
         }
 
@@ -159,7 +153,7 @@ export const connectToSQLite = async (
     const { drizzle } = await import('drizzle-orm/better-sqlite3');
 
     const sqlite = new Database(
-      normalizeSQLiteUrl(credentials.url, 'better-sqlite'),
+      normalizeSQLiteUrl(credentials.url, 'better-sqlite')
     );
     const db = drizzle(sqlite);
 
@@ -167,14 +161,15 @@ export const connectToSQLite = async (
   }
 
   console.log(
-    "Please install either 'better-sqlite3' or '@libsql/client' for Drizzle Kit to connect to SQLite databases",
+    "Please install either 'better-sqlite3' or '@libsql/client' for Drizzle Kit to connect to SQLite databases"
   );
   process.exit(1);
-}
+};
 
-export const connectToLibSQL = async (
-  credentials: { url: string; authToken?: string },
-): Promise<SQLiteConnection> => {
+export const connectToLibSQL = async (credentials: {
+  url: string;
+  authToken?: string;
+}): Promise<SQLiteConnection> => {
   const { createClient } = await import('@libsql/client');
   const { drizzle } = await import('drizzle-orm/libsql');
 

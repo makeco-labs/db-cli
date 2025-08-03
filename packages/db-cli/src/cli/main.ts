@@ -3,15 +3,21 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import type { Config } from 'drizzle-kit';
+import {
+  executeCheck,
+  executeCommand,
+  executeSeed,
+  executeTruncate,
+  executeWorkflow,
+  requireProductionConfirmation,
+  validateDrizzleKit,
+  WORKFLOWS,
+} from '../actions';
 import type { DbCliConfig } from '../types';
-
+import { resolveConfigs } from '../utils/config';
 // Import modules
 // import { setupSignalHandlers } from './signals';
-import { determineEnvironment, determineAction } from './prompts';
-import { validateDrizzleKit, executeCommand } from '../actions';
-import { executeCheck, executeSeed, executeTruncate } from '../actions';
-import { executeWorkflow, requireProductionConfirmation, WORKFLOWS } from '../actions';
-import { resolveConfigs } from '../utils/config';
+import { determineAction, determineEnvironment } from './prompts';
 
 // Setup signal handlers
 // setupSignalHandlers(); // Temporarily disabled to test double execution
@@ -19,7 +25,13 @@ import { resolveConfigs } from '../utils/config';
 /**
  * Execute the chosen action
  */
-async function executeAction(action: string, configPath: string, config: Config, envName: string, dbCliConfig?: DbCliConfig): Promise<void> {
+async function executeAction(
+  action: string,
+  configPath: string,
+  config: Config,
+  envName: string,
+  dbCliConfig?: DbCliConfig
+): Promise<void> {
   switch (action) {
     case 'generate':
     case 'migrate':
@@ -31,41 +43,43 @@ async function executeAction(action: string, configPath: string, config: Config,
       }
       executeCommand(action, configPath, envName);
       break;
-      
+
     case 'check':
       await executeCheck(config);
       break;
-      
+
     case 'seed':
       if (!dbCliConfig?.seed) {
-        console.error('❌ Error: Seed command requires a db.config.ts file with a "seed" property');
+        console.error(
+          '❌ Error: Seed command requires a db.config.ts file with a "seed" property'
+        );
         console.error('Example db.config.ts:');
         console.error(`import { defineConfig } from '@makeco/db-cli';`);
-        console.error(`export default defineConfig({`);
+        console.error('export default defineConfig({');
         console.error(`  drizzleConfig: './drizzle.config.ts',`);
         console.error(`  seed: './src/db/seed.ts'`);
-        console.error(`});`);
+        console.error('});');
         process.exit(1);
       }
       await executeSeed(config, dbCliConfig.seed);
       break;
-      
+
     case 'truncate':
       await executeTruncate(config);
       break;
-      
+
     case 'reset':
       validateDrizzleKit();
       await requireProductionConfirmation('reset', config);
       await executeWorkflow(WORKFLOWS.reset, configPath, config, envName);
       break;
-      
+
     case 'refresh':
       validateDrizzleKit();
       await requireProductionConfirmation('refresh', config);
       await executeWorkflow(WORKFLOWS.refresh, configPath, config, envName);
       break;
-      
+
     default:
       console.error(chalk.red(`Unknown action: ${action}`));
       process.exit(1);
@@ -77,7 +91,9 @@ const program = new Command();
 
 program
   .name('db-cli')
-  .description('A higher-level abstraction over drizzle-kit with additional database management commands')
+  .description(
+    'A higher-level abstraction over drizzle-kit with additional database management commands'
+  )
   .version('0.1.0')
   .argument('[action]', 'Action to perform (generate, migrate, studio, etc.)')
   .option('-c, --config <path>', 'Path to config file')
@@ -87,26 +103,44 @@ program
     try {
       // Determine environment and action using original pattern
       const chosenEnv = await determineEnvironment(options.env);
-      
+
       const chosenAction = await determineAction(actionInput);
-      
+
       // Resolve configs using centralized system
-      const { drizzleConfig, dbCliConfig, configPath: resolvedConfigPath } = await resolveConfigs(options.config);
-      console.log(chalk.cyan(`Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`));
-      
+      const {
+        drizzleConfig,
+        dbCliConfig,
+        configPath: resolvedConfigPath,
+      } = await resolveConfigs(options.config);
+      console.log(
+        chalk.cyan(
+          `Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`
+        )
+      );
+
       // Execute the chosen action
-      await executeAction(chosenAction, resolvedConfigPath, drizzleConfig, chosenEnv, dbCliConfig);
-      
+      await executeAction(
+        chosenAction,
+        resolvedConfigPath,
+        drizzleConfig,
+        chosenEnv,
+        dbCliConfig
+      );
+
       // Exit successfully after command completion
       process.exit(0);
     } catch {
-      console.error(chalk.red(`\n❌ Operation failed during action: ${actionInput}`));
+      console.error(
+        chalk.red(`\n❌ Operation failed during action: ${actionInput}`)
+      );
       process.exit(1);
     }
   });
 
 // Add help examples
-program.addHelpText('after', `
+program.addHelpText(
+  'after',
+  `
 
 Examples:
   $ db-cli generate              # Generate migrations
@@ -142,10 +176,14 @@ Config Discovery:
   4. drizzle.config.js
   5. drizzle.config.mjs
   6. drizzle.config.cjs
-`);
+`
+);
 
 // Parse CLI arguments and execute
-program.parseAsync(process.argv).catch(error => {
-  console.error(chalk.red('An unexpected error occurred outside the main action handler:'), error);
+program.parseAsync(process.argv).catch((error) => {
+  console.error(
+    chalk.red('An unexpected error occurred outside the main action handler:'),
+    error
+  );
   process.exit(1);
 });

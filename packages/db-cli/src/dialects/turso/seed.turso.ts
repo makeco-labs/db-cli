@@ -8,10 +8,10 @@ export async function seedTursoDatabase(seedPath: string): Promise<SeedResult> {
 
   try {
     console.log(`Loading Turso seed file: ${seedPath}`);
-    
+
     // Dynamic import of the seed file
     const seedModule = await import(seedPath);
-    
+
     // Look for common export patterns
     if (typeof seedModule.default === 'function') {
       await seedModule.default();
@@ -20,20 +20,25 @@ export async function seedTursoDatabase(seedPath: string): Promise<SeedResult> {
     } else if (typeof seedModule.main === 'function') {
       await seedModule.main();
     } else {
-      throw new Error('Seed file must export a default function, seed function, or main function');
+      throw new Error(
+        'Seed file must export a default function, seed function, or main function'
+      );
     }
 
-    console.log("Turso database seeded successfully");
+    console.log('Turso database seeded successfully');
     return {
       success: true,
       message: `Turso database seeded from ${seedPath}`,
       timestamp,
     };
   } catch (error) {
-    console.error("Error seeding Turso database:", error);
+    console.error('Error seeding Turso database:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error during Turso seed',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error during Turso seed',
       timestamp,
     };
   }

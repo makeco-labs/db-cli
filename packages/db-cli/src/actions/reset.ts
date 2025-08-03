@@ -1,19 +1,19 @@
-import type { Config } from 'drizzle-kit';
 import type { ResetResult } from '@makeco/db-cli/types';
 import {
-  isPostgresConfig,
-  isSqliteConfig,
-  isMysqlConfig,
-  isTursoConfig,
-  isSingleStoreConfig,
-  isGelConfig,
+  extractGelCredentials,
+  extractMysqlCredentials,
   extractPostgresCredentials,
+  extractSingleStoreCredentials,
   extractSqliteCredentials,
   extractTursoCredentials,
-  extractMysqlCredentials,
-  extractSingleStoreCredentials,
-  extractGelCredentials,
+  isGelConfig,
+  isMysqlConfig,
+  isPostgresConfig,
+  isSingleStoreConfig,
+  isSqliteConfig,
+  isTursoConfig,
 } from '@makeco/db-cli/utils';
+import type { Config } from 'drizzle-kit';
 
 // ========================================================================
 // COORDINATOR FUNCTION
@@ -26,49 +26,60 @@ import {
 export async function resetDatabase(config: Config): Promise<ResetResult> {
   try {
     console.log(`Resetting ${config.dialect} database...`);
-    
+
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
-      const { preparePostgresDB, resetPostgresDatabase } = await import('@makeco/db-cli/dialects/postgres');
+      const { preparePostgresDB, resetPostgresDatabase } = await import(
+        '@makeco/db-cli/dialects/postgres'
+      );
       const connection = await preparePostgresDB(credentials);
       return await resetPostgresDatabase(connection);
     }
-    
+
     if (isSqliteConfig(config)) {
       if (isTursoConfig(config)) {
         const credentials = extractTursoCredentials(config);
-        const { prepareTursoDB, resetTursoDatabase } = await import('@makeco/db-cli/dialects/turso');
+        const { prepareTursoDB, resetTursoDatabase } = await import(
+          '@makeco/db-cli/dialects/turso'
+        );
         const connection = await prepareTursoDB(credentials);
         return await resetTursoDatabase(connection);
-      } else {
-        const credentials = extractSqliteCredentials(config);
-        const { prepareSQLiteDB, resetSqliteDatabase } = await import('@makeco/db-cli/dialects/sqlite');
-        const connection = await prepareSQLiteDB(credentials);
-        return await resetSqliteDatabase(connection);
       }
+      const credentials = extractSqliteCredentials(config);
+      const { prepareSQLiteDB, resetSqliteDatabase } = await import(
+        '@makeco/db-cli/dialects/sqlite'
+      );
+      const connection = await prepareSQLiteDB(credentials);
+      return await resetSqliteDatabase(connection);
     }
-    
+
     if (isMysqlConfig(config)) {
       const credentials = extractMysqlCredentials(config);
-      const { prepareMysqlDB, resetMysqlDatabase } = await import('@makeco/db-cli/dialects/mysql');
+      const { prepareMysqlDB, resetMysqlDatabase } = await import(
+        '@makeco/db-cli/dialects/mysql'
+      );
       const connection = await prepareMysqlDB(credentials);
       return await resetMysqlDatabase(connection);
     }
-    
+
     if (isSingleStoreConfig(config)) {
       const credentials = extractSingleStoreCredentials(config);
-      const { prepareSingleStoreDB, resetSingleStoreDatabase } = await import('@makeco/db-cli/dialects/singlestore');
+      const { prepareSingleStoreDB, resetSingleStoreDatabase } = await import(
+        '@makeco/db-cli/dialects/singlestore'
+      );
       const connection = await prepareSingleStoreDB(credentials);
       return await resetSingleStoreDatabase(connection);
     }
-    
+
     if (isGelConfig(config)) {
       const credentials = extractGelCredentials(config);
-      const { prepareGelDB, resetGelDatabase } = await import('@makeco/db-cli/dialects/gel');
+      const { prepareGelDB, resetGelDatabase } = await import(
+        '@makeco/db-cli/dialects/gel'
+      );
       const connection = await prepareGelDB(credentials);
       return await resetGelDatabase(connection);
     }
-    
+
     throw new Error(`Unsupported configuration: ${JSON.stringify(config)}`);
   } catch (error) {
     console.error('Database reset failed:', error);
@@ -89,20 +100,26 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
  */
 export async function executeReset(config: Config): Promise<void> {
   console.log('\n📋 Resetting database data...');
-  
+
   try {
     const result = await resetDatabase(config);
-    
+
     if (result.success) {
-      console.log(`✅ Database reset completed successfully!`);
+      console.log('✅ Database reset completed successfully!');
       if (result.tablesDropped.length > 0) {
-        console.log(`Dropped ${result.tablesDropped.length} tables/schemas:`, result.tablesDropped.join(', '));
+        console.log(
+          `Dropped ${result.tablesDropped.length} tables/schemas:`,
+          result.tablesDropped.join(', ')
+        );
       }
     } else {
       throw new Error(result.error || 'Database reset failed');
     }
   } catch (error) {
-    console.error('❌ Database reset failed:', error instanceof Error ? error.message : 'Unknown error');
+    console.error(
+      '❌ Database reset failed:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
     process.exit(1);
   }
 }

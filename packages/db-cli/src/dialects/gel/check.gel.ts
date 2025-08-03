@@ -1,15 +1,19 @@
+import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { GelConnection } from './connection.gel';
-import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks Gel database connection
  */
-export async function checkGelConnection(connection: GelConnection): Promise<CheckResult> {
+export async function checkGelConnection(
+  connection: GelConnection
+): Promise<CheckResult> {
   try {
     // Get Gel version (this is a placeholder - actual implementation may vary)
-    const version = await connection.db.execute(sql`SELECT VERSION() AS version`);
-    const versionString = version[0]?.version as string || 'Gel Database';
+    const version = await connection.db.execute(
+      sql`SELECT VERSION() AS version`
+    );
+    const versionString = (version[0]?.version as string) || 'Gel Database';
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);
@@ -22,7 +26,8 @@ export async function checkGelConnection(connection: GelConnection): Promise<Che
       version: versionString,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database connection failed';
+    const message =
+      error instanceof Error ? error.message : 'Database connection failed';
     console.error(`Gel connection failed: ${message}`);
 
     return {

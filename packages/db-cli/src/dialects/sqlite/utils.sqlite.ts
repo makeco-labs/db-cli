@@ -14,7 +14,9 @@ export const tableAllowlist = [
 /**
  * Gets all user tables in the database
  */
-export async function getTables(connection: SQLiteConnection): Promise<string[]> {
+export async function getTables(
+  connection: SQLiteConnection
+): Promise<string[]> {
   const statement = sql`SELECT name FROM sqlite_master WHERE type='table'`;
   const result = connection.db.all(statement); // Using db.all() to fetch all tables
 
@@ -23,5 +25,5 @@ export async function getTables(connection: SQLiteConnection): Promise<string[]>
 
   return (tables as Array<{ name: string }>)
     .map((row) => row.name) // Extract table names
-    .filter(table => !tableAllowlist.includes(table));
+    .filter((table) => !tableAllowlist.includes(table));
 }

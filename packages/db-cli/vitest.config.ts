@@ -1,31 +1,32 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vitest/config";
-import * as path from "path";
-import { fileURLToPath } from "url";
+
+import * as path from 'node:path';
+import { fileURLToPath } from 'url';
+import { defineConfig } from 'vitest/config';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
-    include: ["./__tests__/**/*.spec.ts", "./src/**/*.test.ts"],
+    include: ['./__tests__/**/*.spec.ts', './src/**/*.test.ts'],
     globals: true,
-    environment: "node",
+    environment: 'node',
     coverage: {
-      reporter: ["text", "json", "html"],
-      include: ["src/**/*.ts"],
+      reporter: ['text', 'json', 'html'],
+      include: ['src/**/*.ts'],
       exclude: [
-        "**/*.test.ts",
-        "**/*.spec.ts",
-        "**/__tests__/**",
-        "**/node_modules/**",
-        "**/dist/**",
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/__tests__/**',
+        '**/node_modules/**',
+        '**/dist/**',
       ],
       clean: true,
     },
   },
   resolve: {
     alias: {
-      "@makeco/db-cli": path.resolve(__dirname, "./src"),
+      '@makeco/db-cli': path.resolve(__dirname, './src'),
     },
   },
 });

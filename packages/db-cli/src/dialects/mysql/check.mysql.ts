@@ -1,14 +1,18 @@
+import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { MysqlConnection } from './connection.mysql';
-import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks MySQL database connection
  */
-export async function checkMysqlConnection(connection: MysqlConnection): Promise<CheckResult> {
+export async function checkMysqlConnection(
+  connection: MysqlConnection
+): Promise<CheckResult> {
   try {
     // Get MySQL version
-    const version = await connection.db.execute(sql`SELECT VERSION() AS version`);
+    const version = await connection.db.execute(
+      sql`SELECT VERSION() AS version`
+    );
     const versionString = version[0][0]?.version as string;
 
     // Perform a simple health check query
@@ -22,7 +26,8 @@ export async function checkMysqlConnection(connection: MysqlConnection): Promise
       version: versionString,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database connection failed';
+    const message =
+      error instanceof Error ? error.message : 'Database connection failed';
     console.error(`MySQL connection failed: ${message}`);
 
     return {

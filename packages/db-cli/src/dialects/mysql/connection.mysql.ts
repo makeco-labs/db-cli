@@ -1,13 +1,7 @@
-import z, {
-  coerce,
-  object,
-  string,
-  TypeOf,
-  union,
-} from "zod";
-import { checkPackage } from "../../utils";
 import type { MySql2Database } from 'drizzle-orm/mysql2';
 import type { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless';
+import z, { coerce, object, string, type TypeOf, union } from 'zod';
+import { checkPackage } from '../../utils';
 
 // ========================================================================
 // TYPES
@@ -58,37 +52,40 @@ export type MysqlCredentials = TypeOf<typeof mysqlCredentials>;
  * Prepares a MySQL database connection using available drivers
  * Supports mysql2 and @planetscale/database
  */
-export async function prepareMysqlDB(credentials: MysqlCredentials): Promise<MysqlConnection> {
+export async function prepareMysqlDB(
+  credentials: MysqlCredentials
+): Promise<MysqlConnection> {
   // Try mysql2 first
-  if (await checkPackage("mysql2")) {
+  if (await checkPackage('mysql2')) {
     console.log(`Using 'mysql2' driver for database querying`);
-    const { createConnection } = await import("mysql2/promise");
-    const { drizzle } = await import("drizzle-orm/mysql2");
+    const { createConnection } = await import('mysql2/promise');
+    const { drizzle } = await import('drizzle-orm/mysql2');
 
-    const connection = 'url' in credentials
-      ? await createConnection(credentials.url)
-      : await createConnection({
-          host: credentials.host,
-          port: credentials.port,
-          user: credentials.user,
-          password: credentials.password,
-          database: credentials.database,
-          ssl: credentials.ssl,
-        });
+    const connection =
+      'url' in credentials
+        ? await createConnection(credentials.url)
+        : await createConnection({
+            host: credentials.host,
+            port: credentials.port,
+            user: credentials.user,
+            password: credentials.password,
+            database: credentials.database,
+            ssl: credentials.ssl,
+          });
 
     const db = drizzle(connection);
     return { db };
   }
 
   // Try PlanetScale
-  if (await checkPackage("@planetscale/database")) {
+  if (await checkPackage('@planetscale/database')) {
     console.log(`Using '@planetscale/database' driver for database querying`);
-    const { Client } = await import("@planetscale/database");
-    const { drizzle } = await import("drizzle-orm/planetscale-serverless");
+    const { Client } = await import('@planetscale/database');
+    const { drizzle } = await import('drizzle-orm/planetscale-serverless');
 
     if (!('url' in credentials)) {
       throw new Error(
-        "@planetscale/database driver only supports URL connections"
+        '@planetscale/database driver only supports URL connections'
       );
     }
 

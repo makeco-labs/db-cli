@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
-import path from 'path';
-import fs from 'fs';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 // Use npx for universal compatibility
 
@@ -12,7 +12,9 @@ export function validateDrizzleKit(): void {
   try {
     execSync('npx drizzle-kit --version', { stdio: 'pipe' });
   } catch {
-    console.error('❌ Error: drizzle-kit not found. Please install drizzle-kit as a dependency.');
+    console.error(
+      '❌ Error: drizzle-kit not found. Please install drizzle-kit as a dependency.'
+    );
     process.exit(1);
   }
 }
@@ -35,7 +37,11 @@ function loadEnvFile(envName: string): void {
 /**
  * Executes a drizzle-kit command using Node.js dotenv instead of dotenv-cli
  */
-export function executeCommand(command: string, configPath: string, envName: string): void {
+export function executeCommand(
+  command: string,
+  configPath: string,
+  envName: string
+): void {
   // Load environment variables using Node.js dotenv
   loadEnvFile(envName);
 
@@ -46,7 +52,7 @@ export function executeCommand(command: string, configPath: string, envName: str
   try {
     execSync(fullCommand, {
       stdio: 'inherit',
-      env: process.env // Pass the current environment (including loaded .env vars)
+      env: process.env, // Pass the current environment (including loaded .env vars)
     });
     console.log(`✅ Command completed successfully: ${command}`);
   } catch (error) {

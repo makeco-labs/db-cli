@@ -1,14 +1,18 @@
+import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { SingleStoreConnection } from './connection.singlestore';
-import type { CheckResult } from '@makeco/db-cli/types';
 
 /**
  * Checks SingleStore database connection
  */
-export async function checkSingleStoreConnection(connection: SingleStoreConnection): Promise<CheckResult> {
+export async function checkSingleStoreConnection(
+  connection: SingleStoreConnection
+): Promise<CheckResult> {
   try {
     // Get SingleStore version
-    const version = await connection.db.execute(sql`SELECT VERSION() AS version`);
+    const version = await connection.db.execute(
+      sql`SELECT VERSION() AS version`
+    );
     const versionString = version[0][0]?.version as string;
 
     // Perform a simple health check query
@@ -22,7 +26,8 @@ export async function checkSingleStoreConnection(connection: SingleStoreConnecti
       version: versionString,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database connection failed';
+    const message =
+      error instanceof Error ? error.message : 'Database connection failed';
     console.error(`SingleStore connection failed: ${message}`);
 
     return {

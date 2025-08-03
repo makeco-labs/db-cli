@@ -1,27 +1,31 @@
-import type { Config } from 'drizzle-kit';
 import type { DatabaseConnection } from '@makeco/db-cli/types';
 import {
-  isPostgresConfig,
-  isSqliteConfig,
-  isMysqlConfig,
-  isTursoConfig,
-  isSingleStoreConfig,
-  isGelConfig,
+  extractGelCredentials,
+  extractMysqlCredentials,
   extractPostgresCredentials,
+  extractSingleStoreCredentials,
   extractSqliteCredentials,
   extractTursoCredentials,
-  extractMysqlCredentials,
-  extractSingleStoreCredentials,
-  extractGelCredentials,
+  isGelConfig,
+  isMysqlConfig,
+  isPostgresConfig,
+  isSingleStoreConfig,
+  isSqliteConfig,
+  isTursoConfig,
 } from '@makeco/db-cli/utils';
+import type { Config } from 'drizzle-kit';
 
 /**
  * Creates a database connection based on the drizzle config using drizzle-kit patterns
  * Supports PostgreSQL, SQLite, Turso, MySQL, SingleStore, and Gel
  */
-export async function createConnection(config: Config): Promise<DatabaseConnection> {
+export async function createConnection(
+  config: Config
+): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
-    const { preparePostgresDB } = await import('@makeco/db-cli/dialects/postgres');
+    const { preparePostgresDB } = await import(
+      '@makeco/db-cli/dialects/postgres'
+    );
     const credentials = extractPostgresCredentials(config);
     return await preparePostgresDB(credentials);
   }
@@ -31,11 +35,10 @@ export async function createConnection(config: Config): Promise<DatabaseConnecti
       const credentials = extractTursoCredentials(config);
       const { prepareTursoDB } = await import('@makeco/db-cli/dialects/turso');
       return await prepareTursoDB(credentials);
-    } else {
-      const credentials = extractSqliteCredentials(config);
-      const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
-      return await prepareSQLiteDB(credentials);
     }
+    const credentials = extractSqliteCredentials(config);
+    const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
+    return await prepareSQLiteDB(credentials);
   }
 
   if (isMysqlConfig(config)) {
@@ -45,7 +48,9 @@ export async function createConnection(config: Config): Promise<DatabaseConnecti
   }
 
   if (isSingleStoreConfig(config)) {
-    const { prepareSingleStoreDB } = await import('@makeco/db-cli/dialects/singlestore');
+    const { prepareSingleStoreDB } = await import(
+      '@makeco/db-cli/dialects/singlestore'
+    );
     const credentials = extractSingleStoreCredentials(config);
     return await prepareSingleStoreDB(credentials);
   }

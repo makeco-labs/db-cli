@@ -1,17 +1,19 @@
+import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { PostgresConnection } from './connection.postgres';
-import type { ResetResult } from '@makeco/db-cli/types';
-import { getTables, getSchemas } from './utils.postgres';
+import { getSchemas, getTables } from './utils.postgres';
 
 /**
  * Resets PostgreSQL database by dropping all user tables and schemas
  */
-export async function resetPostgresDatabase(connection: PostgresConnection): Promise<ResetResult> {
+export async function resetPostgresDatabase(
+  connection: PostgresConnection
+): Promise<ResetResult> {
   const tablesDropped: string[] = [];
-  
+
   try {
     const tables = await getTables(connection);
-    console.log("Tables to drop:", tables.join(", "));
+    console.log('Tables to drop:', tables.join(', '));
     for (const table of tables) {
       const dropStatement = sql`DROP TABLE IF EXISTS ${sql.identifier(table)} CASCADE`;
       await connection.db.execute(dropStatement);
@@ -20,9 +22,9 @@ export async function resetPostgresDatabase(connection: PostgresConnection): Pro
     }
 
     const schemas = await getSchemas(connection);
-    console.log("Schemas to drop:", schemas.join(", "));
+    console.log('Schemas to drop:', schemas.join(', '));
     for (const schema of schemas) {
-      if (schema !== "public") {
+      if (schema !== 'public') {
         const dropStatement = sql`DROP SCHEMA IF EXISTS ${sql.identifier(schema)} CASCADE`;
         await connection.db.execute(dropStatement);
         tablesDropped.push(`schema:${schema}`);
@@ -30,13 +32,13 @@ export async function resetPostgresDatabase(connection: PostgresConnection): Pro
       }
     }
 
-    console.log("Schema reset completed");
+    console.log('Schema reset completed');
     return {
       success: true,
       tablesDropped,
     };
   } catch (e) {
-    console.error("Error resetting schema:", e);
+    console.error('Error resetting schema:', e);
     throw e;
   }
 }

@@ -1,17 +1,16 @@
 // Main CLI entry point
+
+export * from './actions';
 export * from './cli';
-
-// Database functionality by dialect
-export * from './dialects/postgres';
-export * from './dialects/sqlite';
-export * from './dialects/mysql';
-export * from './dialects/turso';
-export * from './dialects/singlestore';
-export * from './dialects/gel';
-
 // Core functionality
 export * from './connections';
-export * from './actions';
+export * from './dialects/gel';
+export * from './dialects/mysql';
+// Database functionality by dialect
+export * from './dialects/postgres';
+export * from './dialects/singlestore';
+export * from './dialects/sqlite';
+export * from './dialects/turso';
 
 // Types and utilities
 export * from './types';

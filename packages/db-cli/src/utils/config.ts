@@ -1,36 +1,35 @@
-import fs from 'fs';
-import path from 'path';
-import { createRequire } from 'module';
-
 import type { Config } from 'drizzle-kit';
+import fs from 'fs';
+import { createRequire } from 'module';
+import path from 'path';
 import type {
   DbCliConfig,
-  PostgresConfig,
-  PostgresConfigWithHost,
-  PostgresConfigWithUrl,
-  PostgresConfigAwsDataApi,
-  PostgresConfigPglite,
-  SqliteConfig,
-  SqliteConfigWithUrl,
-  TursoConfig,
-  SqliteConfigD1Http,
-  SqliteConfigExpo,
-  SqliteConfigDurable,
+  GelConfig,
+  GelConfigBasic,
+  GelConfigWithHost,
+  GelConfigWithUrl,
+  GelCredentials,
   MysqlConfig,
   MysqlConfigWithHost,
   MysqlConfigWithUrl,
+  MysqlCredentials,
+  PostgresConfig,
+  PostgresConfigAwsDataApi,
+  PostgresConfigPglite,
+  PostgresConfigWithHost,
+  PostgresConfigWithUrl,
+  PostgresCredentials,
   SingleStoreConfig,
   SingleStoreConfigWithHost,
   SingleStoreConfigWithUrl,
-  GelConfig,
-  GelConfigWithHost,
-  GelConfigWithUrl,
-  GelConfigBasic,
-  PostgresCredentials,
-  SqliteCredentials,
-  MysqlCredentials,
   SingleStoreCredentials,
-  GelCredentials,
+  SqliteConfig,
+  SqliteConfigD1Http,
+  SqliteConfigDurable,
+  SqliteConfigExpo,
+  SqliteConfigWithUrl,
+  SqliteCredentials,
+  TursoConfig,
 } from '../types';
 
 // ========================================================================
@@ -106,7 +105,9 @@ export function discoverDbCliConfig(): string | null {
 export function validateConfigPath(configPath: string | null): string {
   if (!configPath) {
     console.error('❌ Error: No drizzle config file found.');
-    console.error('Expected files: drizzle.config.ts, drizzle.config.js, drizzle.config.mjs, or drizzle.config.cjs');
+    console.error(
+      'Expected files: drizzle.config.ts, drizzle.config.js, drizzle.config.mjs, or drizzle.config.cjs'
+    );
     console.error('Or specify a config file with --config flag');
     process.exit(1);
   }
@@ -140,7 +141,9 @@ export async function loadConfig(configPath: string): Promise<Config> {
       throw new Error(`Invalid config file: ${configPath}`);
     }
     if (!config.dialect) {
-      throw new Error(`Config file missing required 'dialect' field: ${configPath}`);
+      throw new Error(
+        `Config file missing required 'dialect' field: ${configPath}`
+      );
     }
     return config;
   } catch (error) {
@@ -154,7 +157,9 @@ export async function loadConfig(configPath: string): Promise<Config> {
 /**
  * Loads and parses a db config file
  */
-export async function loadDbCliConfig(configPath: string): Promise<DbCliConfig> {
+export async function loadDbCliConfig(
+  configPath: string
+): Promise<DbCliConfig> {
   try {
     const absolutePath = path.resolve(configPath);
 
@@ -174,10 +179,14 @@ export async function loadDbCliConfig(configPath: string): Promise<DbCliConfig> 
       throw new Error(`Invalid db config file: ${configPath}`);
     }
     if (!config.drizzleConfig) {
-      throw new Error(`db config file missing required 'drizzleConfig' field: ${configPath}`);
+      throw new Error(
+        `db config file missing required 'drizzleConfig' field: ${configPath}`
+      );
     }
     if (!config.seed) {
-      throw new Error(`db config file missing required 'seed' field: ${configPath}`);
+      throw new Error(
+        `db config file missing required 'seed' field: ${configPath}`
+      );
     }
     return config;
   } catch (error) {
@@ -240,7 +249,9 @@ export function isPostgresConfig(config: Config): config is PostgresConfig {
   return config.dialect === 'postgresql';
 }
 
-export function isPostgresConfigWithHost(config: Config): config is PostgresConfigWithHost {
+export function isPostgresConfigWithHost(
+  config: Config
+): config is PostgresConfigWithHost {
   return (
     config.dialect === 'postgresql' &&
     !('driver' in config) &&
@@ -249,7 +260,9 @@ export function isPostgresConfigWithHost(config: Config): config is PostgresConf
   );
 }
 
-export function isPostgresConfigWithUrl(config: Config): config is PostgresConfigWithUrl {
+export function isPostgresConfigWithUrl(
+  config: Config
+): config is PostgresConfigWithUrl {
   return (
     config.dialect === 'postgresql' &&
     !('driver' in config) &&
@@ -259,7 +272,9 @@ export function isPostgresConfigWithUrl(config: Config): config is PostgresConfi
   );
 }
 
-export function isPostgresConfigAwsDataApi(config: Config): config is PostgresConfigAwsDataApi {
+export function isPostgresConfigAwsDataApi(
+  config: Config
+): config is PostgresConfigAwsDataApi {
   return (
     config.dialect === 'postgresql' &&
     'driver' in config &&
@@ -267,7 +282,9 @@ export function isPostgresConfigAwsDataApi(config: Config): config is PostgresCo
   );
 }
 
-export function isPostgresConfigPglite(config: Config): config is PostgresConfigPglite {
+export function isPostgresConfigPglite(
+  config: Config
+): config is PostgresConfigPglite {
   return (
     config.dialect === 'postgresql' &&
     'driver' in config &&
@@ -280,7 +297,9 @@ export function isSqliteConfig(config: Config): config is SqliteConfig {
   return config.dialect === 'sqlite' || config.dialect === 'turso';
 }
 
-export function isSqliteConfigWithUrl(config: Config): config is SqliteConfigWithUrl {
+export function isSqliteConfigWithUrl(
+  config: Config
+): config is SqliteConfigWithUrl {
   return (
     config.dialect === 'sqlite' &&
     !('driver' in config) &&
@@ -292,7 +311,9 @@ export function isTursoConfig(config: Config): config is TursoConfig {
   return config.dialect === 'turso';
 }
 
-export function isSqliteConfigD1Http(config: Config): config is SqliteConfigD1Http {
+export function isSqliteConfigD1Http(
+  config: Config
+): config is SqliteConfigD1Http {
   return (
     config.dialect === 'sqlite' &&
     'driver' in config &&
@@ -308,7 +329,9 @@ export function isSqliteConfigExpo(config: Config): config is SqliteConfigExpo {
   );
 }
 
-export function isSqliteConfigDurable(config: Config): config is SqliteConfigDurable {
+export function isSqliteConfigDurable(
+  config: Config
+): config is SqliteConfigDurable {
   return (
     config.dialect === 'sqlite' &&
     'driver' in config &&
@@ -321,7 +344,9 @@ export function isMysqlConfig(config: Config): config is MysqlConfig {
   return config.dialect === 'mysql';
 }
 
-export function isMysqlConfigWithHost(config: Config): config is MysqlConfigWithHost {
+export function isMysqlConfigWithHost(
+  config: Config
+): config is MysqlConfigWithHost {
   return (
     config.dialect === 'mysql' &&
     'dbCredentials' in config &&
@@ -329,7 +354,9 @@ export function isMysqlConfigWithHost(config: Config): config is MysqlConfigWith
   );
 }
 
-export function isMysqlConfigWithUrl(config: Config): config is MysqlConfigWithUrl {
+export function isMysqlConfigWithUrl(
+  config: Config
+): config is MysqlConfigWithUrl {
   return (
     config.dialect === 'mysql' &&
     'dbCredentials' in config &&
@@ -339,11 +366,15 @@ export function isMysqlConfigWithUrl(config: Config): config is MysqlConfigWithU
 }
 
 // Type guards for SingleStore configs
-export function isSingleStoreConfig(config: Config): config is SingleStoreConfig {
+export function isSingleStoreConfig(
+  config: Config
+): config is SingleStoreConfig {
   return config.dialect === 'singlestore';
 }
 
-export function isSingleStoreConfigWithHost(config: Config): config is SingleStoreConfigWithHost {
+export function isSingleStoreConfigWithHost(
+  config: Config
+): config is SingleStoreConfigWithHost {
   return (
     config.dialect === 'singlestore' &&
     'dbCredentials' in config &&
@@ -351,7 +382,9 @@ export function isSingleStoreConfigWithHost(config: Config): config is SingleSto
   );
 }
 
-export function isSingleStoreConfigWithUrl(config: Config): config is SingleStoreConfigWithUrl {
+export function isSingleStoreConfigWithUrl(
+  config: Config
+): config is SingleStoreConfigWithUrl {
   return (
     config.dialect === 'singlestore' &&
     'dbCredentials' in config &&
@@ -365,7 +398,9 @@ export function isGelConfig(config: Config): config is GelConfig {
   return config.dialect === 'gel';
 }
 
-export function isGelConfigWithHost(config: Config): config is GelConfigWithHost {
+export function isGelConfigWithHost(
+  config: Config
+): config is GelConfigWithHost {
   return (
     config.dialect === 'gel' &&
     'dbCredentials' in config &&
@@ -387,12 +422,14 @@ export function isGelConfigWithUrl(config: Config): config is GelConfigWithUrl {
 export function isGelConfigBasic(config: Config): config is GelConfigBasic {
   return (
     config.dialect === 'gel' &&
-    (!('dbCredentials' in config) || !config.dbCredentials)
+    !('dbCredentials' in config && config.dbCredentials)
   );
 }
 
 // Credential extraction functions
-export function extractPostgresCredentials(config: PostgresConfig): PostgresCredentials {
+export function extractPostgresCredentials(
+  config: PostgresConfig
+): PostgresCredentials {
   if (isPostgresConfigAwsDataApi(config)) {
     return {
       driver: 'aws-data-api',
@@ -420,14 +457,23 @@ export function extractPostgresCredentials(config: PostgresConfig): PostgresCred
       user: config.dbCredentials.user,
       password: config.dbCredentials.password,
       database: config.dbCredentials.database,
-      ssl: config.dbCredentials.ssl as boolean | 'require' | 'allow' | 'prefer' | 'verify-full' | Record<string, unknown> | undefined,
+      ssl: config.dbCredentials.ssl as
+        | boolean
+        | 'require'
+        | 'allow'
+        | 'prefer'
+        | 'verify-full'
+        | Record<string, unknown>
+        | undefined,
     };
   }
 
   throw new Error('Invalid PostgreSQL configuration');
 }
 
-export function extractSqliteCredentials(config: SqliteConfig): SqliteCredentials {
+export function extractSqliteCredentials(
+  config: SqliteConfig
+): SqliteCredentials {
   if (isTursoConfig(config)) {
     return {
       driver: 'turso',
@@ -456,7 +502,10 @@ export function extractSqliteCredentials(config: SqliteConfig): SqliteCredential
   throw new Error('Invalid SQLite configuration');
 }
 
-export function extractTursoCredentials(config: TursoConfig): { url: string; authToken?: string } {
+export function extractTursoCredentials(config: TursoConfig): {
+  url: string;
+  authToken?: string;
+} {
   return {
     url: config.dbCredentials.url,
     authToken: config.dbCredentials.authToken,
@@ -482,7 +531,9 @@ export function extractMysqlCredentials(config: MysqlConfig): MysqlCredentials {
   throw new Error('Invalid MySQL configuration');
 }
 
-export function extractSingleStoreCredentials(config: SingleStoreConfig): SingleStoreCredentials {
+export function extractSingleStoreCredentials(
+  config: SingleStoreConfig
+): SingleStoreCredentials {
   if (isSingleStoreConfigWithUrl(config)) {
     return { url: config.dbCredentials.url };
   }
@@ -503,7 +554,7 @@ export function extractSingleStoreCredentials(config: SingleStoreConfig): Single
 
 export function extractGelCredentials(config: GelConfig): GelCredentials {
   if (isGelConfigBasic(config)) {
-    return undefined;
+    return;
   }
 
   if (isGelConfigWithUrl(config)) {

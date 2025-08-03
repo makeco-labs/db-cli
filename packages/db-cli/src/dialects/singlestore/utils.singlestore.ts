@@ -2,11 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { SingleStoreConnection } from './connection.singlestore';
 
 // System tables that should not be dropped/truncated
-const SYSTEM_TABLES = [
-  'information_schema',
-  'performance_schema',
-  'sys',
-];
+const SYSTEM_TABLES = ['information_schema', 'performance_schema', 'sys'];
 
 // Migration/history tables to preserve
 const PRESERVED_TABLES = [
@@ -18,7 +14,9 @@ const PRESERVED_TABLES = [
 /**
  * Gets all user tables from SingleStore database
  */
-export async function getTables(connection: SingleStoreConnection): Promise<string[]> {
+export async function getTables(
+  connection: SingleStoreConnection
+): Promise<string[]> {
   const result = await connection.db.execute(sql`
     SELECT TABLE_NAME 
     FROM information_schema.TABLES 
@@ -26,7 +24,8 @@ export async function getTables(connection: SingleStoreConnection): Promise<stri
     AND TABLE_TYPE = 'BASE TABLE'
   `);
 
-  const tables = result.rows.map((row: any) => row.TABLE_NAME)
+  const tables = result.rows
+    .map((row: any) => row.TABLE_NAME)
     .filter((table: string) => !PRESERVED_TABLES.includes(table));
 
   return tables;
@@ -35,7 +34,10 @@ export async function getTables(connection: SingleStoreConnection): Promise<stri
 /**
  * Gets foreign key constraints for a table
  */
-export async function getTableConstraints(connection: SingleStoreConnection, tableName: string): Promise<string[]> {
+export async function getTableConstraints(
+  connection: SingleStoreConnection,
+  tableName: string
+): Promise<string[]> {
   const result = await connection.db.execute(sql`
     SELECT CONSTRAINT_NAME
     FROM information_schema.TABLE_CONSTRAINTS

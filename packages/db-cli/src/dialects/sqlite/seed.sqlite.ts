@@ -1,6 +1,6 @@
+import type { SeedResult } from '@makeco/db-cli/types';
 import fs from 'fs';
 import path from 'path';
-import type { SeedResult } from '@makeco/db-cli/types';
 
 /**
  * Seeds a SQLite database by executing a seed file
@@ -9,7 +9,7 @@ export async function seedSQLiteDatabase(
   seedPath: string
 ): Promise<SeedResult> {
   const timestamp = new Date().toISOString();
-  
+
   try {
     // Validate seed file exists
     const absoluteSeedPath = path.resolve(seedPath);
@@ -25,7 +25,7 @@ export async function seedSQLiteDatabase(
     // The seed file should export a default function that handles its own connection
     const seedModule = await import(absoluteSeedPath);
     const seedFunction = seedModule.default || seedModule.seed;
-    
+
     if (typeof seedFunction !== 'function') {
       return {
         success: false,
@@ -36,7 +36,7 @@ export async function seedSQLiteDatabase(
 
     // Execute the seed function (zero abstraction - no parameters)
     await seedFunction();
-    
+
     return {
       success: true,
       message: `Database seeded successfully from ${seedPath}`,
@@ -45,7 +45,10 @@ export async function seedSQLiteDatabase(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error during SQLite seed',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error during SQLite seed',
       timestamp,
     };
   }
