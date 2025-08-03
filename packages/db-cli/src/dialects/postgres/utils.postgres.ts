@@ -13,6 +13,33 @@ export const tableAllowlist = [
 
 export const schemaAllowlist = ['information_schema', 'pg_catalog', 'pg_toast'];
 
+// ========================================================================
+// VERSION FORMATTING
+// ========================================================================
+
+// Regex for parsing PostgreSQL version strings
+const POSTGRES_VERSION_REGEX = /PostgreSQL (\d+\.\d+)(?:\.\d+)?\s*(?:on\s+([^,]+))?/;
+
+/**
+ * Formats PostgreSQL version string for cleaner display
+ * Example: "PostgreSQL 17.5 on aarch64-unknown-linux-musl, compiled by gcc..." 
+ * Becomes: "PostgreSQL 17.5 on aarch64-unknown-linux-musl"
+ */
+export function formatPostgresVersion(version: string): string {
+  // Extract version number and platform from PostgreSQL version string
+  const match = version.match(POSTGRES_VERSION_REGEX);
+  if (match) {
+    const [, versionNum, platform] = match;
+    if (platform) {
+      return `PostgreSQL ${versionNum} on ${platform}`;
+    }
+    return `PostgreSQL ${versionNum}`;
+  }
+  
+  // Fallback to truncated version if pattern doesn't match
+  return version.length > 50 ? `${version.substring(0, 47)}...` : version;
+}
+
 /**
  * Gets all user tables in the public schema
  */

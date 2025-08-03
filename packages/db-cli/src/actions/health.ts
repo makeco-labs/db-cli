@@ -25,7 +25,6 @@ import type { Config as DrizzleConfig } from 'drizzle-kit';
  */
 export async function checkHealth(config: DrizzleConfig): Promise<HealthCheckResult> {
   try {
-    console.log(`Checking ${config.dialect} database connection...`);
 
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
@@ -110,7 +109,6 @@ export async function executeHealth(config: DrizzleConfig): Promise<void> {
       } else {
         console.log('✅ Connection successful.');
       }
-      console.log(`Status: ${result.status} at ${result.timestamp}`);
     } else {
       throw new Error(result.message || 'Database health check failed');
     }

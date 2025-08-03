@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
 
+import { formatSqliteVersion } from './utils.sqlite';
+
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { SQLiteConnection } from './types.sqlite';
 
@@ -11,18 +13,19 @@ export async function checkSqliteConnection(
 ): Promise<HealthCheckResult> {
   try {
     // Get SQLite version
-    const version = connection.db.all(sql`SELECT sqlite_version() AS version`);
-    const versionString = version[0]?.version as string;
+    const version = await connection.db.all(sql`SELECT sqlite_version() AS version`);
+    const versionString = (version as Array<{ version: string }>)[0]?.version;
+    const formattedVersion = versionString ? formatSqliteVersion(versionString) : undefined;
 
     // Perform a simple health check query
-    connection.db.run(sql`SELECT 1`);
+    await connection.db.run(sql`SELECT 1`);
 
-    console.log(`SQLite connection successful: ${versionString}`);
+    // console.log(`SQLite connection successful: ${versionString}`);
 
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      version: versionString,
+      version: formattedVersion,
     };
   } catch (error) {
     const message =

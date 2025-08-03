@@ -1,7 +1,15 @@
 import { sql } from 'drizzle-orm';
 
+import { formatPostgresVersion } from './utils.postgres';
+
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { PostgresConnection } from './types.postgres';
+
+export type VersionResult = {
+  rows: {
+    version: string;
+  }[];
+};
 
 /**
  * Checks PostgreSQL database connection
@@ -13,23 +21,22 @@ export async function checkPostgresConnection(
     // Get PostgreSQL version
     const version = await connection.db.execute(
       sql`SELECT version() AS version`
-    );
-    const versionString = version[0]?.version as string;
+    ) as VersionResult;
+
+    const versionString = version.rows[0]?.version;
+    const formattedVersion = versionString ? formatPostgresVersion(versionString) : undefined;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);
 
-    console.log(`PostgreSQL connection successful: ${versionString}`);
-
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      version: versionString,
+      version: formattedVersion,
     };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Database connection failed';
-    console.error(`PostgreSQL connection failed: ${message}`);
 
     return {
       status: 'error',

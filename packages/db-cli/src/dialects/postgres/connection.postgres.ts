@@ -72,7 +72,7 @@ export const preparePostgresDB = async (
   }
 
   if (await checkPackage('pg')) {
-    console.log(`Using 'pg' driver for database querying`);
+    // console.log(`Using 'pg' driver for database querying`);
     const pg = await import('pg');
     const { drizzle } = await import('drizzle-orm/node-postgres');
 
@@ -89,7 +89,7 @@ export const preparePostgresDB = async (
   }
 
   if (await checkPackage('postgres')) {
-    console.log(`Using 'postgres' driver for database querying`);
+    // console.log(`Using 'postgres' driver for database querying`);
     const postgres = await import('postgres');
 
     const { drizzle } = await import('drizzle-orm/postgres-js');
@@ -117,7 +117,7 @@ export const preparePostgresDB = async (
   }
 
   if (await checkPackage('@vercel/postgres')) {
-    console.log(`Using '@vercel/postgres' driver for database querying`);
+    // console.log(`Using '@vercel/postgres' driver for database querying`);
     console.log(
       "'@vercel/postgres' can only connect to remote Neon/Vercel Postgres/Supabase instances through a websocket"
     );
@@ -138,9 +138,9 @@ export const preparePostgresDB = async (
   }
 
   if (await checkPackage('@neondatabase/serverless')) {
-    console.log(
-      `Using '@neondatabase/serverless' driver for database querying`
-    );
+    // console.log(
+    //   `Using '@neondatabase/serverless' driver for database querying`
+    // );
     console.log(
       "'@neondatabase/serverless' can only connect to remote Neon/Vercel Postgres/Supabase instances through a websocket"
     );

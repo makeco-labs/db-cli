@@ -52,6 +52,19 @@ export const tableAllowlist = [
   'drizzle_query_log_entries',
 ];
 
+// ========================================================================
+// VERSION FORMATTING
+// ========================================================================
+
+/**
+ * Formats SQLite version string for cleaner display
+ * Example: "3.45.1" becomes "SQLite 3.45.1"
+ */
+export function formatSqliteVersion(version: string): string {
+  // SQLite version is just a version number, so add the prefix
+  return `SQLite ${version}`;
+}
+
 /**
  * Gets all user tables in the database
  */
@@ -60,7 +73,7 @@ export async function getTables(
 ): Promise<string[]> {
   const statement = sql`SELECT name FROM sqlite_master WHERE type='table'`;
   const result = await connection.db.all(statement);
-  console.log('result', result);
+  // console.log('result', result);
 
   // Handle different result formats from different drivers
   const tables = Array.isArray(result) ? result : [result];

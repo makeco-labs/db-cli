@@ -1,10 +1,25 @@
 # @makeco/db-cli
 
+> ⚠️ **Experimental Package - Not Production Ready**
+> 
+> This package is currently in active development and should be considered experimental. The API may change at any time.
+
 A powerful database CLI tool that extends drizzle-kit with additional commands for database management workflows. Simplify your database operations with powerful commands like `reset` and `refresh`.
 
 [![npm version](https://badge.fury.io/js/@makeco%2Fdb-cli.svg)](https://badge.fury.io/js/@makeco%2Fdb-cli)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Database Support Status
+
+| Database | Status | Notes |
+|----------|---------|-------|
+| PostgreSQL | ✅ Tested | Fully tested and working |
+| SQLite | ✅ Tested | Fully tested and working |
+| MySQL | ⚠️ Untested | Implementation exists but not officially tested |
+| Turso | ⚠️ Untested | Implementation exists but not officially tested |
+| SingleStore | ⚠️ Untested | Implementation exists but not officially tested |
+| Gel | ⚠️ Untested | Implementation exists but not officially tested |
 
 ## Features
 
@@ -215,16 +230,19 @@ For multi-environment setups, create environment-specific config files:
 
 ## Supported Databases
 
-Currently supports:
+**Fully Tested & Working:**
 - **PostgreSQL** - All drivers (pg, postgres.js, @vercel/postgres, @neondatabase/serverless, pglite, aws-data-api)
 - **SQLite** - All drivers (better-sqlite3, @libsql/client, turso, d1-http)
 
-Not yet supported:
-- L **MySQL**
-- L **SingleStore**
-- L **Gel**
-- L **SQLite Expo driver**
-- L **SQLite Durable Objects driver**
+**Implementation Exists (Untested):**
+- **MySQL** - May have errors, not officially tested
+- **SingleStore** - May have errors, not officially tested  
+- **Turso** - May have errors, not officially tested
+- **Gel** - May have errors, not officially tested
+
+**Not Yet Supported:**
+- **SQLite Expo driver**
+- **SQLite Durable Objects driver**
 
 ## API Reference
 
