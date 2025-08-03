@@ -1,7 +1,8 @@
-import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { TursoConnection } from './connection.turso';
 import { getTables } from './utils.turso';
+
+import type { ResetResult } from '@/dialects/result.types';
+import type { TursoConnection } from './types.turso';
 
 /**
  * Resets Turso database by dropping all user tables while preserving system tables

@@ -1,48 +1,5 @@
-import type { MySql2Database } from 'drizzle-orm/mysql2';
-import type { PlanetScaleDatabase } from 'drizzle-orm/planetscale-serverless';
-import z, { coerce, object, string, type TypeOf, union } from 'zod';
 import { checkPackage } from '../../utils';
-
-// ========================================================================
-// TYPES
-// ========================================================================
-
-export interface MysqlConnection {
-  db:
-    | MySql2Database<Record<string, never>>
-    | PlanetScaleDatabase<Record<string, never>>;
-}
-
-// MySQL credentials type derived from drizzle-kit's validation schema
-export const mysqlCredentials = union([
-  object({
-    driver: z.undefined(),
-    host: string().min(1),
-    port: coerce.number().min(1).optional(),
-    user: string().min(1).optional(),
-    password: string().min(1).optional(),
-    database: string().min(1),
-    ssl: union([
-      string(),
-      object({
-        pfx: string().optional(),
-        key: string().optional(),
-        passphrase: string().optional(),
-        cert: string().optional(),
-        ca: union([string(), string().array()]).optional(),
-        crl: union([string(), string().array()]).optional(),
-        ciphers: string().optional(),
-        rejectUnauthorized: z.boolean().optional(),
-      }),
-    ]).optional(),
-  }),
-  object({
-    driver: z.undefined(),
-    url: string().min(1),
-  }),
-]);
-
-export type MysqlCredentials = TypeOf<typeof mysqlCredentials>;
+import type { MysqlConnection, MysqlCredentials } from './types.mysql';
 
 // ========================================================================
 // CONNECTION FUNCTIONS

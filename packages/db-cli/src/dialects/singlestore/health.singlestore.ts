@@ -1,24 +1,25 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { GelConnection } from './connection.gel';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { SingleStoreConnection } from './types.singlestore';
 
 /**
- * Checks Gel database connection
+ * Checks SingleStore database connection
  */
-export async function checkGelConnection(
-  connection: GelConnection
-): Promise<CheckResult> {
+export async function checkSingleStoreConnection(
+  connection: SingleStoreConnection
+): Promise<HealthCheckResult> {
   try {
-    // Get Gel version (this is a placeholder - actual implementation may vary)
+    // Get SingleStore version
     const version = await connection.db.execute(
       sql`SELECT VERSION() AS version`
     );
-    const versionString = (version[0]?.version as string) || 'Gel Database';
+    const versionString = version[0][0]?.version as string;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);
 
-    console.log(`Gel connection successful: ${versionString}`);
+    console.log(`SingleStore connection successful: ${versionString}`);
 
     return {
       status: 'ok',
@@ -28,7 +29,7 @@ export async function checkGelConnection(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Database connection failed';
-    console.error(`Gel connection failed: ${message}`);
+    console.error(`SingleStore connection failed: ${message}`);
 
     return {
       status: 'error',

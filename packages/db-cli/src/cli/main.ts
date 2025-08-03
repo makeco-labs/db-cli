@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import { Command } from 'commander';
-import type { Config } from 'drizzle-kit';
+import { Command, Option } from 'commander';
+
 import {
-  executeCheck,
+  executeHealth,
   executeCommand,
   executeSeed,
   executeTruncate,
@@ -13,71 +13,94 @@ import {
   validateDrizzleKit,
   WORKFLOWS,
 } from '../actions';
-import type { DbCliConfig } from '../types';
 import { resolveConfigs } from '../utils/config';
 // Import modules
-// import { setupSignalHandlers } from './signals';
+import { ACTIONS, VALID_ENVIRONMENTS } from './definitions';
 import { determineAction, determineEnvironment } from './prompts';
+import { setupSignalHandlers } from './signals';
+import { loadEnvironment } from './environment';
+
+import type { DbConfig } from '@/types';
+import type { Config as DrizzleConfig } from 'drizzle-kit';
+import type { ActionKey, CliOptions } from './definitions';
+
+// ========================================================================
+// FUNCTION PARAMETER TYPES
+// ========================================================================
+
+interface ExecuteActionInput {
+  action: ActionKey;
+  drizzleConfigPath: string;
+  drizzleConfig: DrizzleConfig;
+  envName: string;
+  dbConfig: DbConfig;
+}
 
 // Setup signal handlers
-// setupSignalHandlers(); // Temporarily disabled to test double execution
+setupSignalHandlers(); // Temporarily disabled to test double execution
 
 /**
  * Execute the chosen action
  */
-async function executeAction(
-  action: string,
-  configPath: string,
-  config: Config,
-  envName: string,
-  dbCliConfig?: DbCliConfig
-): Promise<void> {
+async function executeAction(input: ExecuteActionInput): Promise<void> {
+  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig } = input;
   switch (action) {
-    case 'generate':
-    case 'migrate':
-    case 'studio':
-    case 'drop':
-    case 'push':
-      if (action !== 'studio') {
+    case ACTIONS.GENERATE:
+    case ACTIONS.MIGRATE:
+    case ACTIONS.STUDIO:
+    case ACTIONS.DROP:
+    case ACTIONS.PUSH:
+      if (action !== ACTIONS.STUDIO) {
         validateDrizzleKit();
       }
-      executeCommand(action, configPath, envName);
+      executeCommand(action, drizzleConfigPath, envName);
       break;
 
-    case 'check':
-      await executeCheck(config);
+    case ACTIONS.HEALTH:
+      await executeHealth(drizzleConfig);
       break;
 
-    case 'seed':
-      if (!dbCliConfig?.seed) {
+    case ACTIONS.SEED:
+      if (!dbConfig.seed) {
         console.error(
-          '❌ Error: Seed command requires a db.config.ts file with a "seed" property'
+          '❌ Error: Seed command requires a "seed" property in your db.config.ts file'
         );
+        console.error('');
         console.error('Example db.config.ts:');
-        console.error(`import { defineConfig } from '@makeco/db-cli';`);
+        console.error(`import { defineConfig } from '@/';`);
         console.error('export default defineConfig({');
         console.error(`  drizzleConfig: './drizzle.config.ts',`);
-        console.error(`  seed: './src/db/seed.ts'`);
+        console.error(`  seed: './src/db/seed.ts'  // Add this line`);
         console.error('});');
         process.exit(1);
       }
-      await executeSeed(config, dbCliConfig.seed);
+      await executeSeed(drizzleConfig, dbConfig.seed);
       break;
 
-    case 'truncate':
-      await executeTruncate(config);
+    case ACTIONS.TRUNCATE:
+      await executeTruncate(drizzleConfig);
       break;
 
-    case 'reset':
+    case ACTIONS.RESET:
       validateDrizzleKit();
-      await requireProductionConfirmation('reset', config);
-      await executeWorkflow(WORKFLOWS.reset, configPath, config, envName);
+      await requireProductionConfirmation('reset', drizzleConfig);
+      await executeWorkflow(
+        WORKFLOWS.reset,
+        drizzleConfigPath,
+        drizzleConfig,
+        envName
+      );
       break;
 
-    case 'refresh':
+    case ACTIONS.REFRESH:
       validateDrizzleKit();
-      await requireProductionConfirmation('refresh', config);
-      await executeWorkflow(WORKFLOWS.refresh, configPath, config, envName);
+      await requireProductionConfirmation('refresh', drizzleConfig);
+      await executeWorkflow(
+        WORKFLOWS.refresh,
+        drizzleConfigPath,
+        drizzleConfig,
+        envName
+      );
       break;
 
     default:
@@ -96,36 +119,40 @@ program
   )
   .version('0.1.0')
   .argument('[action]', 'Action to perform (generate, migrate, studio, etc.)')
-  .option('-c, --config <path>', 'Path to config file')
-  .option('-e, --env <name>', 'Environment to load (.env.{name})')
-  .action(async (actionInput, options) => {
-    console.log('DEBUG: Main action called');
+  .option('-c, --config <path>', 'Path to db.config.ts file')
+  .addOption(
+    new Option('-e, --env <name>', 'Environment to load (.env.{name})').choices(
+      VALID_ENVIRONMENTS
+    )
+  )
+  .action(async (actionInput: string | undefined, options: CliOptions) => {
+    const { config: dbConfigPath, env } = options;
+
     try {
       // Determine environment and action using original pattern
-      const chosenEnv = await determineEnvironment(options.env);
-
+      const chosenEnv = await determineEnvironment(env);
       const chosenAction = await determineAction(actionInput);
 
-      // Resolve configs using centralized system
-      const {
-        drizzleConfig,
-        dbCliConfig,
-        configPath: resolvedConfigPath,
-      } = await resolveConfigs(options.config);
+      // Load environment variables BEFORE resolving configs
+      loadEnvironment(chosenEnv);
+
+      // Resolve configs using centralized system (always requires db.config.ts)
+      const { drizzleConfig, dbConfig, drizzleConfigPath } =
+        await resolveConfigs(dbConfigPath);
       console.log(
         chalk.cyan(
-          `Using config: ${resolvedConfigPath} (dialect: ${drizzleConfig.dialect})`
+          `Using config: ${drizzleConfigPath} (dialect: ${drizzleConfig.dialect})`
         )
       );
 
       // Execute the chosen action
-      await executeAction(
-        chosenAction,
-        resolvedConfigPath,
+      await executeAction({
+        action: chosenAction,
+        drizzleConfigPath,
         drizzleConfig,
-        chosenEnv,
-        dbCliConfig
-      );
+        envName: chosenEnv,
+        dbConfig,
+      });
 
       // Exit successfully after command completion
       process.exit(0);
@@ -142,48 +169,31 @@ program.addHelpText(
   'after',
   `
 
-Examples:
-  $ db-cli generate              # Generate migrations
-  $ db-cli migrate               # Run migrations
-  $ db-cli studio                # Launch Drizzle Studio
-  $ db-cli drop                  # Drop migrations folder (drizzle-kit)
-  $ db-cli check                 # Check database connection and health
-  $ db-cli seed                  # Seed database (requires db.config.ts)
-  $ db-cli truncate              # Truncate database (delete data, keep structure)
-  $ db-cli reset                 # Clear database data + migrate
-  $ db-cli refresh               # Drop migrations + generate + clear data + migrate
-  $ db-cli generate --config ./custom.config.ts  # Use custom config
-  $ db-cli -c ./my-config.ts migrate             # Use global config flag
-  $ db-cli reset -e test                         # Load .env.test file
-  $ db-cli migrate -e prod                       # Load .env.prod file
-
 Commands:
-  drop     - Drops migrations folder (drizzle-kit default behavior)
-  check    - Checks database connection and displays version information
-  seed     - Seeds database with initial data (requires db.config.ts with seed path)
-  truncate - Truncates database data while preserving table structure
-  reset    - Clears database data, then runs migrations
+  drop     - Drop migrations folder (drizzle-kit default behavior)
+  generate - Generate new migrations from schema changes
+  migrate  - Apply pending migrations to the database
+  studio   - Launch Drizzle Studio web interface
+  push     - Push schema changes directly to database (no migrations)
+  health   - Check database connection and health status
+  seed     - Seed database with initial data (requires seed path in db.config.ts)
+  truncate - Truncate database data while preserving table structure
+  reset    - Clear database data, then run migrations
   refresh  - Complete refresh: drop migrations → generate → clear data → migrate
 
-Environment:
-  Set NODE_ENV=production to enable production safety checks.
-
-Config Discovery:
-  The CLI will automatically discover config files in this order:
-  1. --config/-c flag value (auto-detects db.config.ts vs drizzle.config.ts)
-  2. db.config.ts (if exists, includes seed functionality)
-  3. drizzle.config.ts
-  4. drizzle.config.js
-  5. drizzle.config.mjs
-  6. drizzle.config.cjs
 `
 );
 
-// Parse CLI arguments and execute
-program.parseAsync(process.argv).catch((error) => {
-  console.error(
-    chalk.red('An unexpected error occurred outside the main action handler:'),
-    error
-  );
-  process.exit(1);
-});
+// ------------------ EXECUTE COMMANDER ------------------
+// Only run CLI when this file is executed directly, not when imported
+if (import.meta.url === `file://${process.argv[1]}`) {
+  program.parseAsync(process.argv).catch((error) => {
+    console.error(
+      chalk.red(
+        'An unexpected error occurred outside the main action handler:'
+      ),
+      error
+    );
+    process.exit(1);
+  });
+}

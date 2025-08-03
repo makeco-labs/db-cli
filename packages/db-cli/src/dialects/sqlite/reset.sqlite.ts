@@ -1,6 +1,7 @@
-import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { SQLiteConnection } from './connection.sqlite';
+
+import type { ResetResult } from '@/dialects/result.types';
+import type { SQLiteConnection } from './types.sqlite';
 import { getTables } from './utils.sqlite';
 
 /**

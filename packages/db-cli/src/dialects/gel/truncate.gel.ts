@@ -1,7 +1,8 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { GelConnection } from './connection.gel';
 import { getTables } from './utils.gel';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { GelConnection } from './types.gel';
 
 /**
  * Truncates Gel database by deleting all data from user tables while preserving table structure

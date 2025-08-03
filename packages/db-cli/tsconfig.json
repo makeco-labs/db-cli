@@ -17,9 +17,9 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@makeco/db-cli/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./__tests__/**/*.ts", "./examples/**/*.ts"],
+  "include": ["./src/**/*.ts", "./__tests__/**/*.ts", "./examples/**/*.ts", "./vitest.config.ts"],
   "exclude": ["dist", "build", "node_modules", "project-references/draft"]
 }

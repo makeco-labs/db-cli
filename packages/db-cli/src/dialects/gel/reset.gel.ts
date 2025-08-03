@@ -1,7 +1,8 @@
-import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { GelConnection } from './connection.gel';
 import { getTables } from './utils.gel';
+
+import type { ResetResult } from '@/dialects/result.types';
+import type { GelConnection } from './types.gel';
 
 /**
  * Resets Gel database by dropping all user tables while preserving system tables

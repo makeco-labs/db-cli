@@ -1,45 +1,8 @@
-import type { SingleStoreDatabase } from 'drizzle-orm/singlestore';
-import z, { coerce, object, string, type TypeOf, union } from 'zod';
 import { checkPackage } from '../../utils';
-
-// ========================================================================
-// TYPES
-// ========================================================================
-
-export interface SingleStoreConnection {
-  db: SingleStoreDatabase<any, any, Record<string, never>>;
-}
-
-// SingleStore credentials type (similar to MySQL as it uses mysql2 driver)
-export const singleStoreCredentials = union([
-  object({
-    driver: z.undefined(),
-    host: string().min(1),
-    port: coerce.number().min(1).optional(),
-    user: string().min(1).optional(),
-    password: string().min(1).optional(),
-    database: string().min(1),
-    ssl: union([
-      string(),
-      object({
-        pfx: string().optional(),
-        key: string().optional(),
-        passphrase: string().optional(),
-        cert: string().optional(),
-        ca: union([string(), string().array()]).optional(),
-        crl: union([string(), string().array()]).optional(),
-        ciphers: string().optional(),
-        rejectUnauthorized: z.boolean().optional(),
-      }),
-    ]).optional(),
-  }),
-  object({
-    driver: z.undefined(),
-    url: string().min(1),
-  }),
-]);
-
-export type SingleStoreCredentials = TypeOf<typeof singleStoreCredentials>;
+import type {
+  SingleStoreConnection,
+  SingleStoreCredentials,
+} from './types.singlestore';
 
 // ========================================================================
 // CONNECTION FUNCTIONS

@@ -1,6 +1,7 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { SQLiteConnection } from './connection.sqlite';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { SQLiteConnection } from './types.sqlite';
 import { getTables } from './utils.sqlite';
 
 /**

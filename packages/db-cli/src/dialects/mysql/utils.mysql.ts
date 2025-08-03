@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { MysqlConnection } from './connection.mysql';
+
+import type { MysqlConnection } from './types.mysql';
 
 // System tables that should not be dropped/truncated
 const _SYSTEM_TABLES = [

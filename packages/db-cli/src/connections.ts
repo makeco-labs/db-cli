@@ -1,4 +1,4 @@
-import type { DatabaseConnection } from '@makeco/db-cli/types';
+import type { DatabaseConnection } from '@/types';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,7 +12,7 @@ import {
   isSingleStoreConfig,
   isSqliteConfig,
   isTursoConfig,
-} from '@makeco/db-cli/utils';
+} from '@/dialects';
 import type { Config } from 'drizzle-kit';
 
 /**
@@ -24,7 +24,7 @@ export async function createConnection(
 ): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
     const { preparePostgresDB } = await import(
-      '@makeco/db-cli/dialects/postgres'
+      '@/dialects/postgres'
     );
     const credentials = extractPostgresCredentials(config);
     return await preparePostgresDB(credentials);
@@ -33,30 +33,30 @@ export async function createConnection(
   if (isSqliteConfig(config)) {
     if (isTursoConfig(config)) {
       const credentials = extractTursoCredentials(config);
-      const { prepareTursoDB } = await import('@makeco/db-cli/dialects/turso');
+      const { prepareTursoDB } = await import('@/dialects/turso');
       return await prepareTursoDB(credentials);
     }
     const credentials = extractSqliteCredentials(config);
-    const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
+    const { prepareSQLiteDB } = await import('@/dialects/sqlite');
     return await prepareSQLiteDB(credentials);
   }
 
   if (isMysqlConfig(config)) {
-    const { prepareMysqlDB } = await import('@makeco/db-cli/dialects/mysql');
+    const { prepareMysqlDB } = await import('@/dialects/mysql');
     const credentials = extractMysqlCredentials(config);
     return await prepareMysqlDB(credentials);
   }
 
   if (isSingleStoreConfig(config)) {
     const { prepareSingleStoreDB } = await import(
-      '@makeco/db-cli/dialects/singlestore'
+      '@/dialects/singlestore'
     );
     const credentials = extractSingleStoreCredentials(config);
     return await prepareSingleStoreDB(credentials);
   }
 
   if (isGelConfig(config)) {
-    const { prepareGelDB } = await import('@makeco/db-cli/dialects/gel');
+    const { prepareGelDB } = await import('@/dialects/gel');
     const credentials = extractGelCredentials(config);
     return await prepareGelDB(credentials);
   }

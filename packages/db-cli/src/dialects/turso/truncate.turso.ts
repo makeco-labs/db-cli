@@ -1,7 +1,8 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { TursoConnection } from './connection.turso';
 import { getTables } from './utils.turso';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { TursoConnection } from './types.turso';
 
 /**
  * Truncates Turso database by deleting all data from user tables while preserving table structure

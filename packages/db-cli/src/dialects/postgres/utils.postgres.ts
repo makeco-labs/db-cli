@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { PostgresConnection } from './connection.postgres';
+
+import type { PostgresConnection } from './types.postgres';
 
 // Tables and schemas to preserve during operations
 export const tableAllowlist = [

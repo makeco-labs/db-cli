@@ -1,4 +1,4 @@
-import type { SeedResult } from '@makeco/db-cli/types';
+import type { SeedResult } from '@/dialects/result.types';
 
 /**
  * Seeds MySQL database by running the seed file

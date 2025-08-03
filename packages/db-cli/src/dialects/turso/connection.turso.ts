@@ -1,22 +1,5 @@
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { object, string, type TypeOf } from 'zod';
 import { checkPackage } from '../../utils';
-
-// ========================================================================
-// TYPES
-// ========================================================================
-
-export interface TursoConnection {
-  db: LibSQLDatabase<Record<string, never>>;
-}
-
-// Turso credentials type
-export const tursoCredentials = object({
-  url: string().min(1),
-  authToken: string().min(1).optional(),
-});
-
-export type TursoCredentials = TypeOf<typeof tursoCredentials>;
+import type { TursoConnection, TursoCredentials } from './types.turso';
 
 // ========================================================================
 // CONNECTION FUNCTIONS

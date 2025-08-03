@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db": "bun ../../db-cli/src/cli/main.ts -c ./db.config.ts"
+    "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"
   },
   "dependencies": {
     "@makeco/db-cli": "workspace:*",

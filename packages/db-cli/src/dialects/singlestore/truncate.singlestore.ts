@@ -1,7 +1,8 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { SingleStoreConnection } from './connection.singlestore';
 import { getTables } from './utils.singlestore';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { SingleStoreConnection } from './types.singlestore';
 
 /**
  * Truncates SingleStore database by deleting all data from user tables while preserving table structure

@@ -1,4 +1,4 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
+import type { TruncateResult } from '@/dialects/result.types';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,7 +12,7 @@ import {
   isSingleStoreConfig,
   isSqliteConfig,
   isTursoConfig,
-} from '@makeco/db-cli/utils';
+} from '@/dialects';
 import type { Config } from 'drizzle-kit';
 
 // ========================================================================
@@ -32,7 +32,7 @@ export async function truncateDatabase(
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
       const { preparePostgresDB, truncatePostgresDatabase } = await import(
-        '@makeco/db-cli/dialects/postgres'
+        '@/dialects/postgres'
       );
       const connection = await preparePostgresDB(credentials);
       return await truncatePostgresDatabase(connection);
@@ -42,14 +42,14 @@ export async function truncateDatabase(
       if (isTursoConfig(config)) {
         const credentials = extractTursoCredentials(config);
         const { prepareTursoDB, truncateTursoDatabase } = await import(
-          '@makeco/db-cli/dialects/turso'
+          '@/dialects/turso'
         );
         const connection = await prepareTursoDB(credentials);
         return await truncateTursoDatabase(connection);
       }
       const credentials = extractSqliteCredentials(config);
       const { prepareSQLiteDB, truncateSQLiteDatabase } = await import(
-        '@makeco/db-cli/dialects/sqlite'
+        '@/dialects/sqlite'
       );
       const connection = await prepareSQLiteDB(credentials);
       return await truncateSQLiteDatabase(connection);
@@ -58,7 +58,7 @@ export async function truncateDatabase(
     if (isMysqlConfig(config)) {
       const credentials = extractMysqlCredentials(config);
       const { prepareMysqlDB, truncateMysqlDatabase } = await import(
-        '@makeco/db-cli/dialects/mysql'
+        '@/dialects/mysql'
       );
       const connection = await prepareMysqlDB(credentials);
       return await truncateMysqlDatabase(connection);
@@ -67,7 +67,7 @@ export async function truncateDatabase(
     if (isSingleStoreConfig(config)) {
       const credentials = extractSingleStoreCredentials(config);
       const { prepareSingleStoreDB, truncateSingleStoreDatabase } =
-        await import('@makeco/db-cli/dialects/singlestore');
+        await import('@/dialects/singlestore');
       const connection = await prepareSingleStoreDB(credentials);
       return await truncateSingleStoreDatabase(connection);
     }
@@ -75,7 +75,7 @@ export async function truncateDatabase(
     if (isGelConfig(config)) {
       const credentials = extractGelCredentials(config);
       const { prepareGelDB, truncateGelDatabase } = await import(
-        '@makeco/db-cli/dialects/gel'
+        '@/dialects/gel'
       );
       const connection = await prepareGelDB(credentials);
       return await truncateGelDatabase(connection);

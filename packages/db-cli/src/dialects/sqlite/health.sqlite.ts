@@ -1,13 +1,14 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { SQLiteConnection } from './connection.sqlite';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { SQLiteConnection } from './types.sqlite';
 
 /**
  * Checks SQLite database connection
  */
 export async function checkSqliteConnection(
   connection: SQLiteConnection
-): Promise<CheckResult> {
+): Promise<HealthCheckResult> {
   try {
     // Get SQLite version
     const version = connection.db.all(sql`SELECT sqlite_version() AS version`);

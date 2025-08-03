@@ -1,7 +1,8 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { MysqlConnection } from './connection.mysql';
 import { getTables } from './utils.mysql';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { MysqlConnection } from './types.mysql';
 
 /**
  * Truncates MySQL database by deleting all data from user tables while preserving table structure

@@ -1,79 +1,38 @@
-import type {
-  AwsDataApiPgDatabase,
-  AwsDataApiSessionOptions,
-} from 'drizzle-orm/aws-data-api/pg';
-import type { NeonDatabase } from 'drizzle-orm/neon-serverless';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import type { PgliteDatabase } from 'drizzle-orm/pglite';
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type { VercelPgDatabase } from 'drizzle-orm/vercel-postgres';
-import ws from 'ws';
-import z, {
-  boolean,
-  coerce,
-  literal,
-  object,
-  string,
-  type TypeOf,
-  union,
-} from 'zod';
-import { checkPackage } from '../../utils';
+import type { ConnectionOptions } from 'node:tls';
+import type { AwsDataApiSessionOptions } from 'drizzle-orm/aws-data-api/pg';
+import * as ws from 'ws';
+import { checkPackage } from '@/utils';
+import type { PostgresConnection, PostgresCredentials } from './types.postgres';
 
 // ========================================================================
-// TYPES
+// HELPER FUNCTIONS
 // ========================================================================
 
-export interface PostgresConnection {
-  db:
-    | AwsDataApiPgDatabase<Record<string, never>>
-    | PgliteDatabase<Record<string, never>>
-    | NodePgDatabase<Record<string, never>>
-    | PostgresJsDatabase<Record<string, never>>
-    | VercelPgDatabase<Record<string, never>>
-    | NeonDatabase<Record<string, never>>;
+/**
+ * Configures SSL settings for PostgreSQL connections
+ */
+function configureSsl(
+  credentials: PostgresCredentials
+): boolean | ConnectionOptions {
+  let ssl: boolean | ConnectionOptions = {};
+  if ('ssl' in credentials) {
+    if (
+      credentials.ssl === 'prefer' ||
+      credentials.ssl === 'require' ||
+      credentials.ssl === 'allow'
+    ) {
+      ssl = { rejectUnauthorized: false };
+    } else if (
+      credentials.ssl === 'verify-full' ||
+      credentials.ssl === undefined
+    ) {
+      ssl = {};
+    } else {
+      ssl = credentials.ssl;
+    }
+  }
+  return ssl;
 }
-
-// PostgreSQL credentials type derived from drizzle-kit's validation schema
-export const postgresCredentials = union([
-  object({
-    driver: z.undefined(),
-    host: string().min(1),
-    port: coerce.number().min(1).optional(),
-    user: string().min(1).optional(),
-    password: string().min(1).optional(),
-    database: string().min(1),
-    ssl: union([
-      literal('require'),
-      literal('allow'),
-      literal('prefer'),
-      literal('verify-full'),
-      boolean(),
-      object({}).passthrough(),
-    ]).optional(),
-  }).transform((o) => {
-    o.driver = undefined;
-    return o as Omit<typeof o, 'driver'>;
-  }),
-  object({
-    driver: z.undefined(),
-    url: string().min(1),
-  }).transform<{ url: string }>((o) => {
-    o.driver = undefined;
-    return o;
-  }),
-  object({
-    driver: literal('aws-data-api'),
-    database: string().min(1),
-    secretArn: string().min(1),
-    resourceArn: string().min(1),
-  }),
-  object({
-    driver: literal('pglite'),
-    url: string().min(1),
-  }),
-]);
-
-export type PostgresCredentials = TypeOf<typeof postgresCredentials>;
 
 // ========================================================================
 // PREPARE DB
@@ -114,19 +73,10 @@ export const preparePostgresDB = async (
 
   if (await checkPackage('pg')) {
     console.log(`Using 'pg' driver for database querying`);
-    const { default: pg } = await import('node_modules/@types/pg');
+    const pg = await import('pg');
     const { drizzle } = await import('drizzle-orm/node-postgres');
 
-    const ssl =
-      'ssl' in credentials
-        ? credentials.ssl === 'prefer' ||
-          credentials.ssl === 'require' ||
-          credentials.ssl === 'allow'
-          ? { rejectUnauthorized: false }
-          : credentials.ssl === 'verify-full'
-            ? {}
-            : credentials.ssl
-        : {};
+    const ssl = configureSsl(credentials);
 
     const client =
       'url' in credentials
@@ -173,16 +123,7 @@ export const preparePostgresDB = async (
     );
     const { VercelPool } = await import('@vercel/postgres');
     const { drizzle } = await import('drizzle-orm/vercel-postgres');
-    const ssl =
-      'ssl' in credentials
-        ? credentials.ssl === 'prefer' ||
-          credentials.ssl === 'require' ||
-          credentials.ssl === 'allow'
-          ? { rejectUnauthorized: false }
-          : credentials.ssl === 'verify-full'
-            ? {}
-            : credentials.ssl
-        : {};
+    const ssl = configureSsl(credentials);
 
     const client =
       'url' in credentials
@@ -206,16 +147,7 @@ export const preparePostgresDB = async (
     const { Pool, neonConfig } = await import('@neondatabase/serverless');
     const { drizzle } = await import('drizzle-orm/neon-serverless');
 
-    const ssl =
-      'ssl' in credentials
-        ? credentials.ssl === 'prefer' ||
-          credentials.ssl === 'require' ||
-          credentials.ssl === 'allow'
-          ? { rejectUnauthorized: false }
-          : credentials.ssl === 'verify-full'
-            ? {}
-            : credentials.ssl
-        : {};
+    const ssl = configureSsl(credentials);
 
     const client =
       'url' in credentials

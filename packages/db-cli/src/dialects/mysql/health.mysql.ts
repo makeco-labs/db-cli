@@ -1,13 +1,14 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { MysqlConnection } from './connection.mysql';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { MysqlConnection } from './types.mysql';
 
 /**
  * Checks MySQL database connection
  */
 export async function checkMysqlConnection(
   connection: MysqlConnection
-): Promise<CheckResult> {
+): Promise<HealthCheckResult> {
   try {
     // Get MySQL version
     const version = await connection.db.execute(

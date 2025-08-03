@@ -1,46 +1,10 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
+
 import { onCancel } from './signals';
+import { ACTION_DESCRIPTIONS, VALID_ACTIONS } from './definitions';
 
-// Types for supported commands
-export type ActionKey =
-  | 'generate'
-  | 'migrate'
-  | 'studio'
-  | 'drop'
-  | 'push'
-  | 'reset'
-  | 'refresh'
-  | 'check'
-  | 'seed'
-  | 'truncate';
-export type EnvironmentKey = 'dev' | 'test' | 'staging' | 'prod';
-
-const validActions: ActionKey[] = [
-  'generate',
-  'migrate',
-  'studio',
-  'drop',
-  'push',
-  'reset',
-  'refresh',
-  'check',
-  'seed',
-  'truncate',
-];
-
-const actionDescriptions: Record<ActionKey, string> = {
-  generate: '[generate]: Generate new migrations',
-  migrate: '[migrate]: Apply migrations',
-  studio: '[studio]: Open Drizzle Studio',
-  drop: '[drop]: Drop migrations folder',
-  push: '[push]: Push schema changes',
-  reset: '[reset]: Reset database data',
-  refresh: '[refresh]: Refresh database (drop + generate + reset + migrate)',
-  check: '[check]: Check database connection',
-  seed: '[seed]: Seed database with initial data',
-  truncate: '[truncate]: Truncate database (delete data, keep structure)',
-};
+import type { ActionKey } from './definitions';
 
 /**
  * Determines the environment to be used, either from input or via interactive prompt
@@ -90,7 +54,7 @@ export async function determineEnvironment(envInput?: string): Promise<string> {
 export async function determineAction(
   actionInput?: string
 ): Promise<ActionKey> {
-  if (actionInput && validActions.includes(actionInput as ActionKey)) {
+  if (actionInput && VALID_ACTIONS.includes(actionInput as ActionKey)) {
     return actionInput as ActionKey;
   }
 
@@ -100,8 +64,8 @@ export async function determineAction(
         type: 'select',
         name: 'value',
         message: chalk.blue('Select the action to perform:'),
-        choices: validActions.map((action) => ({
-          title: actionDescriptions[action],
+        choices: VALID_ACTIONS.map((action) => ({
+          title: ACTION_DESCRIPTIONS[action],
           value: action,
         })),
         initial: 0,

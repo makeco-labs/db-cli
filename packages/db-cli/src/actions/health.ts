@@ -1,4 +1,3 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,24 +11,26 @@ import {
   isSingleStoreConfig,
   isSqliteConfig,
   isTursoConfig,
-} from '@makeco/db-cli/utils';
-import type { Config } from 'drizzle-kit';
+} from '@/dialects';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { Config as DrizzleConfig } from 'drizzle-kit';
 
 // ========================================================================
 // COORDINATOR FUNCTION
 // ========================================================================
 
 /**
- * Checks database connection based on the dialect
+ * Checks database connection and health based on the dialect
  */
-export async function checkConnection(config: Config): Promise<CheckResult> {
+export async function checkHealth(config: DrizzleConfig): Promise<HealthCheckResult> {
   try {
     console.log(`Checking ${config.dialect} database connection...`);
 
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
       const { preparePostgresDB, checkPostgresConnection } = await import(
-        '@makeco/db-cli/dialects/postgres'
+        '@/dialects/postgres'
       );
       const connection = await preparePostgresDB(credentials);
       return await checkPostgresConnection(connection);
@@ -39,14 +40,14 @@ export async function checkConnection(config: Config): Promise<CheckResult> {
       if (isTursoConfig(config)) {
         const credentials = extractTursoCredentials(config);
         const { prepareTursoDB, checkTursoConnection } = await import(
-          '@makeco/db-cli/dialects/turso'
+          '@/dialects/turso'
         );
         const connection = await prepareTursoDB(credentials);
         return await checkTursoConnection(connection);
       }
       const credentials = extractSqliteCredentials(config);
       const { prepareSQLiteDB, checkSqliteConnection } = await import(
-        '@makeco/db-cli/dialects/sqlite'
+        '@/dialects/sqlite'
       );
       const connection = await prepareSQLiteDB(credentials);
       return await checkSqliteConnection(connection);
@@ -55,7 +56,7 @@ export async function checkConnection(config: Config): Promise<CheckResult> {
     if (isMysqlConfig(config)) {
       const credentials = extractMysqlCredentials(config);
       const { prepareMysqlDB, checkMysqlConnection } = await import(
-        '@makeco/db-cli/dialects/mysql'
+        '@/dialects/mysql'
       );
       const connection = await prepareMysqlDB(credentials);
       return await checkMysqlConnection(connection);
@@ -64,7 +65,7 @@ export async function checkConnection(config: Config): Promise<CheckResult> {
     if (isSingleStoreConfig(config)) {
       const credentials = extractSingleStoreCredentials(config);
       const { prepareSingleStoreDB, checkSingleStoreConnection } = await import(
-        '@makeco/db-cli/dialects/singlestore'
+        '@/dialects/singlestore'
       );
       const connection = await prepareSingleStoreDB(credentials);
       return await checkSingleStoreConnection(connection);
@@ -73,7 +74,7 @@ export async function checkConnection(config: Config): Promise<CheckResult> {
     if (isGelConfig(config)) {
       const credentials = extractGelCredentials(config);
       const { prepareGelDB, checkGelConnection } = await import(
-        '@makeco/db-cli/dialects/gel'
+        '@/dialects/gel'
       );
       const connection = await prepareGelDB(credentials);
       return await checkGelConnection(connection);
@@ -95,26 +96,27 @@ export async function checkConnection(config: Config): Promise<CheckResult> {
 // ========================================================================
 
 /**
- * Executes database connection check
+ * Executes database health check
  */
-export async function executeCheck(config: Config): Promise<void> {
-  console.log('\n🔍 Checking database connection...');
+export async function executeHealth(config: DrizzleConfig): Promise<void> {
+  console.log('\n🏥 Checking database health...');
 
   try {
-    const result = await checkConnection(config);
+    const result = await checkHealth(config);
 
     if (result.status === 'ok') {
-      console.log('✅ Database connection successful!');
       if (result.version) {
-        console.log(`Database version: ${result.version}`);
+        console.log(`✅ Connection successful. (${result.version})`);
+      } else {
+        console.log('✅ Connection successful.');
       }
       console.log(`Status: ${result.status} at ${result.timestamp}`);
     } else {
-      throw new Error(result.message || 'Database connection failed');
+      throw new Error(result.message || 'Database health check failed');
     }
   } catch (error) {
     console.error(
-      '❌ Database connection failed:',
+      '❌ Database health check failed:',
       error instanceof Error ? error.message : 'Unknown error'
     );
     process.exit(1);

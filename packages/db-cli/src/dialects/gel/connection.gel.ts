@@ -1,12 +1,4 @@
-import {
-  coerce,
-  literal,
-  object,
-  string,
-  type TypeOf,
-  undefined as undefinedType,
-  union,
-} from 'zod';
+import type { GelConnection, GelCredentials } from './types.gel';
 
 // Placeholder type for Gel database until it's available in drizzle-orm
 type GelDatabase<T extends Record<string, never> = Record<string, never>> = {
@@ -14,58 +6,6 @@ type GelDatabase<T extends Record<string, never> = Record<string, never>> = {
   schema: T;
   execute: (query: any) => Promise<any>;
 };
-
-// ========================================================================
-// TYPES
-// ========================================================================
-
-export interface GelConnection {
-  db: GelDatabase<Record<string, never>>;
-}
-
-// Gel credentials type
-export const gelCredentials = union([
-  object({
-    driver: undefinedType(),
-    host: string().min(1),
-    port: coerce.number().min(1).optional(),
-    user: string().min(1).optional(),
-    password: string().min(1).optional(),
-    database: string().min(1),
-    tlsSecurity: union([
-      literal('insecure'),
-      literal('no_host_verification'),
-      literal('strict'),
-      literal('default'),
-    ]).optional(),
-  }).transform((o) => {
-    o.driver = undefined;
-    return o as Omit<typeof o, 'driver'>;
-  }),
-  object({
-    driver: undefinedType(),
-    url: string().min(1),
-    tlsSecurity: union([
-      literal('insecure'),
-      literal('no_host_verification'),
-      literal('strict'),
-      literal('default'),
-    ]).optional(),
-  }).transform<{
-    url: string;
-    tlsSecurity?: 'insecure' | 'no_host_verification' | 'strict' | 'default';
-  }>((o) => {
-    o.driver = undefined;
-    return o;
-  }),
-  object({
-    driver: undefinedType(),
-  }).transform<undefined>((_o) => {
-    return undefined;
-  }),
-]);
-
-export type GelCredentials = TypeOf<typeof gelCredentials>;
 
 // ========================================================================
 // CONNECTION FUNCTIONS

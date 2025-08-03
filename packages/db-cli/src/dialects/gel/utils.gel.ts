@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { GelConnection } from './connection.gel';
+
+import type { GelConnection } from './types.gel';
 
 // Migration/history tables to preserve
 const PRESERVED_TABLES = [

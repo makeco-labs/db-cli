@@ -8,7 +8,7 @@ A powerful database CLI tool that extends drizzle-kit with additional commands f
 
 ## Features
 
-- ✅ **Extended Commands** - Additional commands beyond drizzle-kit like `reset`, `refresh`, `check`, and `seed`
+- ✅ **Extended Commands** - Additional commands beyond drizzle-kit like `reset`, `refresh`, `health`, and `seed`
 - ✅ **Multi-Environment Support** - Built-in support for dev, test, staging, and production environments
 - ✅ **Database Seeding** - Type-safe database seeding with db-cli configuration files
 - ✅ **Programmatic API** - Use commands programmatically in your scripts and tests
@@ -31,7 +31,7 @@ Use the `db-cli` command with your existing drizzle configuration:
 
 ```bash
 # Check database connection
-db-cli check
+db-cli health
 
 # Seed database with initial data (requires db.config.ts)
 db-cli seed
@@ -62,7 +62,7 @@ db-cli dev reset
 db-cli test migrate
 
 # Uses drizzle.config.staging.ts
-db-cli staging check
+db-cli staging health
 
 # Uses drizzle.config.prod.ts (with confirmation prompts)
 db-cli prod push
@@ -71,7 +71,7 @@ db-cli prod push
 ### Programmatic API
 
 ```typescript
-import { resetDatabase, checkConnection } from '@makeco/db-cli';
+import { resetDatabase, checkHealth } from '@makeco/db-cli';
 import { defineConfig } from 'drizzle-kit';
 
 // Define your drizzle config
@@ -85,7 +85,8 @@ const config = defineConfig({
 });
 
 // Check connection
-const isConnected = await checkConnection(config);
+const healthResult = await checkHealth(config);
+const isConnected = healthResult.status === 'ok';
 console.log('Database connected:', isConnected);
 
 // Reset database in tests
@@ -123,11 +124,11 @@ Complete database refresh workflow that:
 db-cli refresh
 ```
 
-#### `check`
-Verifies database connection and reports the status.
+#### `health`
+Checks database connection and health status, including version information.
 
 ```bash
-db-cli check
+db-cli health
 ```
 
 ### Standard Drizzle Kit Commands
@@ -247,15 +248,18 @@ import { resetDatabase } from '@makeco/db-cli';
 await resetDatabase(config);
 ```
 
-### checkConnection(config: Config): Promise<CheckResult>
+### checkHealth(config: Config): Promise<CheckResult>
 
-Checks if the database connection is working.
+Checks database connection and health status.
 
 ```typescript
-import { checkConnection } from '@makeco/db-cli';
+import { checkHealth } from '@makeco/db-cli';
 
-const result = await checkConnection(config);
+const result = await checkHealth(config);
 console.log('Status:', result.status);
+if (result.version) {
+  console.log('Version:', result.version);
+}
 ```
 
 ### createConnection(config: Config): Promise<DatabaseConnection>
@@ -352,7 +356,7 @@ db-cli seed
 - name: Setup test database
   run: |
     db-cli test migrate
-    db-cli test check
+    db-cli test health
 ```
 
 ## Contributing

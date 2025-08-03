@@ -1,36 +1,9 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import type { Config } from 'drizzle-kit';
-import type {
-  DbCliConfig,
-  GelConfig,
-  GelConfigBasic,
-  GelConfigWithHost,
-  GelConfigWithUrl,
-  GelCredentials,
-  MysqlConfig,
-  MysqlConfigWithHost,
-  MysqlConfigWithUrl,
-  MysqlCredentials,
-  PostgresConfig,
-  PostgresConfigAwsDataApi,
-  PostgresConfigPglite,
-  PostgresConfigWithHost,
-  PostgresConfigWithUrl,
-  PostgresCredentials,
-  SingleStoreConfig,
-  SingleStoreConfigWithHost,
-  SingleStoreConfigWithUrl,
-  SingleStoreCredentials,
-  SqliteConfig,
-  SqliteConfigD1Http,
-  SqliteConfigDurable,
-  SqliteConfigExpo,
-  SqliteConfigWithUrl,
-  SqliteCredentials,
-  TursoConfig,
-} from '../types';
+
+import type { Config as DrizzleConfig } from 'drizzle-kit';
+import type { DbConfig } from '@/types';
 
 // ========================================================================
 // TYPESCRIPT COMPILATION UTILITIES
@@ -59,31 +32,11 @@ const safeRegister = async () => {
 // CONFIG DISCOVERY FUNCTIONS (moved from db-cli.ts)
 // ========================================================================
 
-/**
- * Discovers drizzle config file in the current working directory
- */
-export function discoverDrizzleConfig(): string | null {
-  const configPatterns = [
-    'drizzle.config.ts',
-    'drizzle.config.js',
-    'drizzle.config.mjs',
-    'drizzle.config.cjs',
-  ];
-  const cwd = process.cwd();
-
-  for (const pattern of configPatterns) {
-    const configPath = path.join(cwd, pattern);
-    if (fs.existsSync(configPath)) {
-      return configPath;
-    }
-  }
-  return null;
-}
 
 /**
  * Discovers db config file in the current working directory
  */
-export function discoverDbCliConfig(): string | null {
+export function discoverDbConfig(): string | null {
   const configPatterns = [
     'db.config.ts',
     'db.config.js',
@@ -101,481 +54,128 @@ export function discoverDbCliConfig(): string | null {
   return null;
 }
 
-/**
- * Validates that a config path exists
- */
-export function validateConfigPath(configPath: string | null): string {
-  if (!configPath) {
-    console.error('❌ Error: No drizzle config file found.');
-    console.error(
-      'Expected files: drizzle.config.ts, drizzle.config.js, drizzle.config.mjs, or drizzle.config.cjs'
-    );
-    console.error('Or specify a config file with --config flag');
-    process.exit(1);
-  }
-  if (!fs.existsSync(configPath)) {
-    console.error(`❌ Error: Config file not found: ${configPath}`);
-    process.exit(1);
-  }
-  return configPath;
-}
 
 /**
  * Loads and parses a drizzle config file
  */
-export async function loadConfig(configPath: string): Promise<Config> {
+export async function loadDrizzleConfig(drizzleConfigPath: string): Promise<DrizzleConfig> {
   try {
-    const absolutePath = path.resolve(configPath);
+    const absolutePath = path.resolve(drizzleConfigPath);
 
     // Check if file exists
     if (!fs.existsSync(absolutePath)) {
-      throw new Error(`Config file not found: ${configPath}`);
+      throw new Error(`Drizzle config file not found: ${drizzleConfigPath}`);
     }
 
     const { unregister } = await safeRegister();
     const require = createRequire(import.meta.url);
     const required = require(absolutePath);
-    const config = required.default ?? required;
+    const drizzleConfig = required.default ?? required;
     unregister();
 
-    // Validate that we have a valid config
-    if (!config || typeof config !== 'object') {
-      throw new Error(`Invalid config file: ${configPath}`);
+    // Validate that we have a valid drizzle config
+    if (!drizzleConfig || typeof drizzleConfig !== 'object') {
+      throw new Error(`Invalid drizzle config file: ${drizzleConfigPath}`);
     }
-    if (!config.dialect) {
+    if (!drizzleConfig.dialect) {
       throw new Error(
-        `Config file missing required 'dialect' field: ${configPath}`
+        `Drizzle config file missing required 'dialect' field: ${drizzleConfigPath}`
       );
     }
-    return config;
+    return drizzleConfig;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error(`Failed to load config file: ${configPath}`);
+    throw new Error(`Failed to load drizzle config file: ${drizzleConfigPath}`);
   }
 }
 
 /**
  * Loads and parses a db config file
  */
-export async function loadDbCliConfig(
-  configPath: string
-): Promise<DbCliConfig> {
+export async function loadDbConfig(
+  dbConfigPath: string
+): Promise<DbConfig> {
   try {
-    const absolutePath = path.resolve(configPath);
+    const absolutePath = path.resolve(dbConfigPath);
 
     // Check if file exists
     if (!fs.existsSync(absolutePath)) {
-      throw new Error(`db config file not found: ${configPath}`);
+      throw new Error(`DB config file not found: ${dbConfigPath}`);
     }
 
     const { unregister } = await safeRegister();
     const require = createRequire(import.meta.url);
     const required = require(absolutePath);
-    const config = required.default ?? required;
+    const dbConfig = required.default ?? required;
     unregister();
 
     // Validate that we have a valid db config
-    if (!config || typeof config !== 'object') {
-      throw new Error(`Invalid db config file: ${configPath}`);
+    if (!dbConfig || typeof dbConfig !== 'object') {
+      throw new Error(`Invalid DB config file: ${dbConfigPath}`);
     }
-    if (!config.drizzleConfig) {
+    if (!dbConfig.drizzleConfig) {
       throw new Error(
-        `db config file missing required 'drizzleConfig' field: ${configPath}`
+        `DB config file missing required 'drizzleConfig' field: ${dbConfigPath}`
       );
     }
-    if (!config.seed) {
-      throw new Error(
-        `db config file missing required 'seed' field: ${configPath}`
-      );
-    }
-    return config;
+    return dbConfig;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error(`Failed to load db config file: ${configPath}`);
+    throw new Error(`Failed to load DB config file: ${dbConfigPath}`);
   }
 }
 
 /**
- * Resolves both db and drizzle configs based on discovery priority
+ * Resolves db.config.ts and its referenced drizzle config
+ * Always requires a db.config.ts file with a drizzleConfig property
  */
-export async function resolveConfigs(configPath?: string): Promise<{
-  drizzleConfig: Config;
-  dbCliConfig?: DbCliConfig;
-  configPath: string;
+export async function resolveConfigs(dbConfigPath?: string): Promise<{
+  drizzleConfig: DrizzleConfig;
+  dbConfig: DbConfig;
+  drizzleConfigPath: string;
 }> {
-  let dbCliConfig: DbCliConfig | undefined;
-  let drizzleConfigPath: string;
+  // Determine db config path
+  let resolvedDbConfigPath: string;
 
-  // Determine config discovery strategy
-  if (configPath) {
-    if (configPath.includes('db.config')) {
-      // User provided a db.config file
-      dbCliConfig = await loadDbCliConfig(configPath);
-      drizzleConfigPath = path.resolve(dbCliConfig.drizzleConfig);
-    } else {
-      // User provided a drizzle config file directly
-      drizzleConfigPath = configPath;
-    }
+  if (dbConfigPath) {
+    // User provided a specific db config path
+    resolvedDbConfigPath = dbConfigPath;
   } else {
-    // Auto-discovery: try db.config first, then drizzle config
-    const discoveredDbConfig = discoverDbCliConfig();
-    if (discoveredDbConfig) {
-      dbCliConfig = await loadDbCliConfig(discoveredDbConfig);
-      drizzleConfigPath = path.resolve(dbCliConfig.drizzleConfig);
-    } else {
-      const discoveredDrizzleConfig = discoverDrizzleConfig();
-      drizzleConfigPath = validateConfigPath(discoveredDrizzleConfig);
+    // Auto-discovery: look for db.config files
+    const discoveredDbConfig = discoverDbConfig();
+    if (!discoveredDbConfig) {
+      console.error('❌ Error: No db.config.ts file found.');
+      console.error('Expected files: db.config.ts, db.config.js, db.config.mjs, or db.config.cjs');
+      console.error('Or specify a config file with --config flag');
+      console.error('');
+      console.error('Example db.config.ts:');
+      console.error(`import { defineConfig } from '@/';`);
+      console.error('export default defineConfig({');
+      console.error(`  drizzleConfig: './drizzle.config.ts',`);
+      console.error(`  seed: './src/db/seed.ts'  // Optional: only needed for seed command`);
+      console.error('});');
+      process.exit(1);
     }
+    resolvedDbConfigPath = discoveredDbConfig;
   }
 
+  // Load the db config
+  const dbConfig = await loadDbConfig(resolvedDbConfigPath);
+
+  // Resolve the drizzle config path from db config
+  const drizzleConfigPath = path.resolve(dbConfig.drizzleConfig);
+
   // Load the drizzle config
-  const drizzleConfig = await loadConfig(drizzleConfigPath);
+  const drizzleConfig = await loadDrizzleConfig(drizzleConfigPath);
 
   return {
     drizzleConfig,
-    dbCliConfig,
-    configPath: drizzleConfigPath,
+    dbConfig,
+    drizzleConfigPath,
   };
 }
 
-// ========================================================================
-// TYPE GUARDS AND CREDENTIAL EXTRACTION
-// ========================================================================
-
-// Type guards for PostgreSQL configs
-export function isPostgresConfig(config: Config): config is PostgresConfig {
-  return config.dialect === 'postgresql';
-}
-
-export function isPostgresConfigWithHost(
-  config: Config
-): config is PostgresConfigWithHost {
-  return (
-    config.dialect === 'postgresql' &&
-    !('driver' in config) &&
-    'dbCredentials' in config &&
-    'host' in config.dbCredentials
-  );
-}
-
-export function isPostgresConfigWithUrl(
-  config: Config
-): config is PostgresConfigWithUrl {
-  return (
-    config.dialect === 'postgresql' &&
-    !('driver' in config) &&
-    'dbCredentials' in config &&
-    'url' in config.dbCredentials &&
-    !('host' in config.dbCredentials)
-  );
-}
-
-export function isPostgresConfigAwsDataApi(
-  config: Config
-): config is PostgresConfigAwsDataApi {
-  return (
-    config.dialect === 'postgresql' &&
-    'driver' in config &&
-    config.driver === 'aws-data-api'
-  );
-}
-
-export function isPostgresConfigPglite(
-  config: Config
-): config is PostgresConfigPglite {
-  return (
-    config.dialect === 'postgresql' &&
-    'driver' in config &&
-    config.driver === 'pglite'
-  );
-}
-
-// Type guards for SQLite configs
-export function isSqliteConfig(config: Config): config is SqliteConfig {
-  return config.dialect === 'sqlite' || config.dialect === 'turso';
-}
-
-export function isSqliteConfigWithUrl(
-  config: Config
-): config is SqliteConfigWithUrl {
-  return (
-    config.dialect === 'sqlite' &&
-    !('driver' in config) &&
-    'dbCredentials' in config
-  );
-}
-
-export function isTursoConfig(config: Config): config is TursoConfig {
-  return config.dialect === 'turso';
-}
-
-export function isSqliteConfigD1Http(
-  config: Config
-): config is SqliteConfigD1Http {
-  return (
-    config.dialect === 'sqlite' &&
-    'driver' in config &&
-    config.driver === 'd1-http'
-  );
-}
-
-export function isSqliteConfigExpo(config: Config): config is SqliteConfigExpo {
-  return (
-    config.dialect === 'sqlite' &&
-    'driver' in config &&
-    config.driver === 'expo'
-  );
-}
-
-export function isSqliteConfigDurable(
-  config: Config
-): config is SqliteConfigDurable {
-  return (
-    config.dialect === 'sqlite' &&
-    'driver' in config &&
-    config.driver === 'durable-sqlite'
-  );
-}
-
-// Type guards for MySQL configs
-export function isMysqlConfig(config: Config): config is MysqlConfig {
-  return config.dialect === 'mysql';
-}
-
-export function isMysqlConfigWithHost(
-  config: Config
-): config is MysqlConfigWithHost {
-  return (
-    config.dialect === 'mysql' &&
-    'dbCredentials' in config &&
-    'host' in config.dbCredentials
-  );
-}
-
-export function isMysqlConfigWithUrl(
-  config: Config
-): config is MysqlConfigWithUrl {
-  return (
-    config.dialect === 'mysql' &&
-    'dbCredentials' in config &&
-    'url' in config.dbCredentials &&
-    !('host' in config.dbCredentials)
-  );
-}
-
-// Type guards for SingleStore configs
-export function isSingleStoreConfig(
-  config: Config
-): config is SingleStoreConfig {
-  return config.dialect === 'singlestore';
-}
-
-export function isSingleStoreConfigWithHost(
-  config: Config
-): config is SingleStoreConfigWithHost {
-  return (
-    config.dialect === 'singlestore' &&
-    'dbCredentials' in config &&
-    'host' in config.dbCredentials
-  );
-}
-
-export function isSingleStoreConfigWithUrl(
-  config: Config
-): config is SingleStoreConfigWithUrl {
-  return (
-    config.dialect === 'singlestore' &&
-    'dbCredentials' in config &&
-    'url' in config.dbCredentials &&
-    !('host' in config.dbCredentials)
-  );
-}
-
-// Type guards for Gel configs
-export function isGelConfig(config: Config): config is GelConfig {
-  return config.dialect === 'gel';
-}
-
-export function isGelConfigWithHost(
-  config: Config
-): config is GelConfigWithHost {
-  return (
-    config.dialect === 'gel' &&
-    'dbCredentials' in config &&
-    !!config.dbCredentials &&
-    'host' in config.dbCredentials
-  );
-}
-
-export function isGelConfigWithUrl(config: Config): config is GelConfigWithUrl {
-  return (
-    config.dialect === 'gel' &&
-    'dbCredentials' in config &&
-    !!config.dbCredentials &&
-    'url' in config.dbCredentials &&
-    !('host' in config.dbCredentials)
-  );
-}
-
-export function isGelConfigBasic(config: Config): config is GelConfigBasic {
-  return (
-    config.dialect === 'gel' &&
-    !('dbCredentials' in config && config.dbCredentials)
-  );
-}
-
-// Credential extraction functions
-export function extractPostgresCredentials(
-  config: PostgresConfig
-): PostgresCredentials {
-  if (isPostgresConfigAwsDataApi(config)) {
-    return {
-      driver: 'aws-data-api',
-      database: config.dbCredentials.database,
-      secretArn: config.dbCredentials.secretArn,
-      resourceArn: config.dbCredentials.resourceArn,
-    };
-  }
-
-  if (isPostgresConfigPglite(config)) {
-    return {
-      driver: 'pglite',
-      url: config.dbCredentials.url,
-    };
-  }
-
-  if (isPostgresConfigWithUrl(config)) {
-    return { url: config.dbCredentials.url };
-  }
-
-  if (isPostgresConfigWithHost(config)) {
-    return {
-      host: config.dbCredentials.host,
-      port: config.dbCredentials.port,
-      user: config.dbCredentials.user,
-      password: config.dbCredentials.password,
-      database: config.dbCredentials.database,
-      ssl: config.dbCredentials.ssl as
-        | boolean
-        | 'require'
-        | 'allow'
-        | 'prefer'
-        | 'verify-full'
-        | Record<string, unknown>
-        | undefined,
-    };
-  }
-
-  throw new Error('Invalid PostgreSQL configuration');
-}
-
-export function extractSqliteCredentials(
-  config: SqliteConfig
-): SqliteCredentials {
-  if (isTursoConfig(config)) {
-    return {
-      driver: 'turso',
-      url: config.dbCredentials.url,
-      authToken: config.dbCredentials.authToken,
-    };
-  }
-
-  if (isSqliteConfigD1Http(config)) {
-    return {
-      driver: 'd1-http',
-      accountId: config.dbCredentials.accountId,
-      databaseId: config.dbCredentials.databaseId,
-      token: config.dbCredentials.token,
-    };
-  }
-
-  if (isSqliteConfigExpo(config) || isSqliteConfigDurable(config)) {
-    throw new Error(`Driver ${config.driver} is not yet supported`);
-  }
-
-  if (isSqliteConfigWithUrl(config)) {
-    return { url: config.dbCredentials.url };
-  }
-
-  throw new Error('Invalid SQLite configuration');
-}
-
-export function extractTursoCredentials(config: TursoConfig): {
-  url: string;
-  authToken?: string;
-} {
-  return {
-    url: config.dbCredentials.url,
-    authToken: config.dbCredentials.authToken,
-  };
-}
-
-export function extractMysqlCredentials(config: MysqlConfig): MysqlCredentials {
-  if (isMysqlConfigWithUrl(config)) {
-    return { url: config.dbCredentials.url };
-  }
-
-  if (isMysqlConfigWithHost(config)) {
-    return {
-      host: config.dbCredentials.host,
-      port: config.dbCredentials.port,
-      user: config.dbCredentials.user,
-      password: config.dbCredentials.password,
-      database: config.dbCredentials.database,
-      ssl: config.dbCredentials.ssl,
-    };
-  }
-
-  throw new Error('Invalid MySQL configuration');
-}
-
-export function extractSingleStoreCredentials(
-  config: SingleStoreConfig
-): SingleStoreCredentials {
-  if (isSingleStoreConfigWithUrl(config)) {
-    return { url: config.dbCredentials.url };
-  }
-
-  if (isSingleStoreConfigWithHost(config)) {
-    return {
-      host: config.dbCredentials.host,
-      port: config.dbCredentials.port,
-      user: config.dbCredentials.user,
-      password: config.dbCredentials.password,
-      database: config.dbCredentials.database,
-      ssl: config.dbCredentials.ssl,
-    };
-  }
-
-  throw new Error('Invalid SingleStore configuration');
-}
-
-export function extractGelCredentials(config: GelConfig): GelCredentials {
-  if (isGelConfigBasic(config)) {
-    return;
-  }
-
-  if (isGelConfigWithUrl(config)) {
-    return {
-      url: config.dbCredentials.url,
-      tlsSecurity: config.dbCredentials.tlsSecurity,
-    };
-  }
-
-  if (isGelConfigWithHost(config)) {
-    return {
-      host: config.dbCredentials.host,
-      port: config.dbCredentials.port,
-      user: config.dbCredentials.user,
-      password: config.dbCredentials.password,
-      database: config.dbCredentials.database,
-      tlsSecurity: config.dbCredentials.tlsSecurity,
-    };
-  }
-
-  throw new Error('Invalid Gel configuration');
-}

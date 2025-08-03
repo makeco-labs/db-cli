@@ -1,7 +1,9 @@
-import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { PostgresConnection } from './connection.postgres';
+
 import { getSchemas, getTables } from './utils.postgres';
+
+import type { ResetResult } from '@/dialects/result.types';
+import type { PostgresConnection } from './types.postgres';
 
 /**
  * Resets PostgreSQL database by dropping all user tables and schemas

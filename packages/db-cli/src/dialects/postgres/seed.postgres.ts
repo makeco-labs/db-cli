@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SeedResult } from '@makeco/db-cli/types';
+
+import type { SeedResult } from '@/dialects/result.types';
 
 /**
  * Seeds a PostgreSQL database by executing a seed file

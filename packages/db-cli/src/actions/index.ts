@@ -1,4 +1,4 @@
-export * from './check';
+export * from './health';
 export * from './drizzle-commands';
 
 // Export individual action modules

@@ -1,7 +1,9 @@
-import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { SingleStoreConnection } from './connection.singlestore';
+
 import { getTables } from './utils.singlestore';
+
+import type { ResetResult } from '@/dialects/result.types';
+import type { SingleStoreConnection } from './types.singlestore';
 
 /**
  * Resets SingleStore database by dropping all user tables while preserving system tables

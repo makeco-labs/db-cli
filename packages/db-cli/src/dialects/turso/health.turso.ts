@@ -1,13 +1,14 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { TursoConnection } from './connection.turso';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { TursoConnection } from './types.turso';
 
 /**
  * Checks Turso database connection
  */
 export async function checkTursoConnection(
   connection: TursoConnection
-): Promise<CheckResult> {
+): Promise<HealthCheckResult> {
   try {
     // Get SQLite version (Turso is built on LibSQL which is SQLite-compatible)
     const version = connection.db.all(sql`SELECT sqlite_version() AS version`);

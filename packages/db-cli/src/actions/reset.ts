@@ -1,4 +1,4 @@
-import type { ResetResult } from '@makeco/db-cli/types';
+import type { ResetResult } from '@/dialects/result.types';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,7 +12,7 @@ import {
   isSingleStoreConfig,
   isSqliteConfig,
   isTursoConfig,
-} from '@makeco/db-cli/utils';
+} from '@/dialects';
 import type { Config } from 'drizzle-kit';
 
 // ========================================================================
@@ -30,7 +30,7 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
       const { preparePostgresDB, resetPostgresDatabase } = await import(
-        '@makeco/db-cli/dialects/postgres'
+        '@/dialects/postgres'
       );
       const connection = await preparePostgresDB(credentials);
       return await resetPostgresDatabase(connection);
@@ -40,14 +40,14 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
       if (isTursoConfig(config)) {
         const credentials = extractTursoCredentials(config);
         const { prepareTursoDB, resetTursoDatabase } = await import(
-          '@makeco/db-cli/dialects/turso'
+          '@/dialects/turso'
         );
         const connection = await prepareTursoDB(credentials);
         return await resetTursoDatabase(connection);
       }
       const credentials = extractSqliteCredentials(config);
       const { prepareSQLiteDB, resetSqliteDatabase } = await import(
-        '@makeco/db-cli/dialects/sqlite'
+        '@/dialects/sqlite'
       );
       const connection = await prepareSQLiteDB(credentials);
       return await resetSqliteDatabase(connection);
@@ -56,7 +56,7 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     if (isMysqlConfig(config)) {
       const credentials = extractMysqlCredentials(config);
       const { prepareMysqlDB, resetMysqlDatabase } = await import(
-        '@makeco/db-cli/dialects/mysql'
+        '@/dialects/mysql'
       );
       const connection = await prepareMysqlDB(credentials);
       return await resetMysqlDatabase(connection);
@@ -65,7 +65,7 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     if (isSingleStoreConfig(config)) {
       const credentials = extractSingleStoreCredentials(config);
       const { prepareSingleStoreDB, resetSingleStoreDatabase } = await import(
-        '@makeco/db-cli/dialects/singlestore'
+        '@/dialects/singlestore'
       );
       const connection = await prepareSingleStoreDB(credentials);
       return await resetSingleStoreDatabase(connection);
@@ -74,7 +74,7 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     if (isGelConfig(config)) {
       const credentials = extractGelCredentials(config);
       const { prepareGelDB, resetGelDatabase } = await import(
-        '@makeco/db-cli/dialects/gel'
+        '@/dialects/gel'
       );
       const connection = await prepareGelDB(credentials);
       return await resetGelDatabase(connection);

@@ -1,13 +1,14 @@
-import type { CheckResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
-import type { PostgresConnection } from './connection.postgres';
+
+import type { HealthCheckResult } from '@/dialects/result.types';
+import type { PostgresConnection } from './types.postgres';
 
 /**
  * Checks PostgreSQL database connection
  */
 export async function checkPostgresConnection(
   connection: PostgresConnection
-): Promise<CheckResult> {
+): Promise<HealthCheckResult> {
   try {
     // Get PostgreSQL version
     const version = await connection.db.execute(

@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { TursoConnection } from './connection.turso';
+
+import type { TursoConnection } from './types.turso';
 
 // System tables that should not be dropped/truncated (same as SQLite since Turso is LibSQL/SQLite-compatible)
 const SYSTEM_TABLES = [

@@ -1,8 +1,9 @@
-import type { TruncateResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 
-import type { PostgresConnection } from './connection.postgres';
 import { getSchemas, getTables, getTablesInSchemas } from './utils.postgres';
+
+import type { TruncateResult } from '@/dialects/result.types';
+import type { PostgresConnection } from './types.postgres';
 
 /**
  * Truncates PostgreSQL database by deleting all data from user tables while preserving table structure
