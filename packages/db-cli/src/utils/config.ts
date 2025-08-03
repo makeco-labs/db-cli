@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
-import { pathToFileURL } from 'url';
+import { createRequire } from 'module';
+
 import type { Config } from 'drizzle-kit';
 import type {
   DbCliConfig,
@@ -21,6 +21,27 @@ import type {
 } from '../types';
 
 // ========================================================================
+// TYPESCRIPT COMPILATION UTILITIES
+// ========================================================================
+
+const safeRegister = async () => {
+  const { register } = await import('esbuild-register/dist/node');
+  let res: { unregister: () => void };
+  try {
+    res = register({
+      format: 'cjs',
+      loader: 'ts',
+    });
+  } catch {
+    // tsx fallback
+    res = {
+      unregister: () => {},
+    };
+  }
+  return res;
+};
+
+// ========================================================================
 // CONFIG DISCOVERY FUNCTIONS (moved from db-cli.ts)
 // ========================================================================
 
@@ -35,7 +56,7 @@ export function discoverDrizzleConfig(): string | null {
     'drizzle.config.cjs',
   ];
   const cwd = process.cwd();
-  
+
   for (const pattern of configPatterns) {
     const configPath = path.join(cwd, pattern);
     if (fs.existsSync(configPath)) {
@@ -46,17 +67,17 @@ export function discoverDrizzleConfig(): string | null {
 }
 
 /**
- * Discovers db-cli config file in the current working directory
+ * Discovers db config file in the current working directory
  */
 export function discoverDbCliConfig(): string | null {
   const configPatterns = [
-    'db-cli.config.ts',
-    'db-cli.config.js',
-    'db-cli.config.mjs',
-    'db-cli.config.cjs',
+    'db.config.ts',
+    'db.config.js',
+    'db.config.mjs',
+    'db.config.cjs',
   ];
   const cwd = process.cwd();
-  
+
   for (const pattern of configPatterns) {
     const configPath = path.join(cwd, pattern);
     if (fs.existsSync(configPath)) {
@@ -89,29 +110,18 @@ export function validateConfigPath(configPath: string | null): string {
 export async function loadConfig(configPath: string): Promise<Config> {
   try {
     const absolutePath = path.resolve(configPath);
-    
+
     // Check if file exists
     if (!fs.existsSync(absolutePath)) {
       throw new Error(`Config file not found: ${configPath}`);
     }
-    let config: Config;
-    if (absolutePath.endsWith('.ts')) {
-      // For TypeScript files, we need to use tsx to execute them
-      try {
-        const result = execSync(`npx tsx -e "
-          const config = require('${absolutePath}');
-          console.log(JSON.stringify(config.default || config));
-        "`, { encoding: 'utf8' });
-        config = JSON.parse(result.trim());
-      } catch {
-        throw new Error(`Failed to load TypeScript config file: ${configPath}`);
-      }
-    } else {
-      // For JS files, use dynamic import
-      const fileUrl = pathToFileURL(absolutePath).href;
-      const module = await import(fileUrl);
-      config = module.default || module;
-    }
+
+    const { unregister } = await safeRegister();
+    const require = createRequire(import.meta.url);
+    const required = require(absolutePath);
+    const config = required.default ?? required;
+    unregister();
+
     // Validate that we have a valid config
     if (!config || typeof config !== 'object') {
       throw new Error(`Invalid config file: ${configPath}`);
@@ -129,55 +139,44 @@ export async function loadConfig(configPath: string): Promise<Config> {
 }
 
 /**
- * Loads and parses a db-cli config file
+ * Loads and parses a db config file
  */
 export async function loadDbCliConfig(configPath: string): Promise<DbCliConfig> {
   try {
     const absolutePath = path.resolve(configPath);
-    
+
     // Check if file exists
     if (!fs.existsSync(absolutePath)) {
-      throw new Error(`db-cli config file not found: ${configPath}`);
+      throw new Error(`db config file not found: ${configPath}`);
     }
-    let config: DbCliConfig;
-    if (absolutePath.endsWith('.ts')) {
-      // For TypeScript files, we need to use tsx to execute them
-      try {
-        const result = execSync(`npx tsx -e "
-          const config = require('${absolutePath}');
-          console.log(JSON.stringify(config.default || config));
-        "`, { encoding: 'utf8' });
-        config = JSON.parse(result.trim());
-      } catch {
-        throw new Error(`Failed to load TypeScript db-cli config file: ${configPath}`);
-      }
-    } else {
-      // For JS files, use dynamic import
-      const fileUrl = pathToFileURL(absolutePath).href;
-      const module = await import(fileUrl);
-      config = module.default || module;
-    }
-    // Validate that we have a valid db-cli config
+
+    const { unregister } = await safeRegister();
+    const require = createRequire(import.meta.url);
+    const required = require(absolutePath);
+    const config = required.default ?? required;
+    unregister();
+
+    // Validate that we have a valid db config
     if (!config || typeof config !== 'object') {
-      throw new Error(`Invalid db-cli config file: ${configPath}`);
+      throw new Error(`Invalid db config file: ${configPath}`);
     }
     if (!config.drizzleConfig) {
-      throw new Error(`db-cli config file missing required 'drizzleConfig' field: ${configPath}`);
+      throw new Error(`db config file missing required 'drizzleConfig' field: ${configPath}`);
     }
     if (!config.seed) {
-      throw new Error(`db-cli config file missing required 'seed' field: ${configPath}`);
+      throw new Error(`db config file missing required 'seed' field: ${configPath}`);
     }
     return config;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error(`Failed to load db-cli config file: ${configPath}`);
+    throw new Error(`Failed to load db config file: ${configPath}`);
   }
 }
 
 /**
- * Resolves both db-cli and drizzle configs based on discovery priority
+ * Resolves both db and drizzle configs based on discovery priority
  */
 export async function resolveConfigs(configPath?: string): Promise<{
   drizzleConfig: Config;
@@ -189,8 +188,8 @@ export async function resolveConfigs(configPath?: string): Promise<{
 
   // Determine config discovery strategy
   if (configPath) {
-    if (configPath.includes('db-cli.config')) {
-      // User provided a db-cli config file
+    if (configPath.includes('db.config')) {
+      // User provided a db.config file
       dbCliConfig = await loadDbCliConfig(configPath);
       drizzleConfigPath = path.resolve(dbCliConfig.drizzleConfig);
     } else {
@@ -198,10 +197,10 @@ export async function resolveConfigs(configPath?: string): Promise<{
       drizzleConfigPath = configPath;
     }
   } else {
-    // Auto-discovery: try db-cli config first, then drizzle config
-    const discoveredDbCliConfig = discoverDbCliConfig();
-    if (discoveredDbCliConfig) {
-      dbCliConfig = await loadDbCliConfig(discoveredDbCliConfig);
+    // Auto-discovery: try db.config first, then drizzle config
+    const discoveredDbConfig = discoverDbCliConfig();
+    if (discoveredDbConfig) {
+      dbCliConfig = await loadDbCliConfig(discoveredDbConfig);
       drizzleConfigPath = path.resolve(dbCliConfig.drizzleConfig);
     } else {
       const discoveredDrizzleConfig = discoverDrizzleConfig();

@@ -1,0 +1,46 @@
+name: db-cli-test
+
+# Test databases for db-cli development and examples
+# Usage: docker compose up -d
+
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: db-cli-postgres-test
+    environment:
+      POSTGRES_USER: postgres_test
+      POSTGRES_PASSWORD: postgres_test
+      POSTGRES_DB: postgres_test
+    ports:
+      - 5432:5432
+    volumes:
+      - db-cli-test-databases_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # SQLite doesn't need a container as it's file-based
+
+  mysql:
+    image: mysql:latest
+    container_name: db-cli-mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql_root
+      MYSQL_DATABASE: mysql_test
+      MYSQL_USER: mysql_test
+      MYSQL_PASSWORD: mysql_test
+    ports:
+      - 3306:3306
+    volumes:
+      - db-cli-test-databases_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql_root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-cli-test-databases_postgres_data:
+  db-cli-test-databases_mysql_data:

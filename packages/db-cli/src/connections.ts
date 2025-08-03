@@ -13,13 +13,13 @@ import {
  */
 export async function createConnection(config: Config): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
-    const { preparePostgresDB } = await import('@makeco/db-cli/postgres');
+    const { preparePostgresDB } = await import('@makeco/db-cli/dialects/postgres');
     const credentials = extractPostgresCredentials(config);
     return await preparePostgresDB(credentials);
   }
 
   if (isSqliteConfig(config)) {
-    const { prepareSQLiteDB } = await import('@makeco/db-cli/sqlite');
+    const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
     const credentials = extractSqliteCredentials(config);
     return await prepareSQLiteDB(credentials);
   }

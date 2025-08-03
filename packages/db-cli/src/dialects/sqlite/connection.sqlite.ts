@@ -6,7 +6,7 @@ import {
   undefined as zUndefined,
   union,
 } from 'zod';
-import { checkPackage, normalizeSQLiteUrl } from '../utils';
+import { checkPackage, normalizeSQLiteUrl } from '../../utils';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';

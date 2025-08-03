@@ -3,12 +3,11 @@
 ## Setup
 
 ```bash
-# Start test database
-docker compose up -d
+# Start test database (from project root)
+cd ../../../ && docker compose up -d postgres
 
-# Install and link
+# Install dependencies
 bun install
-bun link ../../
 ```
 
 ## Quick Test
@@ -20,14 +19,26 @@ bun run db migrate -e test
 
 # Test commands
 bun run db check -e test
-bun run db:seed -e test
+bun run db seed -e test
 bun run db truncate -e test
 bun run db reset -e test
+```
+
+## Configuration
+
+The example uses `db.config.ts` for db-cli configuration:
+```typescript
+import { defineConfig } from '@makeco/db-cli';
+
+export default defineConfig({
+  drizzleConfig: './drizzle.config.ts',
+  seed: './src/seed.ts',
+});
 ```
 
 ## Environment
 
 Create `.env.test`:
 ```env
-DATABASE_URL=postgresql://postgres_test:postgres_test@localhost:15432/postgres_test
+DATABASE_URL=postgresql://postgres_test:postgres_test@localhost:5432/postgres_test
 ```

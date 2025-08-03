@@ -33,7 +33,7 @@ Use the `db-cli` command with your existing drizzle configuration:
 # Check database connection
 db-cli check
 
-# Seed database with initial data (requires db-cli.config.ts)
+# Seed database with initial data (requires db.config.ts)
 db-cli seed
 
 # Reset database (clear all data)
@@ -99,7 +99,7 @@ beforeEach(async () => {
 ### Extended Commands
 
 #### `seed`
-Seeds the database with initial data using a custom seed file. Requires a `db-cli.config.ts` configuration file.
+Seeds the database with initial data using a custom seed file. Requires a `db.config.ts` configuration file.
 
 ```bash
 db-cli seed
@@ -160,12 +160,12 @@ export default defineConfig({
 });
 ```
 
-### Enhanced Configuration with db-cli.config.ts
+### Enhanced Configuration with db.config.ts
 
-For additional features like database seeding, create a `db-cli.config.ts` file:
+For additional features like database seeding, create a `db.config.ts` file:
 
 ```typescript
-// db-cli.config.ts
+// db.config.ts
 import { defineConfig } from '@makeco/db-cli';
 
 export default defineConfig({
@@ -197,8 +197,8 @@ export default async function seed(db: any) {
 ### Configuration Discovery
 
 The CLI automatically discovers config files in this order:
-1. `--config/-c` flag value (auto-detects db-cli.config.ts vs drizzle.config.ts)
-2. `db-cli.config.ts` (if exists, includes seed functionality)
+1. `--config/-c` flag value (auto-detects db.config.ts vs drizzle.config.ts)
+2. `db.config.ts` (if exists, includes seed functionality)
 3. `drizzle.config.ts`
 4. `drizzle.config.js`
 5. `drizzle.config.mjs`
@@ -271,7 +271,7 @@ const { db } = await createConnection(config);
 
 ### defineConfig(config: DbCliConfig): DbCliConfig
 
-Type-safe configuration helper for db-cli.config.ts files.
+Type-safe configuration helper for db.config.ts files.
 
 ```typescript
 import { defineConfig } from '@makeco/db-cli';
@@ -297,7 +297,7 @@ export default async function seed(connection: any) {
   // Clear existing data (optional)
   await connection.delete(posts);
   await connection.delete(users);
-  
+
   // Insert initial users
   const [user1, user2] = await connection.insert(users).values([
     { name: 'John Doe', email: 'john@example.com' },

@@ -34,6 +34,22 @@ db-cli refresh        # Complete database refresh
 - **PostgreSQL** - All drivers (pg, postgres.js, @vercel/postgres, @neondatabase/serverless, pglite, aws-data-api)
 - **SQLite** - All drivers (better-sqlite3, @libsql/client, turso, d1-http)
 
+## Development
+
+Test databases are managed via Docker Compose:
+
+```bash
+# Start all test databases
+docker compose up -d
+
+# Start specific database
+docker compose up -d postgres
+docker compose up -d mysql
+
+# Stop all databases
+docker compose down
+```
+
 ## License
 
 MIT © [paulwongx](https://github.com/paulwongx)

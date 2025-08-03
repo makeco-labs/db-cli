@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import type { SeedResult } from '@makeco/db-cli/types';
 
 /**
@@ -9,7 +10,7 @@ export async function seedPostgresDatabase(
   seedPath: string
 ): Promise<SeedResult> {
   const timestamp = new Date().toISOString();
-  
+
   try {
     // Validate seed file exists
     const absoluteSeedPath = path.resolve(seedPath);
@@ -25,7 +26,7 @@ export async function seedPostgresDatabase(
     // The seed file should export a default function that handles its own connection
     const seedModule = await import(absoluteSeedPath);
     const seedFunction = seedModule.default || seedModule.seed;
-    
+
     if (typeof seedFunction !== 'function') {
       return {
         success: false,
@@ -36,7 +37,7 @@ export async function seedPostgresDatabase(
 
     // Execute the seed function (zero abstraction - no parameters)
     await seedFunction();
-    
+
     return {
       success: true,
       message: `Database seeded successfully from ${seedPath}`,

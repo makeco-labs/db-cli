@@ -3,8 +3,8 @@ import type { ConnectionOptions } from 'tls';
 
 // Re-export the core types
 export type { Config } from 'drizzle-kit';
-export type { PostgresConnection, PostgresCredentials } from './postgres';
-export type { SQLiteConnection, SqliteCredentials } from './sqlite';
+export type { PostgresConnection, PostgresCredentials } from './dialects/postgres';
+export type { SQLiteConnection, SqliteCredentials } from './dialects/sqlite';
 
 // Common result types
 export interface CheckResult {
@@ -49,8 +49,8 @@ export function defineConfig(config: DbCliConfig): DbCliConfig {
 
 // Union type for all database connections
 export type DatabaseConnection =
-  | import('./postgres').PostgresConnection
-  | import('./sqlite').SQLiteConnection;
+  | import('./dialects/postgres').PostgresConnection
+  | import('./dialects/sqlite').SQLiteConnection;
 
 // Specific config types for PostgreSQL
 export type PostgresConfigWithHost = Config & {

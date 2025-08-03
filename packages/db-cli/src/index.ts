@@ -2,15 +2,12 @@
 export * from './cli';
 
 // Database functionality by dialect
-export * from './postgres';
-export * from './sqlite';
+export * from './dialects/postgres';
+export * from './dialects/sqlite';
 
 // Core functionality
 export * from './connections';
-export * from './reset';
-export * from './check';
-export * from './seed';
-export * from './truncate';
+export * from './actions';
 
 // Types and utilities
 export * from './types';

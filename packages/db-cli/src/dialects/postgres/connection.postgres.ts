@@ -8,7 +8,7 @@ import z, {
 	TypeOf,
 	union,
 } from "zod";
-import { checkPackage } from "../utils";
+import { checkPackage } from "../../utils";
 import type {
 	AwsDataApiPgDatabase,
 	AwsDataApiSessionOptions,

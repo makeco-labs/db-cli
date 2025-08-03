@@ -1,13 +1,31 @@
 {
-  "name": "db-cli-root",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "turbo": "^2.5.5"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "db-cli-root",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"packageManager": "bun@1.2.17",
+	"workspaces": [
+		"packages/**"
+	],
+	"scripts": {
+		"clean": "rm -rf dist",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"lint": "eslint src/**/*.ts",
+		"test": "vitest",
+		"ci": "bun run lint && bun run typecheck && bun run build && bun run test --run",
+		"git": "bun run ci && git add . && git commit -m",
+		"postgit": "git push --all",
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"test:turbo": "turbo run test",
+		"lint:turbo": "turbo run lint",
+		"typecheck:turbo": "turbo run typecheck"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"turbo": "^2.5.5"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }

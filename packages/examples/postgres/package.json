@@ -4,11 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db": "db-cli -c ./drizzle.config.ts",
-    "db:seed": "db-cli seed -c ./db-cli.config.ts"
+    "db": "bun ../../db-cli/src/cli/main.ts -c ./db.config.ts"
   },
   "dependencies": {
-    "@makeco/db-cli": "file:../..",
+    "@makeco/db-cli": "workspace:*",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.11.5"
   },
