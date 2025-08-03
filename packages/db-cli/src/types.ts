@@ -5,6 +5,10 @@ import type { ConnectionOptions } from 'tls';
 export type { Config } from 'drizzle-kit';
 export type { PostgresConnection, PostgresCredentials } from './dialects/postgres';
 export type { SQLiteConnection, SqliteCredentials } from './dialects/sqlite';
+export type { MysqlConnection, MysqlCredentials } from './dialects/mysql';
+export type { TursoConnection, TursoCredentials } from './dialects/turso';
+export type { SingleStoreConnection, SingleStoreCredentials } from './dialects/singlestore';
+export type { GelConnection, GelCredentials } from './dialects/gel';
 
 // Common result types
 export interface CheckResult {
@@ -50,7 +54,11 @@ export function defineConfig(config: DbCliConfig): DbCliConfig {
 // Union type for all database connections
 export type DatabaseConnection =
   | import('./dialects/postgres').PostgresConnection
-  | import('./dialects/sqlite').SQLiteConnection;
+  | import('./dialects/sqlite').SQLiteConnection
+  | import('./dialects/mysql').MysqlConnection
+  | import('./dialects/turso').TursoConnection
+  | import('./dialects/singlestore').SingleStoreConnection
+  | import('./dialects/gel').GelConnection;
 
 // Specific config types for PostgreSQL
 export type PostgresConfigWithHost = Config & {
@@ -126,6 +134,72 @@ export type SqliteConfigDurable = Config & {
   driver: 'durable-sqlite';
 };
 
+// Specific config types for MySQL
+export type MysqlConfigWithHost = Config & {
+  dialect: 'mysql';
+  dbCredentials: {
+    host: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    database: string;
+    ssl?: string | Record<string, unknown>;
+  };
+};
+
+export type MysqlConfigWithUrl = Config & {
+  dialect: 'mysql';
+  dbCredentials: {
+    url: string;
+  };
+};
+
+// Specific config types for SingleStore
+export type SingleStoreConfigWithHost = Config & {
+  dialect: 'singlestore';
+  dbCredentials: {
+    host: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    database: string;
+    ssl?: string | Record<string, unknown>;
+  };
+};
+
+export type SingleStoreConfigWithUrl = Config & {
+  dialect: 'singlestore';
+  dbCredentials: {
+    url: string;
+  };
+};
+
+// Specific config types for Gel
+export type GelConfigWithHost = Config & {
+  dialect: 'gel';
+  dbCredentials: {
+    host: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    database: string;
+    tlsSecurity?: 'insecure' | 'no_host_verification' | 'strict' | 'default';
+  };
+};
+
+export type GelConfigWithUrl = Config & {
+  dialect: 'gel';
+  dbCredentials: {
+    url: string;
+    tlsSecurity?: 'insecure' | 'no_host_verification' | 'strict' | 'default';
+  };
+};
+
+export type GelConfigBasic = Config & {
+  dialect: 'gel';
+  dbCredentials?: undefined;
+};
+
 // Union types for dialect-specific configs
 export type PostgresConfig =
   | PostgresConfigWithHost
@@ -140,5 +214,18 @@ export type SqliteConfig =
   | SqliteConfigExpo
   | SqliteConfigDurable;
 
-// Supported config type (excludes unsupported dialects)
-export type SupportedConfig = PostgresConfig | SqliteConfig;
+export type MysqlConfig =
+  | MysqlConfigWithHost
+  | MysqlConfigWithUrl;
+
+export type SingleStoreConfig =
+  | SingleStoreConfigWithHost
+  | SingleStoreConfigWithUrl;
+
+export type GelConfig =
+  | GelConfigWithHost
+  | GelConfigWithUrl
+  | GelConfigBasic;
+
+// Supported config type (now includes all dialects)
+export type SupportedConfig = PostgresConfig | SqliteConfig | MysqlConfig | SingleStoreConfig | GelConfig;

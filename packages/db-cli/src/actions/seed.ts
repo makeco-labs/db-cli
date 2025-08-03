@@ -1,6 +1,13 @@
 import type { Config } from 'drizzle-kit';
 import type { SeedResult } from '@makeco/db-cli/types';
-import { isPostgresConfig, isSqliteConfig } from '@makeco/db-cli/utils/config';
+import {
+  isPostgresConfig,
+  isSqliteConfig,
+  isMysqlConfig,
+  isTursoConfig,
+  isSingleStoreConfig,
+  isGelConfig,
+} from '@makeco/db-cli/utils';
 
 // ========================================================================
 // COORDINATOR FUNCTION
@@ -19,8 +26,28 @@ export async function seedDatabase(config: Config, seedPath: string): Promise<Se
     }
 
     if (isSqliteConfig(config)) {
-      const { seedSQLiteDatabase } = await import('@makeco/db-cli/dialects/sqlite');
-      return await seedSQLiteDatabase(seedPath);
+      if (isTursoConfig(config)) {
+        const { seedTursoDatabase } = await import('@makeco/db-cli/dialects/turso');
+        return await seedTursoDatabase(seedPath);
+      } else {
+        const { seedSQLiteDatabase } = await import('@makeco/db-cli/dialects/sqlite');
+        return await seedSQLiteDatabase(seedPath);
+      }
+    }
+    
+    if (isMysqlConfig(config)) {
+      const { seedMysqlDatabase } = await import('@makeco/db-cli/dialects/mysql');
+      return await seedMysqlDatabase(seedPath);
+    }
+    
+    if (isSingleStoreConfig(config)) {
+      const { seedSingleStoreDatabase } = await import('@makeco/db-cli/dialects/singlestore');
+      return await seedSingleStoreDatabase(seedPath);
+    }
+    
+    if (isGelConfig(config)) {
+      const { seedGelDatabase } = await import('@makeco/db-cli/dialects/gel');
+      return await seedGelDatabase(seedPath);
     }
 
     return {

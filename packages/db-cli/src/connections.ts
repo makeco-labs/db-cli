@@ -3,13 +3,21 @@ import type { DatabaseConnection } from '@makeco/db-cli/types';
 import {
   isPostgresConfig,
   isSqliteConfig,
+  isMysqlConfig,
+  isTursoConfig,
+  isSingleStoreConfig,
+  isGelConfig,
   extractPostgresCredentials,
   extractSqliteCredentials,
+  extractTursoCredentials,
+  extractMysqlCredentials,
+  extractSingleStoreCredentials,
+  extractGelCredentials,
 } from '@makeco/db-cli/utils';
 
 /**
  * Creates a database connection based on the drizzle config using drizzle-kit patterns
- * Currently supports PostgreSQL and SQLite
+ * Supports PostgreSQL, SQLite, Turso, MySQL, SingleStore, and Gel
  */
 export async function createConnection(config: Config): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
@@ -19,16 +27,33 @@ export async function createConnection(config: Config): Promise<DatabaseConnecti
   }
 
   if (isSqliteConfig(config)) {
-    const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
-    const credentials = extractSqliteCredentials(config);
-    return await prepareSQLiteDB(credentials);
+    if (isTursoConfig(config)) {
+      const credentials = extractTursoCredentials(config);
+      const { prepareTursoDB } = await import('@makeco/db-cli/dialects/turso');
+      return await prepareTursoDB(credentials);
+    } else {
+      const credentials = extractSqliteCredentials(config);
+      const { prepareSQLiteDB } = await import('@makeco/db-cli/dialects/sqlite');
+      return await prepareSQLiteDB(credentials);
+    }
   }
 
-  // Handle unsupported dialects
-  if (config.dialect === 'mysql' || config.dialect === 'singlestore' || config.dialect === 'gel') {
-    throw new Error(
-      `Dialect ${config.dialect} is not yet supported. Only PostgreSQL and SQLite are currently supported.`
-    );
+  if (isMysqlConfig(config)) {
+    const { prepareMysqlDB } = await import('@makeco/db-cli/dialects/mysql');
+    const credentials = extractMysqlCredentials(config);
+    return await prepareMysqlDB(credentials);
+  }
+
+  if (isSingleStoreConfig(config)) {
+    const { prepareSingleStoreDB } = await import('@makeco/db-cli/dialects/singlestore');
+    const credentials = extractSingleStoreCredentials(config);
+    return await prepareSingleStoreDB(credentials);
+  }
+
+  if (isGelConfig(config)) {
+    const { prepareGelDB } = await import('@makeco/db-cli/dialects/gel');
+    const credentials = extractGelCredentials(config);
+    return await prepareGelDB(credentials);
   }
 
   // This should be unreachable if all Config union members are handled

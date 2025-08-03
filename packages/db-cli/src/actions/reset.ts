@@ -3,8 +3,16 @@ import type { ResetResult } from '@makeco/db-cli/types';
 import {
   isPostgresConfig,
   isSqliteConfig,
+  isMysqlConfig,
+  isTursoConfig,
+  isSingleStoreConfig,
+  isGelConfig,
   extractPostgresCredentials,
   extractSqliteCredentials,
+  extractTursoCredentials,
+  extractMysqlCredentials,
+  extractSingleStoreCredentials,
+  extractGelCredentials,
 } from '@makeco/db-cli/utils';
 
 // ========================================================================
@@ -27,17 +35,38 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
     }
     
     if (isSqliteConfig(config)) {
-      const credentials = extractSqliteCredentials(config);
-      const { prepareSQLiteDB, resetSqliteDatabase } = await import('@makeco/db-cli/dialects/sqlite');
-      const connection = await prepareSQLiteDB(credentials);
-      return await resetSqliteDatabase(connection);
+      if (isTursoConfig(config)) {
+        const credentials = extractTursoCredentials(config);
+        const { prepareTursoDB, resetTursoDatabase } = await import('@makeco/db-cli/dialects/turso');
+        const connection = await prepareTursoDB(credentials);
+        return await resetTursoDatabase(connection);
+      } else {
+        const credentials = extractSqliteCredentials(config);
+        const { prepareSQLiteDB, resetSqliteDatabase } = await import('@makeco/db-cli/dialects/sqlite');
+        const connection = await prepareSQLiteDB(credentials);
+        return await resetSqliteDatabase(connection);
+      }
     }
     
-    // Handle unsupported dialects
-    if (config.dialect === 'mysql' || config.dialect === 'singlestore' || config.dialect === 'gel') {
-      throw new Error(
-        `Dialect ${config.dialect} is not yet supported. Only PostgreSQL and SQLite are currently supported.`
-      );
+    if (isMysqlConfig(config)) {
+      const credentials = extractMysqlCredentials(config);
+      const { prepareMysqlDB, resetMysqlDatabase } = await import('@makeco/db-cli/dialects/mysql');
+      const connection = await prepareMysqlDB(credentials);
+      return await resetMysqlDatabase(connection);
+    }
+    
+    if (isSingleStoreConfig(config)) {
+      const credentials = extractSingleStoreCredentials(config);
+      const { prepareSingleStoreDB, resetSingleStoreDatabase } = await import('@makeco/db-cli/dialects/singlestore');
+      const connection = await prepareSingleStoreDB(credentials);
+      return await resetSingleStoreDatabase(connection);
+    }
+    
+    if (isGelConfig(config)) {
+      const credentials = extractGelCredentials(config);
+      const { prepareGelDB, resetGelDatabase } = await import('@makeco/db-cli/dialects/gel');
+      const connection = await prepareGelDB(credentials);
+      return await resetGelDatabase(connection);
     }
     
     throw new Error(`Unsupported configuration: ${JSON.stringify(config)}`);

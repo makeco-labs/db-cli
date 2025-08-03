@@ -4,6 +4,10 @@ export * from './cli';
 // Database functionality by dialect
 export * from './dialects/postgres';
 export * from './dialects/sqlite';
+export * from './dialects/mysql';
+export * from './dialects/turso';
+export * from './dialects/singlestore';
+export * from './dialects/gel';
 
 // Core functionality
 export * from './connections';

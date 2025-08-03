@@ -16,8 +16,21 @@ import type {
   SqliteConfigD1Http,
   SqliteConfigExpo,
   SqliteConfigDurable,
+  MysqlConfig,
+  MysqlConfigWithHost,
+  MysqlConfigWithUrl,
+  SingleStoreConfig,
+  SingleStoreConfigWithHost,
+  SingleStoreConfigWithUrl,
+  GelConfig,
+  GelConfigWithHost,
+  GelConfigWithUrl,
+  GelConfigBasic,
   PostgresCredentials,
   SqliteCredentials,
+  MysqlCredentials,
+  SingleStoreCredentials,
+  GelCredentials,
 } from '../types';
 
 // ========================================================================
@@ -303,6 +316,81 @@ export function isSqliteConfigDurable(config: Config): config is SqliteConfigDur
   );
 }
 
+// Type guards for MySQL configs
+export function isMysqlConfig(config: Config): config is MysqlConfig {
+  return config.dialect === 'mysql';
+}
+
+export function isMysqlConfigWithHost(config: Config): config is MysqlConfigWithHost {
+  return (
+    config.dialect === 'mysql' &&
+    'dbCredentials' in config &&
+    'host' in config.dbCredentials
+  );
+}
+
+export function isMysqlConfigWithUrl(config: Config): config is MysqlConfigWithUrl {
+  return (
+    config.dialect === 'mysql' &&
+    'dbCredentials' in config &&
+    'url' in config.dbCredentials &&
+    !('host' in config.dbCredentials)
+  );
+}
+
+// Type guards for SingleStore configs
+export function isSingleStoreConfig(config: Config): config is SingleStoreConfig {
+  return config.dialect === 'singlestore';
+}
+
+export function isSingleStoreConfigWithHost(config: Config): config is SingleStoreConfigWithHost {
+  return (
+    config.dialect === 'singlestore' &&
+    'dbCredentials' in config &&
+    'host' in config.dbCredentials
+  );
+}
+
+export function isSingleStoreConfigWithUrl(config: Config): config is SingleStoreConfigWithUrl {
+  return (
+    config.dialect === 'singlestore' &&
+    'dbCredentials' in config &&
+    'url' in config.dbCredentials &&
+    !('host' in config.dbCredentials)
+  );
+}
+
+// Type guards for Gel configs
+export function isGelConfig(config: Config): config is GelConfig {
+  return config.dialect === 'gel';
+}
+
+export function isGelConfigWithHost(config: Config): config is GelConfigWithHost {
+  return (
+    config.dialect === 'gel' &&
+    'dbCredentials' in config &&
+    !!config.dbCredentials &&
+    'host' in config.dbCredentials
+  );
+}
+
+export function isGelConfigWithUrl(config: Config): config is GelConfigWithUrl {
+  return (
+    config.dialect === 'gel' &&
+    'dbCredentials' in config &&
+    !!config.dbCredentials &&
+    'url' in config.dbCredentials &&
+    !('host' in config.dbCredentials)
+  );
+}
+
+export function isGelConfigBasic(config: Config): config is GelConfigBasic {
+  return (
+    config.dialect === 'gel' &&
+    (!('dbCredentials' in config) || !config.dbCredentials)
+  );
+}
+
 // Credential extraction functions
 export function extractPostgresCredentials(config: PostgresConfig): PostgresCredentials {
   if (isPostgresConfigAwsDataApi(config)) {
@@ -366,4 +454,75 @@ export function extractSqliteCredentials(config: SqliteConfig): SqliteCredential
   }
 
   throw new Error('Invalid SQLite configuration');
+}
+
+export function extractTursoCredentials(config: TursoConfig): { url: string; authToken?: string } {
+  return {
+    url: config.dbCredentials.url,
+    authToken: config.dbCredentials.authToken,
+  };
+}
+
+export function extractMysqlCredentials(config: MysqlConfig): MysqlCredentials {
+  if (isMysqlConfigWithUrl(config)) {
+    return { url: config.dbCredentials.url };
+  }
+
+  if (isMysqlConfigWithHost(config)) {
+    return {
+      host: config.dbCredentials.host,
+      port: config.dbCredentials.port,
+      user: config.dbCredentials.user,
+      password: config.dbCredentials.password,
+      database: config.dbCredentials.database,
+      ssl: config.dbCredentials.ssl,
+    };
+  }
+
+  throw new Error('Invalid MySQL configuration');
+}
+
+export function extractSingleStoreCredentials(config: SingleStoreConfig): SingleStoreCredentials {
+  if (isSingleStoreConfigWithUrl(config)) {
+    return { url: config.dbCredentials.url };
+  }
+
+  if (isSingleStoreConfigWithHost(config)) {
+    return {
+      host: config.dbCredentials.host,
+      port: config.dbCredentials.port,
+      user: config.dbCredentials.user,
+      password: config.dbCredentials.password,
+      database: config.dbCredentials.database,
+      ssl: config.dbCredentials.ssl,
+    };
+  }
+
+  throw new Error('Invalid SingleStore configuration');
+}
+
+export function extractGelCredentials(config: GelConfig): GelCredentials {
+  if (isGelConfigBasic(config)) {
+    return undefined;
+  }
+
+  if (isGelConfigWithUrl(config)) {
+    return {
+      url: config.dbCredentials.url,
+      tlsSecurity: config.dbCredentials.tlsSecurity,
+    };
+  }
+
+  if (isGelConfigWithHost(config)) {
+    return {
+      host: config.dbCredentials.host,
+      port: config.dbCredentials.port,
+      user: config.dbCredentials.user,
+      password: config.dbCredentials.password,
+      database: config.dbCredentials.database,
+      tlsSecurity: config.dbCredentials.tlsSecurity,
+    };
+  }
+
+  throw new Error('Invalid Gel configuration');
 }
