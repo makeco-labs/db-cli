@@ -22,8 +22,10 @@
 		"typecheck:turbo": "turbo run typecheck"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.1.2",
 		"@types/bun": "latest",
-		"turbo": "^2.5.5"
+		"turbo": "^2.5.5",
+		"ultracite": "5.1.2"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
