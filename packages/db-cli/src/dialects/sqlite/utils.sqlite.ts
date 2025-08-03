@@ -59,12 +59,13 @@ export async function getTables(
   connection: SQLiteConnection
 ): Promise<string[]> {
   const statement = sql`SELECT name FROM sqlite_master WHERE type='table'`;
-  const result = connection.db.all(statement); // Using db.all() to fetch all tables
+  const result = await connection.db.all(statement);
+  console.log('result', result);
 
   // Handle different result formats from different drivers
   const tables = Array.isArray(result) ? result : [result];
 
   return (tables as Array<{ name: string }>)
     .map((row) => row.name) // Extract table names
-    .filter((table) => !tableAllowlist.includes(table));
+    .filter((table) => table && !tableAllowlist.includes(table)); // Filter out null/undefined and system tables
 }

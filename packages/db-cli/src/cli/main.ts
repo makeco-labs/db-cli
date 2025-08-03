@@ -178,7 +178,7 @@ Commands:
   health   - Check database connection and health status
   seed     - Seed database with initial data (requires seed path in db.config.ts)
   truncate - Truncate database data while preserving table structure
-  reset    - Clear database data, then run migrations
+  reset    - Clear database data (drop all tables and schemas)
   refresh  - Complete refresh: drop migrations → generate → clear data → migrate
 
 `

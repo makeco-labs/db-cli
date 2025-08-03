@@ -4,7 +4,7 @@ import { executeReset } from './reset';
 
 // Updated workflow definitions - drop vs reset distinction
 const WORKFLOWS = {
-  reset: ['reset', 'migrate'] as const, // Clear database data, then migrate
+  reset: ['reset'] as const, // Clear database data only (drop tables/schemas)
   refresh: ['drop', 'generate', 'reset', 'migrate'] as const, // Drop migrations, generate, clear data, migrate
 } as const;
 

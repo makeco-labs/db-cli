@@ -7,13 +7,14 @@
     "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.10",
     "@makeco/db-cli": "workspace:*",
-    "drizzle-orm": "^0.44.4",
-    "better-sqlite3": "^11.9.1"
+    "drizzle-orm": "*"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "drizzle-kit": "^0.30.0",
+    "better-sqlite3": "^12.2.0",
+    "drizzle-kit": "*",
     "typescript": "^5.0.0"
   }
 }

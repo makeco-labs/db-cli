@@ -117,6 +117,8 @@ export const connectToLibSQL = async (credentials: {
   });
   const db = drizzle(client);
 
+  
+
   return { db };
 };
 

@@ -64,7 +64,7 @@
     "@aws-sdk/client-rds-data": "^3.556.0",
     "@cloudflare/workers-types": "^4.20230518.0",
     "@electric-sql/pglite": "^0.2.12",
-    "@libsql/client": "^0.10.0",
+    "@libsql/client": "^0.15.10",
     "@neondatabase/serverless": "^0.9.1",
     "@planetscale/database": "^1.16.0",
     "@types/better-sqlite3": "^7.6.13",

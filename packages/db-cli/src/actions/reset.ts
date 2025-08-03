@@ -1,4 +1,3 @@
-import type { ResetResult } from '@/dialects/result.types';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -13,7 +12,9 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
+
 import type { Config } from 'drizzle-kit';
+import type { ResetResult } from '@/dialects/result.types';
 
 // ========================================================================
 // COORDINATOR FUNCTION
