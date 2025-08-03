@@ -35,7 +35,8 @@ interface ExecuteActionInput {
   drizzleConfig: DrizzleConfig;
   envName: string;
   dbConfig: DbConfig;
-  count?: boolean;
+  includeRowCounts?: boolean;
+  compact?: boolean;
 }
 
 // Setup signal handlers
@@ -45,7 +46,7 @@ setupSignalHandlers(); // Temporarily disabled to test double execution
  * Execute the chosen action
  */
 async function executeAction(input: ExecuteActionInput): Promise<void> {
-  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig, count } = input;
+  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig, includeRowCounts, compact } = input;
   switch (action) {
     case ACTIONS.GENERATE:
     case ACTIONS.MIGRATE:
@@ -63,7 +64,8 @@ async function executeAction(input: ExecuteActionInput): Promise<void> {
       break;
 
     case ACTIONS.LIST:
-      await executeList(drizzleConfig, count);
+    case ACTIONS.LS:
+      await executeList(drizzleConfig, includeRowCounts, compact);
       break;
 
     case ACTIONS.SEED:
@@ -131,15 +133,28 @@ program
       VALID_ENVIRONMENTS
     )
   )
-  .option('--count', 'Include row counts for each table (list command only)')
+  .option('--count', 'Include row counts for each table (list/ls command only)')
+  .option('-l', 'Long format - include row counts (alias for --count)')
+  .option('--compact', 'Use compact output format')
   .action(async (actionInput: string | undefined, options: CliOptions) => {
-    const { config: dbConfigPath, env, count } = options;
+    const { config: dbConfigPath, env, count, l, compact } = options;
     
-    // Validate that --count is only used with list action
-    if (count && actionInput !== 'list') {
-      console.error(chalk.red('❌ The --count flag can only be used with the "list" action'));
+    // Check if this is a list-type action
+    const isListAction = actionInput === 'list' || actionInput === 'ls';
+    
+    // Validate that list-specific flags are only used with list/ls actions
+    if ((count || l) && !isListAction) {
+      console.error(chalk.red('❌ The --count/-l flags can only be used with the "list" or "ls" actions'));
       process.exit(1);
     }
+    
+    if (compact && !isListAction) {
+      console.error(chalk.red('❌ The --compact flag can only be used with the "list" or "ls" actions'));
+      process.exit(1);
+    }
+    
+    // Combine count flags: -l is alias for --count
+    const includeRowCounts = count || l;
 
     try {
       // Determine environment and action using original pattern
@@ -165,7 +180,8 @@ program
         drizzleConfig,
         envName: chosenEnv,
         dbConfig,
-        count,
+        includeRowCounts,
+        compact,
       });
 
       // Exit successfully after command completion
@@ -190,11 +206,17 @@ Commands:
   studio   - Launch Drizzle Studio web interface
   push     - Push schema changes directly to database (no migrations)
   health   - Check database connection and health status
-  list     - List database tables and schemas (use --count to include row counts)
+  list     - List database tables and schemas
+  ls       - List database tables and schemas (alias for list)
   seed     - Seed database with initial data (requires seed path in db.config.ts)
   truncate - Truncate database data while preserving table structure
   reset    - Clear database data (drop all tables and schemas)
   refresh  - Complete refresh: drop migrations → generate → clear data → migrate
+
+Flags for list/ls commands:
+  --count  - Include row counts for each table
+  -l       - Long format (alias for --count)
+  --compact - Use compact output format without emojis
 
 `
 );

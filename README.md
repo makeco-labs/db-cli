@@ -1,6 +1,6 @@
 # DB CLI Tools
 
-A collection of powerful database management tools that extend drizzle-kit with additional commands for streamlined database workflows.
+A powerful database management tool that extend drizzle-kit with additional commands for streamlined database workflows.
 
 ## Packages
 
@@ -9,46 +9,38 @@ A collection of powerful database management tools that extend drizzle-kit with 
 A comprehensive database CLI tool that adds powerful commands like `reset`, `refresh`, `check`, `seed`, and `truncate` to your drizzle-kit workflow.
 
 **Key Features:**
+
 - 🗄️ **Extended Commands** - Beyond drizzle-kit: reset, refresh, check, seed, truncate
-- 🌱 **Database Seeding** - Type-safe seeding with configuration files  
+- 🌱 **Database Seeding** - Type-safe seeding with configuration files
 - 🔄 **Multi-Environment** - Built-in support for dev, test, staging, prod
 - 🧪 **Test-Friendly** - Perfect for test database management
 - 📝 **TypeScript** - Full type safety and IntelliSense support
 
 **Quick Start:**
+
 ```bash
 npm install @makeco/db-cli drizzle-kit
+yarn add @makeco/db-cli drizzle-kit
+bun add @makeco/db-cli drizzle-kit
+```
 
-# Basic commands
-db-cli check          # Check database connection
-db-cli reset          # Clear data, keep schema
-db-cli truncate       # Delete data, keep structure  
-db-cli seed           # Load initial data
-db-cli refresh        # Complete database refresh
+```bash
+
+# Commands
+drop          # Drop migrations folder (drizzle-kit default behavior)
+generate      # Generate new migrations from schema changes
+migrate       # Apply pending migrations to the database
+studio        # Launch Drizzle Studio web interface
+push          # Push schema changes directly to database (no migrations)
+health        # Check database connection and health status
+ls            # List database tables and schemas (alias for list)
+seed          # Seed database with initial data (requires seed path in db.config.ts)
+truncate      # Truncate database data while preserving table structure
+reset         # Clear database data (drop all tables and schemas)
+refresh       # Complete refresh: drop migrations → generate → clear data → migrate
 ```
 
 **📖 [Complete Documentation](./packages/db-cli/README.md)**
-
-## Supported Databases
-
-- **PostgreSQL** - All drivers (pg, postgres.js, @vercel/postgres, @neondatabase/serverless, pglite, aws-data-api)
-- **SQLite** - All drivers (better-sqlite3, @libsql/client, turso, d1-http)
-
-## Development
-
-Test databases are managed via Docker Compose:
-
-```bash
-# Start all test databases
-docker compose up -d
-
-# Start specific database
-docker compose up -d postgres
-docker compose up -d mysql
-
-# Stop all databases
-docker compose down
-```
 
 ## License
 

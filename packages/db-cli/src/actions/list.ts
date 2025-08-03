@@ -36,6 +36,70 @@ function formatRowCount(count: number): string {
 }
 
 /**
+ * Formats the list output for schema-supporting databases in compact format
+ */
+function formatSchemaOutputCompact(schemas: {
+  [schemaName: string]: TableInfo[];
+}): string {
+  const schemaNames = Object.keys(schemas);
+
+  if (schemaNames.length === 0) {
+    return 'No tables found.';
+  }
+
+  let output = '';
+  let totalTables = 0;
+  let totalRows = 0;
+
+  schemaNames.forEach((schemaName) => {
+    const tables = schemas[schemaName];
+    totalTables += tables.length;
+
+    tables.forEach((tableInfo) => {
+      const rowCountDisplay = tableInfo.rowCount !== undefined ? ` ${formatRowCount(tableInfo.rowCount)} rows` : '';
+      output += `${schemaName}.${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - `${schemaName}.${tableInfo.name}`.length)) + rowCountDisplay : ''}\n`;
+      totalRows += tableInfo.rowCount || 0;
+    });
+  });
+
+  // Add summary
+  const summaryParts = [`${schemaNames.length} schema${schemaNames.length !== 1 ? 's' : ''}`, `${totalTables} table${totalTables !== 1 ? 's' : ''}`];
+  if (totalRows > 0) {
+    summaryParts.push(`${formatRowCount(totalRows)} rows`);
+  }
+  output += `Total: ${summaryParts.join(', ')}`;
+
+  return output.trim();
+}
+
+/**
+ * Formats the list output for schemaless databases in compact format
+ */
+function formatFlatOutputCompact(tables: TableInfo[]): string {
+  if (tables.length === 0) {
+    return 'No tables found.';
+  }
+
+  let output = '';
+  let totalRows = 0;
+
+  tables.forEach((tableInfo) => {
+    const rowCountDisplay = tableInfo.rowCount !== undefined ? ` ${formatRowCount(tableInfo.rowCount)} rows` : '';
+    output += `${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - tableInfo.name.length)) + rowCountDisplay : ''}\n`;
+    totalRows += tableInfo.rowCount || 0;
+  });
+
+  // Add summary
+  const summaryParts = [`${tables.length} table${tables.length !== 1 ? 's' : ''}`];
+  if (totalRows > 0) {
+    summaryParts.push(`${formatRowCount(totalRows)} rows`);
+  }
+  output += `Total: ${summaryParts.join(', ')}`;
+
+  return output.trim();
+}
+
+/**
  * Formats the list output for schema-supporting databases
  */
 function formatSchemaOutput(schemas: {
@@ -138,7 +202,8 @@ function formatFlatOutput(tables: TableInfo[]): string {
  */
 export async function executeList(
   drizzleConfig: DrizzleConfig,
-  includeRowCounts = false
+  includeRowCounts = false,
+  useCompactFormat = false
 ): Promise<void> {
   try {
     console.log(chalk.blue('📋 Database Tables:\n'));
@@ -199,10 +264,18 @@ export async function executeList(
     // Display results based on type
     if (result.schemas) {
       // Schema-supporting database
-      console.log(formatSchemaOutput(result.schemas));
+      if (useCompactFormat) {
+        console.log(formatSchemaOutputCompact(result.schemas));
+      } else {
+        console.log(formatSchemaOutput(result.schemas));
+      }
     } else if (result.tables) {
       // Schemaless database
-      console.log(formatFlatOutput(result.tables));
+      if (useCompactFormat) {
+        console.log(formatFlatOutputCompact(result.tables));
+      } else {
+        console.log(formatFlatOutput(result.tables));
+      }
     } else {
       console.log('No tables found.');
     }

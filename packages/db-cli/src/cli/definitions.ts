@@ -19,6 +19,7 @@ export const ACTIONS = {
   SEED: 'seed',
   TRUNCATE: 'truncate',
   LIST: 'list',
+  LS: 'ls',
 } as const;
 
 /**
@@ -76,6 +77,7 @@ export const ACTION_DESCRIPTIONS: Record<ActionKey, string> = {
   [ACTIONS.TRUNCATE]:
     '[truncate]: Truncate database (delete data, keep structure)',
   [ACTIONS.LIST]: '[list]: List database tables and schemas',
+  [ACTIONS.LS]: '[ls]: List database tables and schemas (alias for list)',
 } as const;
 
 // ========================================================================
@@ -89,4 +91,6 @@ export type CliOptions = Prettify<{
   config?: string;
   env?: EnvironmentKey;
   count?: boolean;
+  l?: boolean;
+  compact?: boolean;
 }>;
