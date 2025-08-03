@@ -6,6 +6,7 @@ import { Command, Option } from 'commander';
 import {
   executeHealth,
   executeCommand,
+  executeList,
   executeSeed,
   executeTruncate,
   executeWorkflow,
@@ -34,6 +35,7 @@ interface ExecuteActionInput {
   drizzleConfig: DrizzleConfig;
   envName: string;
   dbConfig: DbConfig;
+  count?: boolean;
 }
 
 // Setup signal handlers
@@ -43,7 +45,7 @@ setupSignalHandlers(); // Temporarily disabled to test double execution
  * Execute the chosen action
  */
 async function executeAction(input: ExecuteActionInput): Promise<void> {
-  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig } = input;
+  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig, count } = input;
   switch (action) {
     case ACTIONS.GENERATE:
     case ACTIONS.MIGRATE:
@@ -58,6 +60,10 @@ async function executeAction(input: ExecuteActionInput): Promise<void> {
 
     case ACTIONS.HEALTH:
       await executeHealth(drizzleConfig);
+      break;
+
+    case ACTIONS.LIST:
+      await executeList(drizzleConfig, count);
       break;
 
     case ACTIONS.SEED:
@@ -125,8 +131,15 @@ program
       VALID_ENVIRONMENTS
     )
   )
+  .option('--count', 'Include row counts for each table (list command only)')
   .action(async (actionInput: string | undefined, options: CliOptions) => {
-    const { config: dbConfigPath, env } = options;
+    const { config: dbConfigPath, env, count } = options;
+    
+    // Validate that --count is only used with list action
+    if (count && actionInput !== 'list') {
+      console.error(chalk.red('❌ The --count flag can only be used with the "list" action'));
+      process.exit(1);
+    }
 
     try {
       // Determine environment and action using original pattern
@@ -141,7 +154,7 @@ program
         await resolveConfigs(dbConfigPath);
       console.log(
         chalk.cyan(
-          `Using config: ${drizzleConfigPath} (dialect: ${drizzleConfig.dialect})`
+          `Using drizzle config: ${drizzleConfigPath} (dialect: ${drizzleConfig.dialect})`
         )
       );
 
@@ -152,6 +165,7 @@ program
         drizzleConfig,
         envName: chosenEnv,
         dbConfig,
+        count,
       });
 
       // Exit successfully after command completion
@@ -176,6 +190,7 @@ Commands:
   studio   - Launch Drizzle Studio web interface
   push     - Push schema changes directly to database (no migrations)
   health   - Check database connection and health status
+  list     - List database tables and schemas (use --count to include row counts)
   seed     - Seed database with initial data (requires seed path in db.config.ts)
   truncate - Truncate database data while preserving table structure
   reset    - Clear database data (drop all tables and schemas)

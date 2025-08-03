@@ -39,3 +39,21 @@ export interface SeedResult {
   error?: string;
   timestamp: string;
 }
+
+/**
+ * Table information with optional row count
+ */
+export interface TableInfo {
+  name: string;
+  rowCount?: number;
+}
+
+/**
+ * Result type for database list operations
+ */
+export interface ListResult {
+  success: boolean;
+  schemas?: { [schemaName: string]: TableInfo[] };
+  tables?: TableInfo[];
+  error?: string;
+}

@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
 
+import { formatMysqlVersion } from './utils.mysql';
+
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { MysqlConnection } from './types.mysql';
 
@@ -15,21 +17,20 @@ export async function checkMysqlConnection(
       sql`SELECT VERSION() AS version`
     );
     const versionString = version[0][0]?.version as string;
+    const formattedVersion = versionString ? formatMysqlVersion(versionString) : undefined;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);
 
-    console.log(`MySQL connection successful: ${versionString}`);
-
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      version: versionString,
+      version: formattedVersion,
     };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Database connection failed';
-    console.error(`MySQL connection failed: ${message}`);
+    // console.error(`MySQL connection failed: ${message}`);
 
     return {
       status: 'error',
