@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
 
-import * as path from 'node:path';
-import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@makeco/db-cli': path.resolve(__dirname, './src'),
+      '@makeco/db-cli': resolve(__dirname, './src'),
     },
   },
 });

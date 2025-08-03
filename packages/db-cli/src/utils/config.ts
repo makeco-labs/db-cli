@@ -1,7 +1,7 @@
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import type { Config } from 'drizzle-kit';
-import fs from 'fs';
-import { createRequire } from 'module';
-import path from 'path';
 import type {
   DbCliConfig,
   GelConfig,
@@ -47,7 +47,9 @@ const safeRegister = async () => {
   } catch {
     // tsx fallback
     res = {
-      unregister: () => {},
+      unregister: () => {
+        // No-op for tsx fallback
+      },
     };
   }
   return res;

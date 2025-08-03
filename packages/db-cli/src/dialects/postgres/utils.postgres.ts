@@ -63,7 +63,9 @@ export async function getTablesInSchemas(
   connection: PostgresConnection,
   schemas: string[]
 ): Promise<string[]> {
-  if (schemas.length === 0) return [];
+  if (schemas.length === 0) {
+    return [];
+  }
 
   const schemaList = schemas.map((schema) => `'${schema}'`).join(', ');
   const statement = sql`

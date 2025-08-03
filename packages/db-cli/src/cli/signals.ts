@@ -4,7 +4,9 @@ import chalk from 'chalk';
 let isExiting = false;
 
 const gracefulExit = (code = 0) => {
-  if (isExiting) return;
+  if (isExiting) {
+    return;
+  }
   isExiting = true;
 
   // Clean up any ongoing operations

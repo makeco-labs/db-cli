@@ -51,14 +51,14 @@ export const postgresCredentials = union([
       object({}).passthrough(),
     ]).optional(),
   }).transform((o) => {
-    delete o.driver;
+    o.driver = undefined;
     return o as Omit<typeof o, 'driver'>;
   }),
   object({
     driver: z.undefined(),
     url: string().min(1),
   }).transform<{ url: string }>((o) => {
-    delete o.driver;
+    o.driver = undefined;
     return o;
   }),
   object({

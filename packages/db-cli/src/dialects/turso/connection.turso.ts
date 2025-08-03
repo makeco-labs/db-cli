@@ -1,5 +1,5 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import z, { object, string, type TypeOf } from 'zod';
+import { object, string, type TypeOf } from 'zod';
 import { checkPackage } from '../../utils';
 
 // ========================================================================

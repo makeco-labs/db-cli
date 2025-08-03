@@ -1,4 +1,4 @@
-import z, {
+import {
   coerce,
   literal,
   object,
@@ -7,7 +7,6 @@ import z, {
   undefined as undefinedType,
   union,
 } from 'zod';
-import { checkPackage } from '../../utils';
 
 // Placeholder type for Gel database until it's available in drizzle-orm
 type GelDatabase<T extends Record<string, never> = Record<string, never>> = {
@@ -40,7 +39,7 @@ export const gelCredentials = union([
       literal('default'),
     ]).optional(),
   }).transform((o) => {
-    delete o.driver;
+    o.driver = undefined;
     return o as Omit<typeof o, 'driver'>;
   }),
   object({
@@ -56,13 +55,13 @@ export const gelCredentials = union([
     url: string;
     tlsSecurity?: 'insecure' | 'no_host_verification' | 'strict' | 'default';
   }>((o) => {
-    delete o.driver;
+    o.driver = undefined;
     return o;
   }),
   object({
     driver: undefinedType(),
-  }).transform<undefined>((o) => {
-    return;
+  }).transform<undefined>((_o) => {
+    return undefined;
   }),
 ]);
 

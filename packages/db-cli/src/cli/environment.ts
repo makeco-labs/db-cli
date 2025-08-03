@@ -1,7 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
 
 /**
  * Loads environment variables from .env file (required)

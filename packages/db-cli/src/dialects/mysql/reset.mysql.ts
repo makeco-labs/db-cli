@@ -1,7 +1,7 @@
 import type { ResetResult } from '@makeco/db-cli/types';
 import { sql } from 'drizzle-orm';
 import type { MysqlConnection } from './connection.mysql';
-import { getTableConstraints, getTables } from './utils.mysql';
+import { getTables } from './utils.mysql';
 
 /**
  * Resets MySQL database by dropping all user tables while preserving system tables

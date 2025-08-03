@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { SingleStoreConnection } from './connection.singlestore';
 
 // System tables that should not be dropped/truncated
-const SYSTEM_TABLES = ['information_schema', 'performance_schema', 'sys'];
+const _SYSTEM_TABLES = ['information_schema', 'performance_schema', 'sys'];
 
 // Migration/history tables to preserve
 const PRESERVED_TABLES = [

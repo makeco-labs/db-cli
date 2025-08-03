@@ -1,7 +1,7 @@
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
 
 // Use npx for universal compatibility
 

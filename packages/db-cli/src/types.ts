@@ -1,5 +1,5 @@
+import type { ConnectionOptions } from 'node:tls';
 import type { Config } from 'drizzle-kit';
-import type { ConnectionOptions } from 'tls';
 
 // Re-export the core types
 export type { Config } from 'drizzle-kit';

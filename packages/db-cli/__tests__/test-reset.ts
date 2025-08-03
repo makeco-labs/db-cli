@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
@@ -65,7 +65,7 @@ async function verifyTestData() {
   console.log('✅ Test data verified');
 }
 
-async function runReset() {
+function runReset() {
   console.log('🗑️  Running drizzle-kit-alt reset...');
 
   try {
@@ -79,8 +79,11 @@ async function runReset() {
     );
     console.log('Reset output:', output);
     console.log('✅ Reset command completed');
-  } catch (error: any) {
-    console.error('❌ Reset command failed:', error.message);
+  } catch (error: unknown) {
+    console.error(
+      '❌ Reset command failed:',
+      error instanceof Error ? error.message : String(error)
+    );
     throw error;
   }
 }

@@ -27,7 +27,7 @@ export async function getTables(connection: GelConnection): Promise<string[]> {
       .filter((table: string) => !PRESERVED_TABLES.includes(table));
 
     return tables;
-  } catch (error) {
+  } catch (_error) {
     // Fallback implementation if information_schema is not available
     console.warn('Could not query information_schema, using fallback method');
     // This would need to be implemented based on Gel's specific system catalog

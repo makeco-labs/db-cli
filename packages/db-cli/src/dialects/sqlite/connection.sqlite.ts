@@ -32,7 +32,7 @@ export const sqliteCredentials = union([
     driver: zUndefined(),
     url: string().min(1),
   }).transform<{ url: string }>((o) => {
-    delete o.driver;
+    o.driver = undefined;
     return o;
   }),
 ]);
