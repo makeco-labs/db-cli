@@ -1,4 +1,4 @@
-# DB CLI Tools
+# DB CLI Tool
 
 A powerful database management tool that extend drizzle-kit with additional commands for streamlined database workflows.
 
