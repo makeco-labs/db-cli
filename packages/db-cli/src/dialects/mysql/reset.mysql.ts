@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.mysql';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { MysqlConnection } from './types.mysql';
+import { getTables } from './utils.mysql';
 
 /**
  * Resets MySQL database by dropping all user tables while preserving system tables

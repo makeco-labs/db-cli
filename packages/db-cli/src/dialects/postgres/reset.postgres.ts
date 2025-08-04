@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { getSchemas, getTables } from './utils.postgres';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { PostgresConnection } from './types.postgres';
+import { getSchemas, getTables } from './utils.postgres';
 
 /**
  * Resets PostgreSQL database by dropping all user tables and schemas

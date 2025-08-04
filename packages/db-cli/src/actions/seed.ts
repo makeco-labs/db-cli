@@ -1,4 +1,4 @@
-import type { SeedResult } from '@/dialects/result.types';
+import type { Config } from 'drizzle-kit';
 import {
   isGelConfig,
   isMysqlConfig,
@@ -7,7 +7,7 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
-import type { Config } from 'drizzle-kit';
+import type { SeedResult } from '@/dialects/result.types';
 
 // ========================================================================
 // COORDINATOR FUNCTION
@@ -24,29 +24,21 @@ export async function seedDatabase(
 
   try {
     if (isPostgresConfig(config)) {
-      const { seedPostgresDatabase } = await import(
-        '@/dialects/postgres'
-      );
+      const { seedPostgresDatabase } = await import('@/dialects/postgres');
       return await seedPostgresDatabase(seedPath);
     }
 
     if (isSqliteConfig(config)) {
       if (isTursoConfig(config)) {
-        const { seedTursoDatabase } = await import(
-          '@/dialects/turso'
-        );
+        const { seedTursoDatabase } = await import('@/dialects/turso');
         return await seedTursoDatabase(seedPath);
       }
-      const { seedSQLiteDatabase } = await import(
-        '@/dialects/sqlite'
-      );
+      const { seedSQLiteDatabase } = await import('@/dialects/sqlite');
       return await seedSQLiteDatabase(seedPath);
     }
 
     if (isMysqlConfig(config)) {
-      const { seedMysqlDatabase } = await import(
-        '@/dialects/mysql'
-      );
+      const { seedMysqlDatabase } = await import('@/dialects/mysql');
       return await seedMysqlDatabase(seedPath);
     }
 

@@ -1,5 +1,5 @@
 {
-  "name": "db-cli-root",
+  "name": "@makeco/db-cli-root",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "ci": "bun run lint && bun run typecheck && bun run build && bun run test --run",
+    "format": "turbo run format",
+    "ci": "bun run typecheck && bun run build",
     "git": "bun run ci && git add . && git commit -m",
     "postgit": "git push --all"
   },

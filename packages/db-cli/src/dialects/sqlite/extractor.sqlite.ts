@@ -33,7 +33,6 @@ export function isSqliteConfigWithUrl(
   );
 }
 
-
 /**
  * Type guard for SQLite config with D1 HTTP driver
  */

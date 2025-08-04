@@ -2,10 +2,11 @@
 
 import chalk from 'chalk';
 import { Command, Option } from 'commander';
-
+import type { Config as DrizzleConfig } from 'drizzle-kit';
+import type { DbConfig } from '@/types';
 import {
-  executeHealth,
   executeCommand,
+  executeHealth,
   executeList,
   executeSeed,
   executeTruncate,
@@ -15,15 +16,12 @@ import {
   WORKFLOWS,
 } from '../actions';
 import { resolveConfigs } from '../utils/config';
+import type { ActionKey, CliOptions } from './definitions';
 // Import modules
 import { ACTIONS, VALID_ENVIRONMENTS } from './definitions';
+import { loadEnvironment } from './environment';
 import { determineAction, determineEnvironment } from './prompts';
 import { setupSignalHandlers } from './signals';
-import { loadEnvironment } from './environment';
-
-import type { DbConfig } from '@/types';
-import type { Config as DrizzleConfig } from 'drizzle-kit';
-import type { ActionKey, CliOptions } from './definitions';
 
 // ========================================================================
 // FUNCTION PARAMETER TYPES
@@ -46,7 +44,15 @@ setupSignalHandlers(); // Temporarily disabled to test double execution
  * Execute the chosen action
  */
 async function executeAction(input: ExecuteActionInput): Promise<void> {
-  const { action, drizzleConfigPath, drizzleConfig, envName, dbConfig, includeRowCounts, compact } = input;
+  const {
+    action,
+    drizzleConfigPath,
+    drizzleConfig,
+    envName,
+    dbConfig,
+    includeRowCounts,
+    compact,
+  } = input;
   switch (action) {
     case ACTIONS.GENERATE:
     case ACTIONS.MIGRATE:
@@ -138,21 +144,29 @@ program
   .option('--compact', 'Use compact output format')
   .action(async (actionInput: string | undefined, options: CliOptions) => {
     const { config: dbConfigPath, env, count, l, compact } = options;
-    
+
     // Check if this is a list-type action
     const isListAction = actionInput === 'list' || actionInput === 'ls';
-    
+
     // Validate that list-specific flags are only used with list/ls actions
     if ((count || l) && !isListAction) {
-      console.error(chalk.red('❌ The --count/-l flags can only be used with the "list" or "ls" actions'));
+      console.error(
+        chalk.red(
+          '❌ The --count/-l flags can only be used with the "list" or "ls" actions'
+        )
+      );
       process.exit(1);
     }
-    
+
     if (compact && !isListAction) {
-      console.error(chalk.red('❌ The --compact flag can only be used with the "list" or "ls" actions'));
+      console.error(
+        chalk.red(
+          '❌ The --compact flag can only be used with the "list" or "ls" actions'
+        )
+      );
       process.exit(1);
     }
-    
+
     // Combine count flags: -l is alias for --count
     const includeRowCounts = count || l;
 

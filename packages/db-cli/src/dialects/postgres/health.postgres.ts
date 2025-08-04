@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { formatPostgresVersion } from './utils.postgres';
-
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { PostgresConnection } from './types.postgres';
+import { formatPostgresVersion } from './utils.postgres';
 
 export type VersionResult = {
   rows: {
@@ -19,12 +17,14 @@ export async function checkPostgresConnection(
 ): Promise<HealthCheckResult> {
   try {
     // Get PostgreSQL version
-    const version = await connection.db.execute(
+    const version = (await connection.db.execute(
       sql`SELECT version() AS version`
-    ) as VersionResult;
+    )) as VersionResult;
 
     const versionString = version.rows[0]?.version;
-    const formattedVersion = versionString ? formatPostgresVersion(versionString) : undefined;
+    const formattedVersion = versionString
+      ? formatPostgresVersion(versionString)
+      : undefined;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);

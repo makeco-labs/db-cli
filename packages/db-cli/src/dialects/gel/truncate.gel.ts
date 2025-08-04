@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.gel';
-
 import type { TruncateResult } from '@/dialects/result.types';
 import type { GelConnection } from './types.gel';
+import { getTables } from './utils.gel';
 
 /**
  * Truncates Gel database by deleting all data from user tables while preserving table structure

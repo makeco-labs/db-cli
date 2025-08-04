@@ -1,10 +1,8 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
-
-import { onCancel } from './signals';
-import { ACTION_DESCRIPTIONS, VALID_ACTIONS } from './definitions';
-
 import type { ActionKey } from './definitions';
+import { ACTION_DESCRIPTIONS, VALID_ACTIONS } from './definitions';
+import { onCancel } from './signals';
 
 /**
  * Determines the environment to be used, either from input or via interactive prompt

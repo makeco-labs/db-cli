@@ -1,3 +1,4 @@
+import type { Config as DrizzleConfig } from 'drizzle-kit';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,9 +13,7 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
-
 import type { HealthCheckResult } from '@/dialects/result.types';
-import type { Config as DrizzleConfig } from 'drizzle-kit';
 
 // ========================================================================
 // COORDINATOR FUNCTION
@@ -23,9 +22,10 @@ import type { Config as DrizzleConfig } from 'drizzle-kit';
 /**
  * Checks database connection and health based on the dialect
  */
-export async function checkHealth(config: DrizzleConfig): Promise<HealthCheckResult> {
+export async function checkHealth(
+  config: DrizzleConfig
+): Promise<HealthCheckResult> {
   try {
-
     if (isPostgresConfig(config)) {
       const credentials = extractPostgresCredentials(config);
       const { preparePostgresDB, checkPostgresConnection } = await import(

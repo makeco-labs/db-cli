@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.turso';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { TursoConnection } from './types.turso';
+import { getTables } from './utils.turso';
 
 /**
  * Resets Turso database by dropping all user tables while preserving system tables

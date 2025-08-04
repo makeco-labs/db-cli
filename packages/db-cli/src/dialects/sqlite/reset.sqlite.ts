@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { getTables } from './utils.sqlite';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { SQLiteConnection } from './types.sqlite';
+import { getTables } from './utils.sqlite';
 
 /**
  * Resets SQLite database by dropping all user tables

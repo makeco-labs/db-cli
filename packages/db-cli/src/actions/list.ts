@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-
+import type { Config as DrizzleConfig } from 'drizzle-kit';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -14,8 +14,6 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
-
-import type { Config as DrizzleConfig } from 'drizzle-kit';
 import type { ListResult, TableInfo } from '@/dialects/result.types';
 
 // ========================================================================
@@ -56,14 +54,20 @@ function formatSchemaOutputCompact(schemas: {
     totalTables += tables.length;
 
     tables.forEach((tableInfo) => {
-      const rowCountDisplay = tableInfo.rowCount !== undefined ? ` ${formatRowCount(tableInfo.rowCount)} rows` : '';
+      const rowCountDisplay =
+        tableInfo.rowCount !== undefined
+          ? ` ${formatRowCount(tableInfo.rowCount)} rows`
+          : '';
       output += `${schemaName}.${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - `${schemaName}.${tableInfo.name}`.length)) + rowCountDisplay : ''}\n`;
       totalRows += tableInfo.rowCount || 0;
     });
   });
 
   // Add summary
-  const summaryParts = [`${schemaNames.length} schema${schemaNames.length !== 1 ? 's' : ''}`, `${totalTables} table${totalTables !== 1 ? 's' : ''}`];
+  const summaryParts = [
+    `${schemaNames.length} schema${schemaNames.length !== 1 ? 's' : ''}`,
+    `${totalTables} table${totalTables !== 1 ? 's' : ''}`,
+  ];
   if (totalRows > 0) {
     summaryParts.push(`${formatRowCount(totalRows)} rows`);
   }
@@ -84,13 +88,18 @@ function formatFlatOutputCompact(tables: TableInfo[]): string {
   let totalRows = 0;
 
   tables.forEach((tableInfo) => {
-    const rowCountDisplay = tableInfo.rowCount !== undefined ? ` ${formatRowCount(tableInfo.rowCount)} rows` : '';
+    const rowCountDisplay =
+      tableInfo.rowCount !== undefined
+        ? ` ${formatRowCount(tableInfo.rowCount)} rows`
+        : '';
     output += `${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - tableInfo.name.length)) + rowCountDisplay : ''}\n`;
     totalRows += tableInfo.rowCount || 0;
   });
 
   // Add summary
-  const summaryParts = [`${tables.length} table${tables.length !== 1 ? 's' : ''}`];
+  const summaryParts = [
+    `${tables.length} table${tables.length !== 1 ? 's' : ''}`,
+  ];
   if (totalRows > 0) {
     summaryParts.push(`${formatRowCount(totalRows)} rows`);
   }

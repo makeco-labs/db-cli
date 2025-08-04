@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { getTables } from './utils.singlestore';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { SingleStoreConnection } from './types.singlestore';
+import { getTables } from './utils.singlestore';
 
 /**
  * Resets SingleStore database by dropping all user tables while preserving system tables

@@ -1,9 +1,12 @@
-import type { GelConnection, GelConfig } from './dialects/gel';
-import type { MysqlConnection, MysqlConfig } from './dialects/mysql';
-import type { PostgresConnection, PostgresConfig } from './dialects/postgres';
+import type { GelConfig, GelConnection } from './dialects/gel';
+import type { MysqlConfig, MysqlConnection } from './dialects/mysql';
+import type { PostgresConfig, PostgresConnection } from './dialects/postgres';
+import type {
+  SingleStoreConfig,
+  SingleStoreConnection,
+} from './dialects/singlestore';
 import type { SQLiteConnection, SqliteConfig } from './dialects/sqlite';
-import type { SingleStoreConnection, SingleStoreConfig } from './dialects/singlestore';
-import type { TursoConnection, TursoConfig } from './dialects/turso';
+import type { TursoConfig, TursoConnection } from './dialects/turso';
 
 // ========================================================================
 // UTILITY TYPES

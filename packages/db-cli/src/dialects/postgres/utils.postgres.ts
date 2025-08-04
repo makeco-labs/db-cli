@@ -18,11 +18,12 @@ export const schemaAllowlist = ['information_schema', 'pg_catalog', 'pg_toast'];
 // ========================================================================
 
 // Regex for parsing PostgreSQL version strings
-const POSTGRES_VERSION_REGEX = /PostgreSQL (\d+\.\d+)(?:\.\d+)?\s*(?:on\s+([^,]+))?/;
+const POSTGRES_VERSION_REGEX =
+  /PostgreSQL (\d+\.\d+)(?:\.\d+)?\s*(?:on\s+([^,]+))?/;
 
 /**
  * Formats PostgreSQL version string for cleaner display
- * Example: "PostgreSQL 17.5 on aarch64-unknown-linux-musl, compiled by gcc..." 
+ * Example: "PostgreSQL 17.5 on aarch64-unknown-linux-musl, compiled by gcc..."
  * Becomes: "PostgreSQL 17.5 on aarch64-unknown-linux-musl"
  */
 export function formatPostgresVersion(version: string): string {
@@ -35,7 +36,7 @@ export function formatPostgresVersion(version: string): string {
     }
     return `PostgreSQL ${versionNum}`;
   }
-  
+
   // Fallback to truncated version if pattern doesn't match
   return version.length > 50 ? `${version.substring(0, 47)}...` : version;
 }
@@ -72,14 +73,17 @@ export async function getTableRowCount(
   try {
     const statement = sql`SELECT COUNT(*) as count FROM ${sql.identifier(schemaName)}.${sql.identifier(tableName)}`;
     const result = await connection.db.execute(statement);
-    
+
     // Handle different result formats from different drivers
     const rows = Array.isArray(result) ? result : result.rows || [result];
     const count = (rows as Array<{ count: string | number }>)[0]?.count;
-    
-    return typeof count === 'string' ? parseInt(count, 10) : (count || 0);
+
+    return typeof count === 'string' ? Number.parseInt(count, 10) : count || 0;
   } catch (error) {
-    console.warn(`Failed to get row count for ${schemaName}.${tableName}:`, error instanceof Error ? error.message : error);
+    console.warn(
+      `Failed to get row count for ${schemaName}.${tableName}:`,
+      error instanceof Error ? error.message : error
+    );
     return 0;
   }
 }

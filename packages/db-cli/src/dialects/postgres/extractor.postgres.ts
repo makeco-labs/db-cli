@@ -12,7 +12,9 @@ import type {
 // POSTGRES TYPE GUARDS
 // ========================================================================
 
-export function isPostgresConfig(config: DrizzleConfig): config is PostgresConfig {
+export function isPostgresConfig(
+  config: DrizzleConfig
+): config is PostgresConfig {
   return config.dialect === 'postgresql';
 }
 

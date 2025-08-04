@@ -4,7 +4,7 @@ import type { Config } from 'drizzle-kit';
 type GelDatabase<T extends Record<string, never> = Record<string, never>> = {
   _: 'GelDatabase';
   schema: T;
-  execute: (query: any) => Promise<any>;
+  execute: (query: unknown) => Promise<any>;
 };
 
 // ========================================================================
@@ -54,9 +54,7 @@ export interface GelUrlCredentials {
 /**
  * Basic Gel credentials (no connection details needed)
  */
-export interface GelBasicCredentials {
-  // No credentials needed for basic connection
-}
+export type GelBasicCredentials = Record<string, unknown>;
 
 /**
  * All Gel connection credentials (composable union)

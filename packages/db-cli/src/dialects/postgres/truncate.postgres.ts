@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { getSchemas, getTables, getTablesInSchemas } from './utils.postgres';
-
 import type { TruncateResult } from '@/dialects/result.types';
 import type { PostgresConnection } from './types.postgres';
+import { getSchemas, getTables, getTablesInSchemas } from './utils.postgres';
 
 /**
  * Truncates PostgreSQL database by deleting all data from user tables while preserving table structure

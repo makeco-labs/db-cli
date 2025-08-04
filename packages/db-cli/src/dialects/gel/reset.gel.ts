@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.gel';
-
 import type { ResetResult } from '@/dialects/result.types';
 import type { GelConnection } from './types.gel';
+import { getTables } from './utils.gel';
 
 /**
  * Resets Gel database by dropping all user tables while preserving system tables

@@ -28,7 +28,6 @@ export interface SqliteUrlCredentials {
   url: string;
 }
 
-
 /**
  * D1 HTTP credentials for Cloudflare D1
  */
@@ -42,9 +41,7 @@ export interface SqliteD1HttpCredentials {
 /**
  * All SQLite connection credentials (composable union)
  */
-export type SqliteCredentials =
-  | SqliteUrlCredentials
-  | SqliteD1HttpCredentials;
+export type SqliteCredentials = SqliteUrlCredentials | SqliteD1HttpCredentials;
 
 // ========================================================================
 // SQLITE DRIZZLE CONFIG TYPES
@@ -54,7 +51,6 @@ export type SqliteConfigWithUrl = Config & {
   dialect: 'sqlite';
   dbCredentials: SqliteUrlCredentials;
 };
-
 
 export type SqliteConfigD1Http = Config & {
   dialect: 'sqlite';

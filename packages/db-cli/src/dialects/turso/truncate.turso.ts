@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.turso';
-
 import type { TruncateResult } from '@/dialects/result.types';
 import type { TursoConnection } from './types.turso';
+import { getTables } from './utils.turso';
 
 /**
  * Truncates Turso database by deleting all data from user tables while preserving table structure

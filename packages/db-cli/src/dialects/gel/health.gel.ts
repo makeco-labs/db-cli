@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { formatGelVersion } from './utils.gel';
-
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { GelConnection } from './types.gel';
+import { formatGelVersion } from './utils.gel';
 
 /**
  * Checks Gel database connection
@@ -17,7 +15,9 @@ export async function checkGelConnection(
       sql`SELECT VERSION() AS version`
     );
     const versionString = (version[0]?.version as string) || 'Gel Database';
-    const formattedVersion = versionString ? formatGelVersion(versionString) : undefined;
+    const formattedVersion = versionString
+      ? formatGelVersion(versionString)
+      : undefined;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);

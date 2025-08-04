@@ -32,7 +32,6 @@ const safeRegister = async () => {
 // CONFIG DISCOVERY FUNCTIONS (moved from db-cli.ts)
 // ========================================================================
 
-
 /**
  * Discovers db config file in the current working directory
  */
@@ -54,11 +53,12 @@ export function discoverDbConfig(): string | null {
   return null;
 }
 
-
 /**
  * Loads and parses a drizzle config file
  */
-export async function loadDrizzleConfig(drizzleConfigPath: string): Promise<DrizzleConfig> {
+export async function loadDrizzleConfig(
+  drizzleConfigPath: string
+): Promise<DrizzleConfig> {
   try {
     const absolutePath = path.resolve(drizzleConfigPath);
 
@@ -94,9 +94,7 @@ export async function loadDrizzleConfig(drizzleConfigPath: string): Promise<Driz
 /**
  * Loads and parses a db config file
  */
-export async function loadDbConfig(
-  dbConfigPath: string
-): Promise<DbConfig> {
+export async function loadDbConfig(dbConfigPath: string): Promise<DbConfig> {
   try {
     const absolutePath = path.resolve(dbConfigPath);
 
@@ -149,14 +147,18 @@ export async function resolveConfigs(dbConfigPath?: string): Promise<{
     const discoveredDbConfig = discoverDbConfig();
     if (!discoveredDbConfig) {
       console.error('❌ Error: No db.config.ts file found.');
-      console.error('Expected files: db.config.ts, db.config.js, db.config.mjs, or db.config.cjs');
+      console.error(
+        'Expected files: db.config.ts, db.config.js, db.config.mjs, or db.config.cjs'
+      );
       console.error('Or specify a config file with --config flag');
       console.error('');
       console.error('Example db.config.ts:');
       console.error(`import { defineConfig } from '@/';`);
       console.error('export default defineConfig({');
       console.error(`  drizzleConfig: './drizzle.config.ts',`);
-      console.error(`  seed: './src/db/seed.ts'  // Optional: only needed for seed command`);
+      console.error(
+        `  seed: './src/db/seed.ts'  // Optional: only needed for seed command`
+      );
       console.error('});');
       process.exit(1);
     }
@@ -178,4 +180,3 @@ export async function resolveConfigs(dbConfigPath?: string): Promise<{
     drizzleConfigPath,
   };
 }
-

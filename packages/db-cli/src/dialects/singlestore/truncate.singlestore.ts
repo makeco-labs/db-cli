@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.singlestore';
-
 import type { TruncateResult } from '@/dialects/result.types';
 import type { SingleStoreConnection } from './types.singlestore';
+import { getTables } from './utils.singlestore';
 
 /**
  * Truncates SingleStore database by deleting all data from user tables while preserving table structure

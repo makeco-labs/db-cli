@@ -1,3 +1,4 @@
+import type { Config } from 'drizzle-kit';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -12,8 +13,6 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
-
-import type { Config } from 'drizzle-kit';
 import type { ResetResult } from '@/dialects/result.types';
 
 // ========================================================================
@@ -74,9 +73,7 @@ export async function resetDatabase(config: Config): Promise<ResetResult> {
 
     if (isGelConfig(config)) {
       const credentials = extractGelCredentials(config);
-      const { prepareGelDB, resetGelDatabase } = await import(
-        '@/dialects/gel'
-      );
+      const { prepareGelDB, resetGelDatabase } = await import('@/dialects/gel');
       const connection = await prepareGelDB(credentials);
       return await resetGelDatabase(connection);
     }

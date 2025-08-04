@@ -31,7 +31,11 @@
     "test": "vitest",
     "ci": "bun run lint && bun run typecheck && bun run build && bun run test --run",
     "git": "bun run ci && git add . && git commit -m",
-    "postgit": "git push --all"
+    "postgit": "git push --all",
+    "release": "bun run ci && bun ../../scripts/release.ts",
+    "release:minor": "bun run ci && bun ../../scripts/release.ts minor",
+    "release:patch": "bun run ci && bun ../../scripts/release.ts patch",
+    "release:dev": "bun run ci && bun ../../scripts/release.ts prerelease"
   },
   "bugs": {
     "url": "https://github.com/makeco-labs/db-cli/issues"

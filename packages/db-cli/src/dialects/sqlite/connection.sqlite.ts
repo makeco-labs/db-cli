@@ -1,9 +1,8 @@
 import fetch from 'node-fetch';
 
 import { checkPackage } from '../../utils';
-import { normalizeSQLiteUrl } from './utils.sqlite';
-
 import type { SQLiteConnection, SqliteCredentials } from './types.sqlite';
+import { normalizeSQLiteUrl } from './utils.sqlite';
 
 // ========================================================================
 // CREATE
@@ -73,7 +72,7 @@ export const connectToSQLite = async (
   }
 
   // Handle URL-based credentials with libsql
-  if ('url' in credentials && await checkPackage('@libsql/client')) {
+  if ('url' in credentials && (await checkPackage('@libsql/client'))) {
     const { createClient } = await import('@libsql/client');
     const { drizzle } = await import('drizzle-orm/libsql');
 
@@ -86,7 +85,7 @@ export const connectToSQLite = async (
   }
 
   // Fallback to better-sqlite3 for URL-based credentials
-  if ('url' in credentials && await checkPackage('better-sqlite3')) {
+  if ('url' in credentials && (await checkPackage('better-sqlite3'))) {
     const { default: Database } = await import('better-sqlite3');
     const { drizzle } = await import('drizzle-orm/better-sqlite3');
 
@@ -116,8 +115,6 @@ export const connectToLibSQL = async (credentials: {
     authToken: credentials.authToken,
   });
   const db = drizzle(client);
-
-  
 
   return { db };
 };

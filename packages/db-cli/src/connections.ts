@@ -1,4 +1,4 @@
-import type { DatabaseConnection } from '@/types';
+import type { Config } from 'drizzle-kit';
 import {
   extractGelCredentials,
   extractMysqlCredentials,
@@ -13,7 +13,7 @@ import {
   isSqliteConfig,
   isTursoConfig,
 } from '@/dialects';
-import type { Config } from 'drizzle-kit';
+import type { DatabaseConnection } from '@/types';
 
 /**
  * Creates a database connection based on the drizzle config using drizzle-kit patterns
@@ -23,9 +23,7 @@ export async function createConnection(
   config: Config
 ): Promise<DatabaseConnection> {
   if (isPostgresConfig(config)) {
-    const { preparePostgresDB } = await import(
-      '@/dialects/postgres'
-    );
+    const { preparePostgresDB } = await import('@/dialects/postgres');
     const credentials = extractPostgresCredentials(config);
     return await preparePostgresDB(credentials);
   }
@@ -48,9 +46,7 @@ export async function createConnection(
   }
 
   if (isSingleStoreConfig(config)) {
-    const { prepareSingleStoreDB } = await import(
-      '@/dialects/singlestore'
-    );
+    const { prepareSingleStoreDB } = await import('@/dialects/singlestore');
     const credentials = extractSingleStoreCredentials(config);
     return await prepareSingleStoreDB(credentials);
   }

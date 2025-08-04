@@ -51,7 +51,9 @@ export function isGelConfigWithUrl(
 /**
  * Type guard for basic Gel config
  */
-export function isGelConfigBasic(config: DrizzleConfig): config is GelConfigBasic {
+export function isGelConfigBasic(
+  config: DrizzleConfig
+): config is GelConfigBasic {
   return (
     config.dialect === 'gel' &&
     !('dbCredentials' in config && config.dbCredentials)

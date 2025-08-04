@@ -1,8 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { getTables } from './utils.mysql';
-
 import type { TruncateResult } from '@/dialects/result.types';
 import type { MysqlConnection } from './types.mysql';
+import { getTables } from './utils.mysql';
 
 /**
  * Truncates MySQL database by deleting all data from user tables while preserving table structure

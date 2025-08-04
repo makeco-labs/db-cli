@@ -1,9 +1,7 @@
 import { sql } from 'drizzle-orm';
-
-import { formatSingleStoreVersion } from './utils.singlestore';
-
 import type { HealthCheckResult } from '@/dialects/result.types';
 import type { SingleStoreConnection } from './types.singlestore';
+import { formatSingleStoreVersion } from './utils.singlestore';
 
 /**
  * Checks SingleStore database connection
@@ -17,7 +15,9 @@ export async function checkSingleStoreConnection(
       sql`SELECT VERSION() AS version`
     );
     const versionString = version[0][0]?.version as string;
-    const formattedVersion = versionString ? formatSingleStoreVersion(versionString) : undefined;
+    const formattedVersion = versionString
+      ? formatSingleStoreVersion(versionString)
+      : undefined;
 
     // Perform a simple health check query
     await connection.db.execute(sql`SELECT 1`);
