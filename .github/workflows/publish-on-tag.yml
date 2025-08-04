@@ -33,6 +33,7 @@ jobs:
       #   run: bun run lint
 
       - name: Build package
+        working-directory: packages/db-cli
         run: bun run build
 
       - name: Setup Node.js for npm publish
