@@ -1,7 +1,7 @@
 {
   "name": "@makeco/db-cli-sqlite-example",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"

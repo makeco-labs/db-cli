@@ -1,7 +1,7 @@
 {
   "name": "@makeco/db-cli-postgres-example",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"
