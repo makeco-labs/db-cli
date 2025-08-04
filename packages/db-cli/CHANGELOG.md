@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - Initial Release
+## [0.1.0] - Initial Release
 
 ### Core Features
 - Database connection management with support for PostgreSQL, SQLite, MySQL, Turso, SingleStore, and Gel
@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - **seed** - Seed database with initial data using custom seed files
 - **truncate** - Truncate database data while preserving table structure
 - **reset** - Clear database data (drop all tables and schemas)
-- **refresh** - Complete refresh workflow: drop migrations ’ generate ’ clear data ’ migrate
+- **refresh** - Complete refresh workflow: drop migrations ï¿½ generate ï¿½ clear data ï¿½ migrate
 
 ### Table Management
 - **list** - List database tables and schemas
