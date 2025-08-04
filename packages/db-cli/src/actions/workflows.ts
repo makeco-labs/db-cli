@@ -4,7 +4,6 @@ import { executeReset } from './reset';
 
 // Updated workflow definitions - drop vs reset distinction
 const WORKFLOWS = {
-  reset: ['reset'] as const, // Clear database data only (drop tables/schemas)
   refresh: ['drop', 'generate', 'reset', 'migrate'] as const, // Drop migrations, generate, clear data, migrate
 } as const;
 
@@ -23,6 +22,7 @@ export async function executeWorkflow(
     console.log(`\n📋 Step: ${step}`);
 
     if (step === 'reset') {
+      // biome-ignore lint/nursery/noAwaitInLoop: reset step is async and steps are chronological
       await executeReset(config);
     } else {
       executeCommand(step, configPath, envName);
@@ -35,10 +35,10 @@ export async function executeWorkflow(
 /**
  * Prompts for confirmation in production environment
  */
-export async function requireProductionConfirmation(
+export function requireProductionConfirmation(
   action: string,
   config: Config
-): Promise<void> {
+): void {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (!isProduction) {

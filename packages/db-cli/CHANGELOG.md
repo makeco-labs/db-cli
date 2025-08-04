@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1] - 2025-08-03
 
 - Removed private from package.json
+- Updated workflow to publish only this package and not include others
 
 ## [0.1.0] - 2025-08-03
 

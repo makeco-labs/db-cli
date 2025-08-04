@@ -49,19 +49,19 @@ function formatSchemaOutputCompact(schemas: {
   let totalTables = 0;
   let totalRows = 0;
 
-  schemaNames.forEach((schemaName) => {
+  for (const schemaName of schemaNames) {
     const tables = schemas[schemaName];
     totalTables += tables.length;
 
-    tables.forEach((tableInfo) => {
+    for (const tableInfo of tables) {
       const rowCountDisplay =
         tableInfo.rowCount !== undefined
           ? ` ${formatRowCount(tableInfo.rowCount)} rows`
           : '';
       output += `${schemaName}.${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - `${schemaName}.${tableInfo.name}`.length)) + rowCountDisplay : ''}\n`;
       totalRows += tableInfo.rowCount || 0;
-    });
-  });
+    }
+  }
 
   // Add summary
   const summaryParts = [
@@ -87,14 +87,14 @@ function formatFlatOutputCompact(tables: TableInfo[]): string {
   let output = '';
   let totalRows = 0;
 
-  tables.forEach((tableInfo) => {
+  for (const tableInfo of tables) {
     const rowCountDisplay =
       tableInfo.rowCount !== undefined
         ? ` ${formatRowCount(tableInfo.rowCount)} rows`
         : '';
     output += `${tableInfo.name}${rowCountDisplay ? ''.padEnd(Math.max(0, 20 - tableInfo.name.length)) + rowCountDisplay : ''}\n`;
     totalRows += tableInfo.rowCount || 0;
-  });
+  }
 
   // Add summary
   const summaryParts = [

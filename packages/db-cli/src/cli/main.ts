@@ -8,6 +8,7 @@ import {
   executeCommand,
   executeHealth,
   executeList,
+  executeReset,
   executeSeed,
   executeTruncate,
   executeWorkflow,
@@ -97,18 +98,13 @@ async function executeAction(input: ExecuteActionInput): Promise<void> {
 
     case ACTIONS.RESET:
       validateDrizzleKit();
-      await requireProductionConfirmation('reset', drizzleConfig);
-      await executeWorkflow(
-        WORKFLOWS.reset,
-        drizzleConfigPath,
-        drizzleConfig,
-        envName
-      );
+      requireProductionConfirmation('reset', drizzleConfig);
+      await executeReset(drizzleConfig);
       break;
 
     case ACTIONS.REFRESH:
       validateDrizzleKit();
-      await requireProductionConfirmation('refresh', drizzleConfig);
+      requireProductionConfirmation('refresh', drizzleConfig);
       await executeWorkflow(
         WORKFLOWS.refresh,
         drizzleConfigPath,
