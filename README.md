@@ -2,6 +2,10 @@
 
 A powerful database management tool that extend drizzle-kit with additional commands for streamlined database workflows.
 
+[![npm version](https://badge.fury.io/js/@makeco%2Fdb-cli.svg)](https://badge.fury.io/js/@makeco%2Fdb-cli)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Packages
 
 ### [@makeco/db-cli](./packages/db-cli)
