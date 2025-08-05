@@ -1,10 +1,11 @@
 {
-  "name": "@makeco/db-cli-postgres-example",
+  "name": "@demo/postgres",
   "version": "1.0.0",
   "private": false,
   "type": "module",
   "scripts": {
-    "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"
+    "db": "db -c ./db.config.ts",
+    "db1": "bunx @makeco/db-cli -c ./db.config.ts"
   },
   "dependencies": {
     "@makeco/db-cli": "workspace:*",

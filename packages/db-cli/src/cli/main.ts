@@ -232,15 +232,10 @@ Flags for list/ls commands:
 );
 
 // ------------------ EXECUTE COMMANDER ------------------
-// Only run CLI when this file is executed directly, not when imported
-if (import.meta.url === `file://${process.argv[1]}`) {
-  program.parseAsync(process.argv).catch((error) => {
-    console.error(
-      chalk.red(
-        'An unexpected error occurred outside the main action handler:'
-      ),
-      error
-    );
-    process.exit(1);
-  });
-}
+program.parseAsync(process.argv).catch((error) => {
+  console.error(
+    chalk.red('An unexpected error occurred outside the main action handler:'),
+    error
+  );
+  process.exit(1);
+});

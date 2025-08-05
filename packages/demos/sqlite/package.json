@@ -1,10 +1,11 @@
 {
-  "name": "@makeco/db-cli-sqlite-example",
+  "name": "@demo/sqlite",
   "version": "1.0.0",
   "private": false,
   "type": "module",
   "scripts": {
-    "db": "bun ../../db-cli/dist/cli/main.js -c ./db.config.ts"
+    "db": "db -c ./db.config.ts",
+    "db1": "bunx @makeco/db-cli -c ./db.config.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.15.10",
