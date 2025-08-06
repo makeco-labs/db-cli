@@ -1,3 +1,2 @@
-- [] Allow defining connection directly
-- [] Allow extending drizzle config with `extends: {drizzle: "filepath_to_drizzle.config"}` (? or should I focus on doing it one way only)
+- [] Allow extending drizzle config with `extends: {drizzleConfigPath: "filepath_to_drizzle.config"}` (? or should I focus on doing it one way only)
 - [] Remove drizzle-orm dependency and use raw connectors directly? Or keep?

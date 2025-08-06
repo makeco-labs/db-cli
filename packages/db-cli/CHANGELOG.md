@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-08-06
+
+### Fixes
+- Fixed async functions that didn't use await expressions (removed unnecessary async modifiers)
+- Fixed TypeScript build errors in list.preflight.ts by providing explicit boolean fallbacks
+- Fixed 'any' type usage in confirmation.ts with proper type guards
+- Updated import to use node:readline protocol for better Node.js compatibility
+- Fixed unused parameters by prefixing with underscore
+- Cleaned up code formatting and linting issues
+
+### Technical Improvements
+- Removed async/await from functions that only called synchronous operations
+- Enhanced type safety in production environment detection
+- Improved code organization and removed legacy imports
+
 ## [0.1.3] - 2025-08-05
 - chore: Version bump to trigger release
 
