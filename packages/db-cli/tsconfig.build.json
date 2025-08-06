@@ -12,6 +12,9 @@
     "**/*.spec.ts",
     "**/*.test.ts",
     "**/__tests__/**",
-    "test/"
+    "test/",
+    "src/_cli/",
+    "src/_actions/",
+    "src/_types.ts"
   ]
 }

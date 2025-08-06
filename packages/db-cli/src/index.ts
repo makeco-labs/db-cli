@@ -1,2 +1,2 @@
-// Export types and defineConfig function only (no CLI execution)
-export * from "./types";
+export * from '@/definitions';
+export { defineConfig } from '@/utils';

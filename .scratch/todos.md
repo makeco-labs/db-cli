@@ -1,5 +1,3 @@
-- [] Refactor to be written more like shadcn cli
-  - [] Notably the commands that wrap drizzle
 - [] Allow defining connection directly
 - [] Allow extending drizzle config with `extends: {drizzle: "filepath_to_drizzle.config"}` (? or should I focus on doing it one way only)
 - [] Remove drizzle-orm dependency and use raw connectors directly? Or keep?

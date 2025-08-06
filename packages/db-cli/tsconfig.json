@@ -26,5 +26,13 @@
     "./examples/**/*.ts",
     "./vitest.config.ts"
   ],
-  "exclude": ["dist", "build", "node_modules", "project-references/draft"]
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules",
+    "project-references/draft",
+    "./src/_cli/",
+    "./src/_actions/",
+    "./src/_types.ts"
+  ]
 }
