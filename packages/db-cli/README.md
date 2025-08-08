@@ -20,24 +20,43 @@ bun add @makeco/db-cli drizzle-kit
 
 ## Quick Start
 
-1. Define a `db.config.ts` file in your project.
-
-```ts
-import { defineConfig } from "@makeco/db-cli";
-
-export default defineConfig({
-	drizzleConfig: "./drizzle.config.ts",
-	seed: "./src/libs/db/seed.ts",
-});
-```
-
-2. Add a `db` script to your package.json scripts with the config flag:
+1. Add a `db` script to your package.json scripts with the config flag:
 
 ```json
 {
 	"scripts": {
 		"db": "bunx @makeco/db-cli -c ./db.config.ts"
 	}
+}
+```
+
+2. Define a `db.config.ts` file in your project.
+
+```ts
+import { defineConfig } from "@makeco/db-cli";
+
+export default defineConfig({
+	drizzleConfig: "./drizzle.config.ts",
+	seed: "./src/scripts/db.seed.ts",
+});
+```
+
+3. Add a `db.seed.ts` file
+
+Note: Your seed file should export a default function.
+
+```typescript
+// src/scripts/db.seed.ts
+import { drizzle } from "drizzle-orm/postgres-js";
+import { roles } from "../schemas";
+
+const db = drizzle(process.env.DATABASE_URL);
+
+export default async function seed() {
+	await db.insert(roles).values([
+		{ name: 'admin', permissions: ['read', 'write', 'delete'] },
+		{ name: 'user', permissions: ['read'] }
+	]);
 }
 ```
 
@@ -70,72 +89,12 @@ bun db list --count
 
 | Database    | Status      | Notes                                           |
 | ----------- | ----------- | ----------------------------------------------- |
-| PostgreSQL  | ✅ Tested   | Fully tested and working                        |
-| SQLite      | ✅ Tested   | Fully tested and working                        |
+| PostgreSQL  | ✅ Tested   | Manually tested and working                     |
+| SQLite      | ✅ Tested   | Manually tested and working                     |
 | MySQL       | ⚠️ Untested | Implementation exists but not officially tested |
 | Turso       | ⚠️ Untested | Implementation exists but not officially tested |
 | SingleStore | ⚠️ Untested | Implementation exists but not officially tested |
 | Gel         | ⚠️ Untested | Implementation exists but not officially tested |
-
-## Use Cases
-
-### Database Seeding
-
-Set up initial data for development or testing.
-
-Note: Your seed file should export a default function.
-
-```typescript
-// src/db/seed.ts
-import { db } from "./connection";
-import { users, posts } from "./schema";
-
-export default async function seed() {
-	console.log("🌱 Seeding PostgreSQL database...");
-
-	// Create database connection
-	const pool = new Pool({
-		connectionString: process.env.DATABASE_URL!,
-	});
-
-	const db = drizzle(pool, {
-		schema: { users, posts, comments },
-	});
-
-	// Clear existing data (optional)
-	await connection.delete(posts);
-	await connection.delete(users);
-
-	// Insert initial users
-	const [user1, user2] = await connection
-		.insert(users)
-		.values([
-			{ name: "John Doe", email: "john@example.com" },
-			{ name: "Jane Smith", email: "jane@example.com" },
-		])
-		.returning();
-
-	// Insert initial posts
-	await connection.insert(posts).values([
-		{
-			title: "Welcome Post",
-			content: "Welcome to our platform!",
-			authorId: user1.id,
-		},
-		{
-			title: "Getting Started",
-			content: "Here's how to get started...",
-			authorId: user2.id,
-		},
-	]);
-
-	console.log(`✅ Inserted ${insertedComments.length} comments`);
-	console.log("🎉 Database seeding completed successfully!");
-
-	// Close database connection
-	await pool.end();
-}
-```
 
 ## License
 
