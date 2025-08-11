@@ -16,7 +16,6 @@ export * from './find-env-directories';
 export * from './load-db-config';
 export * from './load-drizzle-config';
 export * from './load-env';
-export * from './load-env-file';
 // User preferences
 export * from './user-preferences';
 export * from './validate-drizzle';

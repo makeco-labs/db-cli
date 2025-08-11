@@ -1,5 +1,7 @@
 import { execSync } from 'node:child_process';
-import { loadEnvFile } from './load-env-file';
+import { loadEnvironment } from './load-env';
+
+import type { EnvironmentKey } from '@/definitions';
 
 /**
  * Executes a drizzle-kit command using Node.js dotenv instead of dotenv-cli
@@ -7,10 +9,12 @@ import { loadEnvFile } from './load-env-file';
 export function executeCommand(
   command: string,
   configPath: string,
-  envName: string
+  envName?: string
 ): void {
-  // Load environment variables using Node.js dotenv
-  loadEnvFile(envName);
+  // Load environment variables using sophisticated monorepo detection if envName provided
+  if (envName) {
+    loadEnvironment(envName as EnvironmentKey);
+  }
 
   const fullCommand = `npx drizzle-kit ${command} --config="${configPath}"`;
 

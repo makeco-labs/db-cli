@@ -4,7 +4,6 @@ import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface GenerateOptions {
   config?: string;
-  env?: EnvironmentKey;
 }
 
 export interface GeneratePreflightResult {
@@ -15,8 +14,8 @@ export interface GeneratePreflightResult {
 export async function runGeneratePreflight(
   options: GenerateOptions
 ): Promise<GeneratePreflightResult> {
-  // Determine environment
-  const chosenEnv = await determineEnvironment({ envInput: options.env });
+  // Determine environment (no CLI option, will use default or prompt)
+  const chosenEnv = await determineEnvironment({ envInput: undefined });
 
   // Load environment variables
   loadEnvironment(chosenEnv);
