@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 
 // ========================================================================
 // TYPESCRIPT COMPILATION UTILITIES
@@ -24,14 +25,7 @@ export const safeRegister = async () => {
 
 /**
  * Creates a CommonJS require function for loading TypeScript files
- * In bundled environments, this falls back to the global require
  */
-export function createRequireForTS() {
-  // In bundled CJS environments (like our esbuild output), require is available globally
-  if (typeof require !== 'undefined') {
-    return require;
-  }
-  
-  // This should not happen in our bundled CLI, but provide a helpful error
-  throw new Error('require function not available in current environment');
+export function createRequireForTS(): NodeRequire {
+  return createRequire(import.meta.url);
 }

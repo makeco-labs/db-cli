@@ -32,7 +32,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-const packageVersion = '0.1.8';
+const packageVersion = '0.1.9';
 
 function main() {
   const program = new Command()
