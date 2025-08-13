@@ -1,6 +1,6 @@
 {
   "name": "@makeco/db-cli",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "paulwongx",
   "repository": {
     "type": "git",
@@ -11,20 +11,19 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "db": "./dist/cli.cjs"
+    "db": "./dist/cli.js"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "require": "./dist/index.js"
     }
   },
   "scripts": {
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "bun clean && tsx build.ts && tsc -p tsconfig.build.json --emitDeclarationOnly && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.cjs",
-    "build:dev": "bun clean && tsx build.dev.ts && tsc -p tsconfig.build.json --emitDeclarationOnly && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.cjs",
+    "build": "bun clean && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.js",
     "dev": "tsc -p tsconfig.build.json --watch",
     "dev:typecheck": "bun typecheck --watch --preserveWatchOutput",
     "lint": "bunx ultracite@latest lint",
@@ -69,24 +68,15 @@
     "@aws-sdk/client-rds-data": "^3.556.0",
     "@cloudflare/workers-types": "^4.20230518.0",
     "@electric-sql/pglite": "^0.2.12",
-    "@libsql/client": "^0.15.10",
-    "@neondatabase/serverless": "^0.9.1",
-    "@planetscale/database": "^1.16.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.0.0",
     "@types/node-fetch": "^2.6.11",
     "@types/pg": "^8.10.7",
     "@types/prompts": "^2.4.9",
     "@types/ws": "^8.5.10",
-    "@vercel/postgres": "^0.8.0",
-    "better-sqlite3": "^11.9.1",
     "bun-types": "^0.6.6",
     "drizzle-kit": "^0.30.6",
     "gel": "^2.0.0",
-    "mysql2": "3.14.1",
-    "pg": "^8.11.5",
-    "postgres": "^3.4.4",
-    "esbuild": "^0.25.4",
     "@biomejs/biome": "^2.1.2",
     "ultracite": "latest",
     "tsc-alias": "^1.8.16",
@@ -104,7 +94,15 @@
     "node-fetch": "^3.3.2",
     "prompts": "^2.4.2",
     "tsx": "^4.20.3",
-    "ws": "^8.18.2"
+    "ws": "^8.18.2",
+    "pg": "^8.11.5",
+    "postgres": "^3.4.4",
+    "@vercel/postgres": "^0.8.0",
+    "@neondatabase/serverless": "^0.9.1",
+    "mysql2": "3.14.1",
+    "@planetscale/database": "^1.16.0",
+    "@libsql/client": "^0.15.10",
+    "better-sqlite3": "^11.9.1"
   },
   "peerDependencies": {
     "drizzle-kit": "*"
