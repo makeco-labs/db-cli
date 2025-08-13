@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2025-08-13
+
+### Fixed
+- **TypeScript Seed Files:** Fixed "Unknown file extension '.ts'" error when running seed command with TypeScript seed files
+- **Seed Command:** All database dialects (PostgreSQL, MySQL, SQLite, Turso, SingleStore, Gel) now properly support TypeScript seed files using esbuild-register loader
+
+### Enhanced
+- **Seed Execution:** Added proper TypeScript compilation support with automatic loader registration and cleanup
+- **File Validation:** Added file existence validation before attempting to execute seed files
+- **Error Handling:** Improved error messages and cleanup with proper try/finally blocks for loader unregistration
+
+### Technical
+- **Dependencies:** Updated drizzle-kit from ^0.30.6 to ^0.31.4
+- **CLI Versioning:** Refactored version management to dynamically import from package.json instead of hardcoded values
+
 ## [0.1.10] - 2025-08-13
 
 ### Added
