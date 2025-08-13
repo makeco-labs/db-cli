@@ -36,6 +36,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # References
 project-references
+project-references/*
+project-references/**
 
 # Databases
 *.db

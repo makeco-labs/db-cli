@@ -27,5 +27,10 @@ export const safeRegister = async () => {
  * Creates a CommonJS require function for loading TypeScript files
  */
 export function createRequireForTS(): NodeRequire {
-  return createRequire(import.meta.url);
+  // Handle both ESM and CJS environments
+  if (typeof import.meta !== 'undefined' && import.meta.url) {
+    return createRequire(import.meta.url);
+  }
+  // Fallback for CJS or bundled environments
+  return require || (globalThis as any).require || (() => { throw new Error('require not available'); });
 }

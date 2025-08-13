@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2025-08-13
+
+### Fixed
+- **Driver Resolution:** Fixed critical issue where database drivers weren't found when using `bunx @makeco/db-cli` in monorepos
+- **Bundling:** CLI now uses esbuild bundling with external driver dependencies, matching drizzle-kit's approach
+- **Monorepo Support:** Database drivers are now properly resolved from user's project node_modules, including parent directories
+
+### Technical
+- **Build System:** Migrated from TypeScript compilation to esbuild bundling for better dependency resolution
+- **External Dependencies:** Database drivers (pg, postgres, mysql2, etc.) are marked as external and resolved at runtime
+- **CLI Distribution:** Binary changed from `cli.js` to `cli.cjs` for better CommonJS compatibility
+- **Module Resolution:** Added proper support for Node.js module resolution algorithm in monorepo environments
+
+### Breaking Changes
+- **Binary Path:** CLI binary path changed from `./dist/cli.js` to `./dist/cli.cjs` (automatic for npm users)
+
 ## [0.1.6] - 2025-08-13
 
 ### Improved

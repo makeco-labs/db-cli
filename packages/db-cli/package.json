@@ -1,6 +1,6 @@
 {
   "name": "@makeco/db-cli",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "paulwongx",
   "repository": {
     "type": "git",
@@ -11,19 +11,20 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "db": "./dist/cli.js"
+    "db": "./dist/cli.cjs"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
   },
   "scripts": {
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "bun clean && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.js",
+    "build": "bun clean && tsx build.ts && tsc -p tsconfig.build.json --emitDeclarationOnly && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.cjs",
+    "build:dev": "bun clean && tsx build.dev.ts && tsc -p tsconfig.build.json --emitDeclarationOnly && tsc-alias -p tsconfig.build.json --resolve-full-paths && chmod +x dist/cli.cjs",
     "dev": "tsc -p tsconfig.build.json --watch",
     "dev:typecheck": "bun typecheck --watch --preserveWatchOutput",
     "lint": "bunx ultracite@latest lint",
@@ -85,6 +86,7 @@
     "mysql2": "3.14.1",
     "pg": "^8.11.5",
     "postgres": "^3.4.4",
+    "esbuild": "^0.25.4",
     "@biomejs/biome": "^2.1.2",
     "ultracite": "latest",
     "tsc-alias": "^1.8.16",
