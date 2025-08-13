@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command, Option } from 'commander';
+import { Command } from 'commander';
 
 // Import all commands from barrel export
 import {
@@ -32,7 +32,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-const packageVersion = '0.1.0';
+const packageVersion = '0.1.6';
 
 function main() {
   const program = new Command()
@@ -41,13 +41,7 @@ function main() {
       'A higher-level abstraction over drizzle-kit with additional database management commands'
     )
     .version(packageVersion, '-v, --version', 'display the version number')
-    .option('-c, --config <path>', 'Path to db.config.ts file')
-    .addOption(
-      new Option(
-        '-e, --env <name>',
-        'Environment to load (.env.{name})'
-      ).choices(['dev', 'test', 'staging', 'prod'])
-    );
+    .option('-c, --config <path>', 'Path to db.config.ts file');
 
   // Add all commands
   program

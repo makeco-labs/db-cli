@@ -6,7 +6,7 @@ import type { EnvironmentKey } from '@/definitions';
 import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface SeedOptions {
-  config?: string;
+  configPath?: string;
   env?: EnvironmentKey;
 }
 
@@ -26,7 +26,7 @@ export async function runSeedPreflight(
   loadEnvironment(chosenEnv);
 
   // Resolve configs
-  const { drizzleConfig, dbConfig } = await resolveConfigs(options.config);
+  const { drizzleConfig, dbConfig } = await resolveConfigs(options.configPath);
 
   // Validate seed path is provided
   if (!dbConfig.seed) {

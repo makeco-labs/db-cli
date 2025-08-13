@@ -1,31 +1,20 @@
-import { determineEnvironment } from '@/cli-prompts';
-import type { EnvironmentKey } from '@/definitions';
-import { loadEnvironment, resolveConfigs } from '@/utils';
+import { resolveConfigs } from "@/utils";
 
 export interface DropOptions {
-  config?: string;
-  env?: EnvironmentKey;
+	configPath?: string;
 }
 
 export interface DropPreflightResult {
-  drizzleConfigPath: string;
-  chosenEnv: EnvironmentKey;
+	drizzleConfigPath: string;
 }
 
 export async function runDropPreflight(
-  options: DropOptions
+	options: DropOptions
 ): Promise<DropPreflightResult> {
-  // Determine environment
-  const chosenEnv = await determineEnvironment({ envInput: options.env });
+	// Resolve configs
+	const { drizzleConfigPath } = await resolveConfigs(options.configPath);
 
-  // Load environment variables
-  loadEnvironment(chosenEnv);
-
-  // Resolve configs
-  const { drizzleConfigPath } = await resolveConfigs(options.config);
-
-  return {
-    drizzleConfigPath,
-    chosenEnv,
-  };
+	return {
+		drizzleConfigPath,
+	};
 }

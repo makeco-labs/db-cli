@@ -6,7 +6,7 @@ import type { EnvironmentKey } from '@/definitions';
 import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface ListOptions {
-  config?: string;
+  configPath?: string;
   env?: EnvironmentKey;
   count?: boolean;
   l?: boolean;
@@ -30,7 +30,7 @@ export async function runListPreflight(
   loadEnvironment(chosenEnv);
 
   // Resolve configs
-  const { drizzleConfig } = await resolveConfigs(options.config);
+  const { drizzleConfig } = await resolveConfigs(options.configPath);
 
   // Process list-specific options
   const includeRowCounts = options.count || options.l || false;

@@ -4,7 +4,7 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "db": "db -c ./db.config.ts",
+    "db": "../../db-cli/dist/cli.js -c ./db.config.ts",
     "db1": "bunx @makeco/db-cli -c ./db.config.ts"
   },
   "dependencies": {

@@ -1,18 +1,27 @@
 import chalk from 'chalk';
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 
+import { ENV_CHOICES } from '@/definitions';
 import { executeResetDatabase } from './reset.action';
 import { type ResetOptions, runResetPreflight } from './reset.preflight';
 
 export const reset = new Command()
   .name('reset')
   .description('Clear database data (drop all tables and schemas)')
-  .option('-c, --config <path>', 'Path to db.config.ts file')
-  .option('-e, --env <name>', 'Environment to load (.env.{name})')
-  .action(async (options: ResetOptions) => {
+  .addOption(
+    new Option('-e, --env <name>', 'Target environment').choices(ENV_CHOICES)
+  )
+  .action(async (options: ResetOptions, command) => {
     try {
+      // Get global config option from parent command
+      const globalOptions = command.parent?.opts() || {};
+      const configPath = globalOptions.config;
+      
       // Run preflight checks and setup
-      const { drizzleConfig, chosenEnv } = await runResetPreflight(options);
+      const { drizzleConfig, chosenEnv } = await runResetPreflight({
+        ...options,
+        configPath: configPath
+      });
 
       // Execute the action
       await executeResetDatabase(drizzleConfig, chosenEnv);

@@ -1,6 +1,7 @@
 import chalk from 'chalk';
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 
+import { ENV_CHOICES } from '@/definitions';
 import { executeListTables } from './list.action';
 import { type ListOptions, runListPreflight } from './list.preflight';
 
@@ -8,16 +9,24 @@ export const list = new Command()
   .name('list')
   .alias('ls')
   .description('List database tables and schemas')
-  .option('-c, --config <path>', 'Path to db.config.ts file')
-  .option('-e, --env <name>', 'Environment to load (.env.{name})')
+  .addOption(
+    new Option('-e, --env <name>', 'Target environment').choices(ENV_CHOICES)
+  )
   .option('--count', 'Include row counts for each table')
   .option('-l', 'Long format - include row counts (alias for --count)')
   .option('--compact', 'Use compact output format')
-  .action(async (options: ListOptions) => {
+  .action(async (options: ListOptions, command) => {
     try {
+      // Get global config option from parent command
+      const globalOptions = command.parent?.opts() || {};
+      const configPath = globalOptions.config;
+      
       // Run preflight checks and setup
       const { drizzleConfig, includeRowCounts, compact } =
-        await runListPreflight(options);
+        await runListPreflight({
+          ...options,
+          configPath: configPath
+        });
 
       // Execute the action
       await executeListTables(drizzleConfig, includeRowCounts, compact);

@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2025-08-13
+
+### Improved
+- **CLI Options:** Enhanced environment option validation with choices constraint for better UX
+- **CLI Options:** Removed duplicate global/local config option conflicts - config is now global-only
+- **CLI Options:** Standardized all environment options to use `.choices()` with immediate validation
+- **Developer Experience:** Clear error messages for invalid environment choices (e.g., 'production' vs 'prod')
+- **Help Text:** Environment options now display valid choices in help output
+
+### Fixed
+- **Commander.js:** Resolved option parsing conflicts between global and command-level config options
+- **Validation:** Environment flags now provide immediate feedback instead of failing later in execution
+- **Consistency:** All commands now follow the same option pattern - global config, local environment
+
+### Technical
+- **Architecture:** Moved config option to global scope, accessible via `command.parent.opts()`
+- **Validation:** Added `ENV_CHOICES` constant for reusable Commander.js validation
+- **Code Quality:** Renamed internal `config` properties to `configPath` for clarity
+
 ## [0.1.5] - 2025-08-11
 - fix: Updated env loading logic
 

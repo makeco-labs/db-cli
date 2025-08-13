@@ -6,7 +6,7 @@ import type { EnvironmentKey } from '@/definitions';
 import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface ResetOptions {
-  config?: string;
+  configPath?: string;
   env?: EnvironmentKey;
 }
 
@@ -25,7 +25,7 @@ export async function runResetPreflight(
   loadEnvironment(chosenEnv);
 
   // Resolve configs
-  const { drizzleConfig } = await resolveConfigs(options.config);
+  const { drizzleConfig } = await resolveConfigs(options.configPath);
 
   // Production confirmation
   await requireConfirmation({

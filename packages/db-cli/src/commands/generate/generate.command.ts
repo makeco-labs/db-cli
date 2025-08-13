@@ -10,11 +10,17 @@ import {
 export const generate = new Command()
 	.name("generate")
 	.description("Generate new migrations from schema changes")
-	.option("-c, --config <path>", "Path to db.config.ts file")
-	.action(async (options: GenerateOptions) => {
+	.action(async (options: GenerateOptions, command) => {
 		try {
+			// Get global config option from parent command
+			const globalOptions = command.parent?.opts() || {};
+			const configPath = globalOptions.config;
+			
 			// Run preflight checks and setup
-			const { drizzleConfigPath } = await runGeneratePreflight(options);
+			const { drizzleConfigPath } = await runGeneratePreflight({
+				...options,
+				configPath: configPath
+			});
 
 			// Execute the action (environment already loaded in preflight)
 			executeDrizzleCommand("generate", drizzleConfigPath);

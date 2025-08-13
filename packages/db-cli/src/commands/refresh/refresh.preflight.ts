@@ -6,7 +6,7 @@ import type { EnvironmentKey } from '@/definitions';
 import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface RefreshOptions {
-  config?: string;
+  configPath?: string;
   env?: EnvironmentKey;
 }
 
@@ -27,7 +27,7 @@ export async function runRefreshPreflight(
 
   // Resolve configs
   const { drizzleConfig, drizzleConfigPath } = await resolveConfigs(
-    options.config
+    options.configPath
   );
 
   // Production confirmation for this highly destructive operation

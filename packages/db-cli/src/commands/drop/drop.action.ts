@@ -1,4 +1,3 @@
-import type { EnvironmentKey } from '@/definitions';
 import { executeCommand, validateDrizzleKit } from '@/utils';
 
 // ========================================================================
@@ -11,11 +10,9 @@ import { executeCommand, validateDrizzleKit } from '@/utils';
 export function executeDrizzleCommand(
   command: string,
   configPath: string,
-  envName: EnvironmentKey
 ): void {
   // Validate drizzle-kit is available
   validateDrizzleKit();
 
-  // Execute the command
-  executeCommand(command, configPath, envName as string);
+  executeCommand(command, configPath);
 }

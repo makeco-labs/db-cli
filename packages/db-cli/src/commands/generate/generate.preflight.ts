@@ -1,30 +1,20 @@
-import { determineEnvironment } from '@/cli-prompts';
-import type { EnvironmentKey } from '@/definitions';
-import { loadEnvironment, resolveConfigs } from '@/utils';
+import { resolveConfigs } from "@/utils";
 
 export interface GenerateOptions {
-  config?: string;
+	configPath?: string;
 }
 
 export interface GeneratePreflightResult {
-  drizzleConfigPath: string;
-  chosenEnv: EnvironmentKey;
+	drizzleConfigPath: string;
 }
 
 export async function runGeneratePreflight(
-  options: GenerateOptions
+	options: GenerateOptions
 ): Promise<GeneratePreflightResult> {
-  // Determine environment (no CLI option, will use default or prompt)
-  const chosenEnv = await determineEnvironment({ envInput: undefined });
+	// Resolve configs
+	const { drizzleConfigPath } = await resolveConfigs(options.configPath);
 
-  // Load environment variables
-  loadEnvironment(chosenEnv);
-
-  // Resolve configs
-  const { drizzleConfigPath } = await resolveConfigs(options.config);
-
-  return {
-    drizzleConfigPath,
-    chosenEnv,
-  };
+	return {
+		drizzleConfigPath,
+	};
 }

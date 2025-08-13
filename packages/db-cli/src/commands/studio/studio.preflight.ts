@@ -3,7 +3,7 @@ import type { EnvironmentKey } from '@/definitions';
 import { loadEnvironment, resolveConfigs } from '@/utils';
 
 export interface StudioOptions {
-  config?: string;
+  configPath?: string;
   env?: EnvironmentKey;
 }
 
@@ -22,7 +22,7 @@ export async function runStudioPreflight(
   loadEnvironment(chosenEnv);
 
   // Resolve configs
-  const { drizzleConfigPath } = await resolveConfigs(options.config);
+  const { drizzleConfigPath } = await resolveConfigs(options.configPath);
 
   return {
     drizzleConfigPath,
