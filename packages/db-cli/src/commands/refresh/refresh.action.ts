@@ -37,7 +37,7 @@ export async function executeRefreshWorkflow(
         );
       }
     } else {
-      executeCommand(step, configPath, envName as string);
+      executeCommand(step, configPath);
     }
   }
 

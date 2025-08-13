@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] - 2025-08-13
+
+### Fixed
+- **Environment Loading:** Eliminated duplicate environment loading that occurred during command execution
+- **Performance:** Removed redundant `loadEnvironment()` calls in `executeCommand` utility function
+
+### Enhanced  
+- **Command Execution:** Environment variables are now loaded only once during the preflight phase, reducing unnecessary file system operations
+- **Console Output:** Removed duplicate environment loading messages for cleaner command output
+
+### Technical
+- **Refactoring:** Simplified `executeCommand` function by removing environment loading responsibility
+- **Architecture:** Environment loading is now centralized in command preflight phases where environment determination occurs
+- **Compatibility:** All existing commands (studio, migrate, push, pull, refresh, generate, drop) continue to work without changes
+
 ## [0.1.11] - 2025-08-13
 
 ### Fixed
