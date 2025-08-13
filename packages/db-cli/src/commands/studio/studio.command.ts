@@ -16,13 +16,12 @@ export const studio = new Command()
       // Get global config option from parent command
       const globalOptions = command.parent?.opts() || {};
       const configPath = globalOptions.config;
-      
+
       // Run preflight checks and setup
-      const { drizzleConfigPath, chosenEnv } =
-        await runStudioPreflight({
-          ...options,
-          configPath: configPath
-        });
+      const { drizzleConfigPath, chosenEnv } = await runStudioPreflight({
+        ...options,
+        configPath,
+      });
 
       // Execute the action
       executeStudioCommand('studio', drizzleConfigPath, chosenEnv);

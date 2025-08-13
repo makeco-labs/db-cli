@@ -1,6 +1,6 @@
 {
   "name": "@makeco/db-cli",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "author": "paulwongx",
   "repository": {
     "type": "git",
@@ -75,7 +75,7 @@
     "@types/prompts": "^2.4.9",
     "@types/ws": "^8.5.10",
     "bun-types": "^0.6.6",
-    "drizzle-kit": "^0.30.6",
+    "drizzle-kit": "^0.31.4",
     "gel": "^2.0.0",
     "@biomejs/biome": "^2.1.2",
     "ultracite": "latest",
@@ -83,7 +83,15 @@
     "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^3.2.4",
-    "zod": "^4.0.14"
+    "zod": "^4.0.14",
+    "pg": "^8.11.5",
+    "postgres": "^3.4.4",
+    "@vercel/postgres": "^0.8.0",
+    "@neondatabase/serverless": "^0.9.1",
+    "mysql2": "3.14.1",
+    "@planetscale/database": "^1.16.0",
+    "@libsql/client": "^0.15.10",
+    "better-sqlite3": "^11.9.1"
   },
   "dependencies": {
     "chalk": "^5.2.0",
@@ -94,15 +102,7 @@
     "node-fetch": "^3.3.2",
     "prompts": "^2.4.2",
     "tsx": "^4.20.3",
-    "ws": "^8.18.2",
-    "pg": "^8.11.5",
-    "postgres": "^3.4.4",
-    "@vercel/postgres": "^0.8.0",
-    "@neondatabase/serverless": "^0.9.1",
-    "mysql2": "3.14.1",
-    "@planetscale/database": "^1.16.0",
-    "@libsql/client": "^0.15.10",
-    "better-sqlite3": "^11.9.1"
+    "ws": "^8.18.2"
   },
   "peerDependencies": {
     "drizzle-kit": "*"

@@ -3,6 +3,7 @@ export * from './generate';
 export * from './health';
 export * from './list';
 export * from './migrate';
+export * from './pull';
 export * from './push';
 export * from './refresh';
 export * from './reset';

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] - 2025-08-13
+
+### Added
+- **Pull Command:** Added new `pull` command that uses `drizzle-kit pull` to pull database schema and generate TypeScript schema files
+- **Schema Introspection:** Pull command supports all database types and environments, following the same pattern as other CLI commands
+
+### Enhanced
+- **Help Documentation:** Updated CLI help text to include the new pull command description
+- **Command Coverage:** Now includes all standard drizzle-kit commands (generate, migrate, push, pull, studio, drop)
+
 ## [0.1.9] - 2025-08-13
 
 ### Fixed
@@ -10,7 +20,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.8] - 2025-08-13
 
 ### Fixed
-- **Driver Resolution:** Fixed critical issue where database drivers weren't found when using `bunx @makeco/db-cli` 
+- **Driver Resolution:** Fixed critical issue where database drivers weren't found when using `bunx @makeco/db-cli`
 - **Dependencies:** Moved database drivers from devDependencies to dependencies so they're available when CLI is installed globally
 
 ### Technical

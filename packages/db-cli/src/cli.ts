@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 
 // Import all commands from barrel export
@@ -9,6 +12,7 @@ import {
   health,
   list,
   migrate,
+  pull,
   push,
   refresh,
   reset,
@@ -32,7 +36,12 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-const packageVersion = '0.1.9';
+// Get version from package.json
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJsonPath = join(__dirname, '../package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+const packageVersion = packageJson.version;
 
 function main() {
   const program = new Command()
@@ -51,6 +60,7 @@ function main() {
     .addCommand(migrate)
     .addCommand(studio)
     .addCommand(push)
+    .addCommand(pull)
     .addCommand(drop)
     .addCommand(seed)
     .addCommand(truncate)
@@ -70,6 +80,7 @@ Commands:
   migrate  - Apply pending migrations to the database
   studio   - Launch Drizzle Studio web interface
   push     - Push schema changes directly to database (no migrations)
+  pull     - Pull database schema and generate TypeScript schema
   drop     - Drop migrations folder (drizzle-kit default behavior)
   seed     - Seed database with initial data (requires seed path in db.config.ts)
   truncate - Truncate database data while preserving table structure

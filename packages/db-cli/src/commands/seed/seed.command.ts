@@ -18,11 +18,11 @@ export const seed = new Command()
       // Get global config option from parent command
       const globalOptions = command.parent?.opts() || {};
       const configPath = globalOptions.config;
-      
+
       // Run preflight checks and setup
       const { drizzleConfig, seedPath } = await runSeedPreflight({
         ...options,
-        configPath: configPath
+        configPath,
       });
 
       // Execute the action

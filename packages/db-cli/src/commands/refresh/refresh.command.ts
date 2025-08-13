@@ -18,12 +18,12 @@ export const refresh = new Command()
       // Get global config option from parent command
       const globalOptions = command.parent?.opts() || {};
       const configPath = globalOptions.config;
-      
+
       // Run preflight checks and setup
       const { drizzleConfig, drizzleConfigPath, chosenEnv } =
         await runRefreshPreflight({
           ...options,
-          configPath: configPath
+          configPath,
         });
 
       // Execute the action
