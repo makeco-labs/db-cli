@@ -8,7 +8,6 @@
     "db1": "bunx @makeco/db-cli -c ./db.config.ts"
   },
   "dependencies": {
-    "@makeco/db-cli": "workspace:*",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.11.5"
   },

@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.10",
-    "@makeco/db-cli": "workspace:*",
     "drizzle-orm": "*"
   },
   "devDependencies": {

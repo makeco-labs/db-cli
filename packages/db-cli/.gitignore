@@ -31,6 +31,8 @@ thumbs.db
 .claude/
 .cursor/
 
+node_modules/
+
 
 # References
 references/
