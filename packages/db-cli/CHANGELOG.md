@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.13] - 2025-12-01
+
+### Fixed
+- **TimescaleDB Support:** Fixed `db refresh` failing on PostgreSQL databases with the TimescaleDB extension installed
+- **Extension Schemas:** The reset command no longer attempts to drop extension-owned schemas (TimescaleDB, PostGIS, etc.)
+
+### Technical
+- **Schema Filtering:** Added `schemaBlocklistPatterns` to filter out extension-owned schemas by pattern matching
+- **Supported Extensions:** TimescaleDB (`_timescaledb_*`, `timescaledb_*`), PostGIS (`postgis*`, `tiger`, `tiger_data`, `topology`)
+
 ## [0.1.12] - 2025-08-13
 
 ### Fixed

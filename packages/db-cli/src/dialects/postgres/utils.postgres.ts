@@ -13,6 +13,16 @@ export const tableAllowlist = [
 
 export const schemaAllowlist = ['information_schema', 'pg_catalog', 'pg_toast'];
 
+// Patterns for extension-owned schemas that should never be dropped
+export const schemaBlocklistPatterns = [
+  /^_timescaledb_/, // TimescaleDB internal schemas
+  /^timescaledb_/, // TimescaleDB public schemas
+  /^postgis/, // PostGIS schemas
+  /^tiger$/, // PostGIS TIGER geocoder
+  /^tiger_data$/, // PostGIS TIGER data
+  /^topology$/, // PostGIS topology
+];
+
 // ========================================================================
 // VERSION FORMATTING
 // ========================================================================
@@ -89,7 +99,14 @@ export async function getTableRowCount(
 }
 
 /**
- * Gets all user schemas (excluding system schemas)
+ * Checks if a schema is owned by an extension and should be excluded
+ */
+function isExtensionOwnedSchema(schema: string): boolean {
+  return schemaBlocklistPatterns.some((pattern) => pattern.test(schema));
+}
+
+/**
+ * Gets all user schemas (excluding system schemas and extension-owned schemas)
  */
 export async function getSchemas(
   connection: PostgresConnection
@@ -106,9 +123,16 @@ export async function getSchemas(
 
   return (schemas as Array<{ schema_name: string }>)
     .map((row) => row.schema_name)
-    .filter(
-      (schema) => !schemaAllowlist.includes(schema) && schema !== 'public'
-    );
+    .filter((schema) => {
+      if (schemaAllowlist.includes(schema) || schema === 'public') {
+        return false;
+      }
+      // Filter out extension-owned schemas
+      if (isExtensionOwnedSchema(schema)) {
+        return false;
+      }
+      return true;
+    });
 }
 
 /**

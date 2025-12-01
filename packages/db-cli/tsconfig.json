@@ -15,7 +15,6 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "rootDir": ".",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
